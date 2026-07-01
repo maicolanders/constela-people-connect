@@ -1,0 +1,21 @@
+# Angular
+.angular
+.nx
+
+# Node
+node_modules
+dist
+
+# Nx
+.nx
+
+# Nest
+.nest
+
+# VSCode
+.vscode
+
+
+# Environment variables
+.env
+.env.*

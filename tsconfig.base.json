@@ -13,7 +13,54 @@
     "lib": ["es2020", "dom"],
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
-    "paths": {}
+    "paths": {
+      "@censo/shared-data-access": ["./libs/shared/data-access/src/index.ts"],
+      "@censo/shared-util": ["./libs/shared/util/src/index.ts"],
+      "@censo/api-shared-data-access": [
+        "./libs/api/shared/data-access/src/index.ts"
+      ],
+      "@censo/api-shared-feature": ["./libs/api/shared/feature/src/index.ts"],
+      "@censo/api-shared-util": ["./libs/api/shared/util/src/index.ts"],
+      "@censo/api-auth-data-access": [
+        "./libs/api/auth/data-access/src/index.ts"
+      ],
+      "@censo/api-auth-feature": ["./libs/api/auth/feature/src/index.ts"],
+      "@censo/api-comunidad-data-access": [
+        "./libs/api/comunidad/data-access/src/index.ts"
+      ],
+      "@censo/api-comunidad-feature": [
+        "./libs/api/comunidad/feature/src/index.ts"
+      ],
+      "@censo/api-periodo-censal-data-access": [
+        "./libs/api/periodo-censal/data-access/src/index.ts"
+      ],
+      "@censo/api-periodo-censal-feature": [
+        "./libs/api/periodo-censal/feature/src/index.ts"
+      ],
+      "@censo/api-catalogo-data-access": [
+        "./libs/api/catalogo/data-access/src/index.ts"
+      ],
+      "@censo/api-catalogo-feature": [
+        "./libs/api/catalogo/feature/src/index.ts"
+      ],
+      "@censo/api-poblacion-data-access": [
+        "./libs/api/poblacion/data-access/src/index.ts"
+      ],
+      "@censo/api-poblacion-feature": [
+        "./libs/api/poblacion/feature/src/index.ts"
+      ],
+      "@censo/web-shared-data-access": [
+        "./libs/web/shared/data-access/src/index.ts"
+      ],
+      "@censo/web-shared-feature": ["./libs/web/shared/feature/src/index.ts"],
+      "@censo/web-shared-ui": ["./libs/web/shared/ui/src/index.ts"],
+      "@censo/web-poblacion-data-access": [
+        "./libs/web/poblacion/data-access/src/index.ts"
+      ],
+      "@censo/web-poblacion-feature": [
+        "./libs/web/poblacion/feature/src/index.ts"
+      ]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

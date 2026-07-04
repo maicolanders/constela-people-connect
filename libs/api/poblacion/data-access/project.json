@@ -1,0 +1,16 @@
+{
+  "name": "api-poblacion-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/poblacion/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:api", "type:data-access", "domain:poblacion"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/api/poblacion/data-access/jest.config.cts"
+      }
+    }
+  }
+}

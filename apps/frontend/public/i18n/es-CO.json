@@ -1,0 +1,49 @@
+{
+  "shell": {
+    "title": "Censo Poblacional Indígena",
+    "logout": "Cerrar sesión",
+    "online": "En línea",
+    "offline": "Sin conexión"
+  },
+  "auth": {
+    "loginTitle": "Iniciar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "loginSubmit": "Ingresar",
+    "loggingIn": "Ingresando...",
+    "loginError": "Correo o contraseña incorrectos"
+  },
+  "poblacion": {
+    "habitantesTitulo": "Habitantes",
+    "nuevoHogar": "Nuevo hogar",
+    "nuevoHogarTitulo": "Registrar hogar",
+    "nuevoHabitanteTitulo": "Registrar habitante",
+    "direccionReferencia": "Dirección de referencia",
+    "consentimientoInformado": "Cuenta con consentimiento informado del hogar/habitante",
+    "nombres": "Nombres",
+    "apellidos": "Apellidos",
+    "tipoDocumento": "Tipo de documento",
+    "numeroDocumento": "Número de documento",
+    "fechaNacimiento": "Fecha de nacimiento",
+    "sexo": "Sexo",
+    "sexoValor": {
+      "M": "Masculino",
+      "F": "Femenino"
+    },
+    "parentesco": "Parentesco con el jefe de hogar",
+    "crearHogar": "Crear hogar",
+    "guardarHabitante": "Guardar habitante",
+    "guardando": "Guardando...",
+    "cargando": "Cargando...",
+    "totalActivos": "Total de habitantes activos",
+    "sinHabitantes": "Todavía no hay habitantes registrados en esta comunidad",
+    "sinComunidadAsignada": "Su usuario no tiene una comunidad asignada",
+    "sinPeriodoAbierto": "No hay un periodo censal abierto para registrar información",
+    "hogarNoEncontrado": "No se encontró el hogar indicado",
+    "errorGuardarHogar": "No se pudo guardar el hogar",
+    "errorGuardarHabitante": "No se pudo guardar el habitante",
+    "posibleDuplicadoTitulo": "Posible duplicado: revise antes de continuar",
+    "confirmarNoDuplicado": "Confirmar que no es duplicado",
+    "cancelar": "Cancelar"
+  }
+}

@@ -1,0 +1,33 @@
+<div class="mx-auto max-w-2xl p-4">
+  <div class="mb-4 flex items-center justify-between">
+    <h1 class="text-lg font-semibold text-slate-900">{{ 'poblacion.habitantesTitulo' | translate }}</h1>
+    <a
+      routerLink="/poblacion/hogares/nuevo"
+      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white"
+    >
+      {{ 'poblacion.nuevoHogar' | translate }}
+    </a>
+  </div>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else if (sinComunidad()) {
+    <p class="text-sm text-red-600">{{ 'poblacion.sinComunidadAsignada' | translate }}</p>
+  } @else {
+    <p class="mb-4 text-sm text-slate-600">
+      {{ 'poblacion.totalActivos' | translate }}:
+      <span class="font-semibold text-slate-900">{{ total() ?? '—' }}</span>
+    </p>
+
+    <ul class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+      @for (habitante of habitantes(); track habitante.uuid) {
+        <li class="flex items-center justify-between px-4 py-3 text-sm">
+          <span class="text-slate-900">{{ habitante.nombres }} {{ habitante.apellidos }}</span>
+          <span class="text-slate-500">{{ habitante.estado }}</span>
+        </li>
+      } @empty {
+        <li class="px-4 py-3 text-sm text-slate-500">{{ 'poblacion.sinHabitantes' | translate }}</li>
+      }
+    </ul>
+  }
+</div>

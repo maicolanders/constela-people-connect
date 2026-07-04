@@ -1,0 +1,10 @@
+<span
+  class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium"
+  [class.bg-emerald-100]="syncService.enLinea()"
+  [class.text-emerald-700]="syncService.enLinea()"
+  [class.bg-amber-100]="!syncService.enLinea()"
+  [class.text-amber-800]="!syncService.enLinea()"
+>
+  <span class="h-1.5 w-1.5 rounded-full" [class.bg-emerald-500]="syncService.enLinea()" [class.bg-amber-500]="!syncService.enLinea()"></span>
+  {{ (syncService.enLinea() ? 'shell.online' : 'shell.offline') | translate }}
+</span>

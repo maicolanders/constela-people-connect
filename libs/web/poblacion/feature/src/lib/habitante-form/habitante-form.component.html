@@ -1,0 +1,129 @@
+<div class="mx-auto max-w-lg p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'poblacion.nuevoHabitanteTitulo' | translate }}</h1>
+
+  @if (candidatosDuplicado(); as candidatos) {
+    <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
+      <p class="mb-2 text-sm font-medium text-amber-900">{{ 'poblacion.posibleDuplicadoTitulo' | translate }}</p>
+      <ul class="mb-3 space-y-1 text-sm text-amber-800">
+        @for (candidato of candidatos; track candidato.uuid) {
+          <li>{{ candidato.nombres }} {{ candidato.apellidos }} — {{ (candidato.score * 100).toFixed(0) }}%</li>
+        }
+      </ul>
+      <div class="flex gap-2">
+        <button
+          type="button"
+          class="rounded bg-amber-600 px-3 py-1.5 text-sm font-medium text-white"
+          (click)="confirmarNoEsDuplicado()"
+        >
+          {{ 'poblacion.confirmarNoDuplicado' | translate }}
+        </button>
+        <button
+          type="button"
+          class="rounded border border-amber-300 px-3 py-1.5 text-sm text-amber-900"
+          (click)="cancelarDuplicado()"
+        >
+          {{ 'poblacion.cancelar' | translate }}
+        </button>
+      </div>
+    </div>
+  }
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="nombres">{{ 'poblacion.nombres' | translate }}</label>
+    <input
+      id="nombres"
+      type="text"
+      formControlName="nombres"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    />
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="apellidos">{{ 'poblacion.apellidos' | translate }}</label>
+    <input
+      id="apellidos"
+      type="text"
+      formControlName="apellidos"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    />
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="tipoDocumentoId">
+      {{ 'poblacion.tipoDocumento' | translate }}
+    </label>
+    <select
+      id="tipoDocumentoId"
+      formControlName="tipoDocumentoId"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    >
+      <option [value]="null">—</option>
+      @for (tipo of tiposDocumento(); track tipo.id) {
+        <option [value]="tipo.id">{{ tipo.nombre }}</option>
+      }
+    </select>
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="numeroDocumento">
+      {{ 'poblacion.numeroDocumento' | translate }}
+    </label>
+    <input
+      id="numeroDocumento"
+      type="text"
+      formControlName="numeroDocumento"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    />
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="fechaNacimiento">
+      {{ 'poblacion.fechaNacimiento' | translate }}
+    </label>
+    <input
+      id="fechaNacimiento"
+      type="date"
+      formControlName="fechaNacimiento"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    />
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="sexo">{{ 'poblacion.sexo' | translate }}</label>
+    <select
+      id="sexo"
+      formControlName="sexo"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    >
+      <option value="">—</option>
+      @for (sexo of sexos; track sexo) {
+        <option [value]="sexo">{{ 'poblacion.sexoValor.' + sexo | translate }}</option>
+      }
+    </select>
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="parentescoCatalogoItemId">
+      {{ 'poblacion.parentesco' | translate }}
+    </label>
+    <select
+      id="parentescoCatalogoItemId"
+      formControlName="parentescoCatalogoItemId"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    >
+      <option [value]="null">—</option>
+      @for (parentesco of parentescos(); track parentesco.id) {
+        <option [value]="parentesco.id">{{ parentesco.nombre }}</option>
+      }
+    </select>
+
+    <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" formControlName="consentimientoInformado" class="h-4 w-4 rounded border-slate-300" />
+      {{ 'poblacion.consentimientoInformado' | translate }}
+    </label>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      {{ (guardando() ? 'poblacion.guardando' : 'poblacion.guardarHabitante') | translate }}
+    </button>
+  </form>
+</div>

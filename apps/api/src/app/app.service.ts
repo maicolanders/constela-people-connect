@@ -1,8 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
+export interface EstadoServicio {
+  estado: 'ok';
+  servicio: string;
+}
+
 @Injectable()
 export class AppService {
-  getData(): { message: string } {
-    return { message: 'Hello API' };
+  getEstado(): EstadoServicio {
+    return { estado: 'ok', servicio: 'censo-indigena-api' };
   }
 }

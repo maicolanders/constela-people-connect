@@ -4,7 +4,7 @@
   "projectType": "application",
   "prefix": "app",
   "sourceRoot": "apps/frontend/src",
-  "tags": [],
+  "tags": ["scope:web", "type:app"],
   "targets": {
     "build": {
       "executor": "@angular-devkit/build-angular:browser",
@@ -37,7 +37,9 @@
               "maximumError": "8kb"
             }
           ],
-          "outputHashing": "all"
+          "outputHashing": "all",
+          "serviceWorker": true,
+          "ngswConfigPath": "apps/frontend/ngsw-config.json"
         },
         "development": {
           "buildOptimizer": false,
@@ -89,60 +91,6 @@
       "options": {
         "buildTarget": "frontend:build",
         "spa": true
-      }
-    },
-    "server": {
-      "dependsOn": ["build"],
-      "executor": "@angular-devkit/build-angular:server",
-      "defaultConfiguration": "production",
-      "options": {
-        "outputPath": "dist/apps/frontend/server",
-        "main": "apps/frontend/src/server.ts",
-        "tsConfig": "apps/frontend/tsconfig.server.json"
-      },
-      "configurations": {
-        "production": {
-          "outputHashing": "media"
-        },
-        "development": {
-          "buildOptimizer": false,
-          "optimization": false,
-          "sourceMap": true,
-          "extractLicenses": false,
-          "vendorChunk": true
-        }
-      }
-    },
-    "serve-ssr": {
-      "continuous": true,
-      "executor": "@angular-devkit/build-angular:ssr-dev-server",
-      "defaultConfiguration": "development",
-      "configurations": {
-        "development": {
-          "browserTarget": "frontend:build:development",
-          "serverTarget": "frontend:server:development"
-        },
-        "production": {
-          "browserTarget": "frontend:build:production",
-          "serverTarget": "frontend:server:production"
-        }
-      }
-    },
-    "prerender": {
-      "executor": "@angular-devkit/build-angular:prerender",
-      "defaultConfiguration": "production",
-      "options": {
-        "routes": ["/"]
-      },
-      "configurations": {
-        "development": {
-          "browserTarget": "frontend:build:development",
-          "serverTarget": "frontend:server:development"
-        },
-        "production": {
-          "browserTarget": "frontend:build:production",
-          "serverTarget": "frontend:server:production"
-        }
       }
     }
   }

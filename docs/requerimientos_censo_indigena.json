@@ -1,0 +1,645 @@
+{
+    "proyecto": {
+        "nombre": "Sistema de Censo Poblacional Indígena Multi-Comunidad",
+        "objetivo_general": "Cuantificar, caracterizar y proyectar información poblacional de múltiples comunidades indígenas para apoyar la planeación, asignación de recursos y seguimiento estadístico en el tiempo.",
+        "alcance": "Aplicación web (con soporte de captura offline en campo) para registro, consulta, análisis y reporte de información censal de comunidades indígenas, dirigida a censistas, líderes comunitarios y entidades gubernamentales.",
+        "version_documento": "0.1 - borrador en construcción"
+    },
+    "stack_tecnologico": {
+        "frontend": "Angular",
+        "backend": "NestJS",
+        "base_datos": "PostgreSQL",
+        "consideraciones": [
+            "Se recomienda extensión PostGIS en PostgreSQL para datos de georreferenciación (coordenadas, polígonos de resguardos/territorios).",
+            "Angular como PWA con almacenamiento local (IndexedDB vía librería como Dexie o RxDB) para soportar captura offline en campo. La PWA se considera suficiente para el trabajo de campo; no se requiere app móvil nativa.",
+            "NestJS expone API REST (o GraphQL si se decide) con módulos separados por dominio (población, vivienda, educación, economía, migración, recursos).",
+            "Autenticación basada en JWT con refresh tokens; control de acceso por roles (RBAC) y posiblemente por comunidad (multi-tenant lógico).",
+            "Uso de triggers/auditoría en PostgreSQL o interceptores NestJS para trazabilidad de cambios (created_by, updated_by, timestamps, soft delete)."
+        ]
+    },
+    "integraciones_futuras": {
+        "descripcion": "No se contemplan integraciones en el alcance inicial, ya que las entidades oficiales no ofrecen acceso público a sus bases de datos. La arquitectura debe diseñarse de forma desacoplada (capa de servicios/adaptadores en NestJS) para facilitar integraciones futuras sin reescritura mayor.",
+        "integraciones_potenciales": [
+            {
+                "id": "INT-01",
+                "nombre": "Entidades estadísticas/gubernamentales nacionales",
+                "descripcion": "Integración futura con bases de datos oficiales (ej. registro civil, entidad estadística nacional tipo DANE) cuando estas habiliten acceso. No se desarrolla en la fase inicial."
+            },
+            {
+                "id": "INT-02",
+                "nombre": "Comunidades indígenas (catálogos de etnias/lenguas)",
+                "descripcion": "Posibilidad futura de que cada comunidad participe en la administración/validación de sus propios catálogos de etnia y lengua, actualmente centralizados en el equipo del proyecto."
+            }
+        ]
+    },
+    "roles_usuario": [
+        {
+            "rol": "Censista de campo",
+            "descripcion": "Realiza el levantamiento de información directamente en las comunidades, incluso sin conexión a internet.",
+            "permisos_clave": [
+                "Crear/editar registros de habitantes y hogares",
+                "Sincronizar datos offline",
+                "Adjuntar evidencia (fotos, firmas de consentimiento)"
+            ]
+        },
+        {
+            "rol": "Líder comunitario / autoridad indígena",
+            "descripcion": "Valida y autoriza la información recolectada en su comunidad.",
+            "permisos_clave": [
+                "Consultar datos de su comunidad",
+                "Aprobar/objetar registros",
+                "Ver reportes agregados de su comunidad"
+            ]
+        },
+        {
+            "rol": "Analista / entidad gubernamental",
+            "descripcion": "Consume información agregada para toma de decisiones y asignación de presupuesto.",
+            "permisos_clave": [
+                "Consultar dashboards y reportes",
+                "Exportar datos agregados/anonimizados",
+                "Comparar series históricas entre comunidades"
+            ]
+        },
+        {
+            "rol": "Administrador del sistema",
+            "descripcion": "Gestiona usuarios, roles, comunidades, parámetros y periodos censales.",
+            "permisos_clave": [
+                "CRUD de usuarios y roles",
+                "Configurar periodos de censo",
+                "Gestionar catálogos (etnias, lenguas, tipos de vivienda, etc.)",
+                "Auditar accesos y cambios"
+            ]
+        }
+    ],
+    "modulos": [
+        {
+            "id": "MOD-01",
+            "nombre": "Registro Poblacional",
+            "objetivo_negocio": "Contar la población: registrar el número total de habitantes.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-01-01",
+                    "titulo": "Registrar habitante",
+                    "descripcion": "El sistema debe permitir registrar un nuevo habitante con datos básicos: nombres, apellidos, tipo y número de documento (o identificador comunitario si no posee documento oficial), fecha de nacimiento, sexo, comunidad de pertenencia y hogar/núcleo familiar asociado.",
+                    "criterios_aceptacion": [
+                        "El sistema permite guardar un habitante sin número de documento oficial, generando un identificador interno único.",
+                        "El sistema valida que no exista un duplicado por documento dentro de la misma comunidad.",
+                        "El registro queda asociado a un hogar/núcleo familiar."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "hogar",
+                        "comunidad"
+                    ]
+                },
+                {
+                    "id": "RF-01-02",
+                    "titulo": "Editar y dar de baja habitante",
+                    "descripcion": "El sistema debe permitir editar los datos de un habitante existente y marcarlo como inactivo (fallecido, trasladado, no localizado) sin eliminar físicamente el registro (soft delete), conservando historial.",
+                    "criterios_aceptacion": [
+                        "El sistema conserva el historial de cambios (quién, cuándo, qué campo).",
+                        "Un habitante dado de baja no se contabiliza en el total poblacional vigente pero sí en reportes históricos."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "auditoria"
+                    ]
+                },
+                {
+                    "id": "RF-01-03",
+                    "titulo": "Gestión de hogares/núcleos familiares",
+                    "descripcion": "El sistema debe permitir crear hogares, asociar habitantes a un hogar y definir el jefe de hogar y parentescos.",
+                    "criterios_aceptacion": [
+                        "Un habitante pertenece a un único hogar vigente.",
+                        "El sistema permite registrar el tipo de parentesco con el jefe de hogar."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "hogar",
+                        "habitante",
+                        "parentesco"
+                    ]
+                },
+                {
+                    "id": "RF-01-04",
+                    "titulo": "Conteo total de población",
+                    "descripcion": "El sistema debe calcular y mostrar el número total de habitantes activos, filtrable por comunidad, periodo censal y región.",
+                    "criterios_aceptacion": [
+                        "El total se actualiza en tiempo real (o casi real) al registrar/dar de baja habitantes.",
+                        "El usuario puede filtrar el conteo por comunidad, municipio/departamento y rango de fechas del censo."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "comunidad",
+                        "periodo_censal"
+                    ]
+                },
+                {
+                    "id": "RF-01-05",
+                    "titulo": "Detección de duplicados",
+                    "descripcion": "El sistema debe alertar al censista cuando intente registrar un habitante con datos similares (nombre, fecha de nacimiento, comunidad) a uno ya existente.",
+                    "criterios_aceptacion": [
+                        "El sistema muestra advertencia de posible duplicado antes de confirmar el guardado.",
+                        "El censista puede confirmar que no es duplicado y continuar, quedando registrada la decisión."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-02",
+            "nombre": "Demografía",
+            "objetivo_negocio": "Conocer la demografía: identificar la estructura por sexo y edad.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-02-01",
+                    "titulo": "Captura de sexo y edad",
+                    "descripcion": "El sistema debe capturar sexo biológico y, si el protocolo de la comunidad lo define, identidad de género, además de fecha de nacimiento o edad estimada cuando no se conoce la fecha exacta.",
+                    "criterios_aceptacion": [
+                        "El sistema permite registrar 'edad estimada' con una marca de aproximación cuando no hay fecha de nacimiento exacta.",
+                        "El campo de identidad de género es configurable/activable según parametrización."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante"
+                    ]
+                },
+                {
+                    "id": "RF-02-02",
+                    "titulo": "Pirámide poblacional",
+                    "descripcion": "El sistema debe generar una pirámide poblacional (por grupos quinquenales de edad y sexo) filtrable por comunidad y periodo censal.",
+                    "criterios_aceptacion": [
+                        "La pirámide se genera dinámicamente a partir de datos vigentes.",
+                        "Se puede exportar como imagen o datos."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "comunidad"
+                    ]
+                },
+                {
+                    "id": "RF-02-03",
+                    "titulo": "Indicadores demográficos",
+                    "descripcion": "El sistema debe calcular indicadores como razón de dependencia, índice de envejecimiento y tasa de natalidad/mortalidad aparente (a partir de altas/bajas) por comunidad y periodo.",
+                    "criterios_aceptacion": [
+                        "Los indicadores se recalculan al cerrar un periodo censal.",
+                        "Los indicadores son comparables entre comunidades."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "periodo_censal"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-03",
+            "nombre": "Georreferenciación",
+            "objetivo_negocio": "Ubicar geográficamente: saber exactamente dónde vive la población.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-03-01",
+                    "titulo": "Registro de ubicación jerárquica",
+                    "descripcion": "El sistema debe permitir asociar cada hogar a una jerarquía geográfica: país, departamento/estado, municipio, resguardo/territorio indígena, vereda/comunidad.",
+                    "criterios_aceptacion": [
+                        "La jerarquía se gestiona mediante catálogos configurables por el administrador.",
+                        "Un hogar pertenece a un único nodo geográfico de menor nivel."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "hogar",
+                        "ubicacion_geografica"
+                    ]
+                },
+                {
+                    "id": "RF-03-02",
+                    "titulo": "Captura de coordenadas GPS",
+                    "descripcion": "El sistema debe permitir capturar coordenadas GPS del hogar/vivienda desde el dispositivo móvil del censista, incluso sin conexión, sincronizando posteriormente.",
+                    "criterios_aceptacion": [
+                        "Las coordenadas se almacenan con precisión y marca de tiempo de captura.",
+                        "Se usa PostGIS (point geometry) para almacenamiento y consultas espaciales."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "hogar",
+                        "ubicacion_geografica"
+                    ]
+                },
+                {
+                    "id": "RF-03-03",
+                    "titulo": "Visualización en mapa",
+                    "descripcion": "El sistema debe mostrar en un mapa interactivo la ubicación de hogares/comunidades, con capas filtrables (densidad poblacional, acceso a servicios, etc.).",
+                    "criterios_aceptacion": [
+                        "El mapa permite zoom, filtrado por comunidad y capas temáticas.",
+                        "El mapa funciona con datos agregados para preservar privacidad cuando el rol no tiene permiso de ver datos individuales."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "hogar",
+                        "ubicacion_geografica"
+                    ]
+                },
+                {
+                    "id": "RF-03-04",
+                    "titulo": "Clasificación rural/urbana",
+                    "descripcion": "El sistema debe permitir clasificar cada ubicación como rural o urbana, y por tipo de territorio (resguardo, parcialidad, territorio ancestral, etc.).",
+                    "criterios_aceptacion": [
+                        "El campo de clasificación es obligatorio al registrar la ubicación de un hogar."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "ubicacion_geografica"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-04",
+            "nombre": "Vivienda y Servicios Básicos",
+            "objetivo_negocio": "Evaluar la vivienda: medir el acceso a servicios básicos.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-04-01",
+                    "titulo": "Caracterización de la vivienda",
+                    "descripcion": "El sistema debe registrar tipo de vivienda, materiales predominantes (paredes, piso, techo) y número de habitaciones/dormitorios.",
+                    "criterios_aceptacion": [
+                        "Los catálogos de materiales y tipo de vivienda son configurables.",
+                        "El sistema calcula hacinamiento (habitantes por dormitorio) automáticamente."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "vivienda",
+                        "hogar"
+                    ]
+                },
+                {
+                    "id": "RF-04-02",
+                    "titulo": "Acceso a servicios básicos",
+                    "descripcion": "El sistema debe registrar acceso y fuente de agua potable, tipo de saneamiento/disposición de excretas, fuente de energía eléctrica, manejo de residuos sólidos y conectividad (telefonía/internet).",
+                    "criterios_aceptacion": [
+                        "Cada servicio se registra con estado (sí/no/parcial) y fuente o tipo.",
+                        "El sistema calcula indicador de Necesidades Básicas Insatisfechas (NBI) o similar, configurable."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "vivienda"
+                    ]
+                },
+                {
+                    "id": "RF-04-03",
+                    "titulo": "Reportes de cobertura de servicios",
+                    "descripcion": "El sistema debe generar reportes de porcentaje de cobertura de cada servicio básico por comunidad y región.",
+                    "criterios_aceptacion": [
+                        "El reporte es exportable (CSV/Excel/PDF).",
+                        "Permite comparación entre periodos censales."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "vivienda",
+                        "comunidad"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-05",
+            "nombre": "Educación",
+            "objetivo_negocio": "Medir la educación: conocer los niveles de alfabetismo y estudio.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-05-01",
+                    "titulo": "Registro de nivel educativo",
+                    "descripcion": "El sistema debe registrar, por habitante, condición de alfabetismo, último nivel educativo alcanzado, asistencia escolar actual y lengua(s) que habla (incluyendo lengua materna indígena).",
+                    "criterios_aceptacion": [
+                        "El catálogo de niveles educativos es configurable y adaptable al sistema educativo local.",
+                        "El sistema permite registrar más de una lengua hablada por habitante."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "educacion",
+                        "lengua"
+                    ]
+                },
+                {
+                    "id": "RF-05-02",
+                    "titulo": "Indicadores educativos",
+                    "descripcion": "El sistema debe calcular tasa de alfabetismo, tasa de asistencia escolar y distribución por nivel educativo, por comunidad, sexo y grupo de edad.",
+                    "criterios_aceptacion": [
+                        "Los indicadores se generan en un dashboard filtrable.",
+                        "Los indicadores se pueden exportar."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "educacion"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-06",
+            "nombre": "Economía y Ocupación",
+            "objetivo_negocio": "Analizar la economía: identificar la ocupación y desempleo actual.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-06-01",
+                    "titulo": "Registro de ocupación",
+                    "descripcion": "El sistema debe registrar la condición de actividad económica del habitante (ocupado, desempleado, inactivo, estudiante, labores del hogar), tipo de ocupación y, cuando aplique, actividades económicas tradicionales propias de la comunidad (artesanía, agricultura de subsistencia, pesca, etc.).",
+                    "criterios_aceptacion": [
+                        "El catálogo de ocupaciones incluye actividades tradicionales/no formales.",
+                        "El campo de ingreso es opcional y configurable como sensible (acceso restringido)."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "ocupacion"
+                    ]
+                },
+                {
+                    "id": "RF-06-02",
+                    "titulo": "Indicadores de empleo",
+                    "descripcion": "El sistema debe calcular tasa de desempleo y distribución ocupacional por comunidad, sexo y grupo de edad.",
+                    "criterios_aceptacion": [
+                        "Los indicadores siguen una definición configurable (ej. población económicamente activa)."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "ocupacion"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-07",
+            "nombre": "Migración",
+            "objetivo_negocio": "Registrar la migración: rastrear el movimiento interno y externo.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-07-01",
+                    "titulo": "Registro de movimiento migratorio",
+                    "descripcion": "El sistema debe permitir registrar eventos de migración de un habitante: tipo (interna o externa), origen, destino, fecha y motivo (laboral, educativo, desplazamiento forzado, reunificación familiar, etc.).",
+                    "criterios_aceptacion": [
+                        "Un habitante puede tener múltiples eventos migratorios en su historial.",
+                        "El sistema distingue entre migración temporal y definitiva."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "migracion",
+                        "ubicacion_geografica"
+                    ]
+                },
+                {
+                    "id": "RF-07-02",
+                    "titulo": "Reportes de flujos migratorios",
+                    "descripcion": "El sistema debe generar reportes de flujos de entrada/salida por comunidad y periodo, incluyendo saldo migratorio neto.",
+                    "criterios_aceptacion": [
+                        "El reporte se puede visualizar en mapa con flechas de origen-destino.",
+                        "El reporte permite filtrar por motivo de migración."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "migracion",
+                        "comunidad"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-08",
+            "nombre": "Identificación Étnica y Vulnerabilidad",
+            "objetivo_negocio": "Identificar minorías: cuantificar grupos étnicos y vulnerables.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-08-01",
+                    "titulo": "Registro de pertenencia étnica",
+                    "descripcion": "El sistema debe registrar el pueblo/etnia de pertenencia del habitante, lengua indígena materna y, si aplica, resguardo o territorio asociado.",
+                    "criterios_aceptacion": [
+                        "El catálogo de pueblos/etnias es administrable.",
+                        "Este dato se trata como información sensible con control de acceso reforzado."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "etnia"
+                    ]
+                },
+                {
+                    "id": "RF-08-02",
+                    "titulo": "Registro de condiciones de vulnerabilidad",
+                    "descripcion": "El sistema debe registrar condiciones de vulnerabilidad: discapacidad (tipo), víctima de conflicto armado, adulto mayor sin red de apoyo, mujer gestante/lactante, niñez en riesgo, entre otras configurables.",
+                    "criterios_aceptacion": [
+                        "Un habitante puede tener múltiples condiciones de vulnerabilidad simultáneas.",
+                        "El sistema permite generar listados priorizados para atención (ej. para programas sociales)."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "condicion_vulnerabilidad"
+                    ]
+                },
+                {
+                    "id": "RF-08-03",
+                    "titulo": "Reportes de caracterización étnica",
+                    "descripcion": "El sistema debe generar reportes de número de habitantes por pueblo/etnia y por condición de vulnerabilidad, a nivel comunidad, región y consolidado nacional.",
+                    "criterios_aceptacion": [
+                        "Los reportes respetan reglas de anonimización cuando el grupo es muy pequeño (para evitar identificación indirecta)."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "habitante",
+                        "etnia",
+                        "condicion_vulnerabilidad"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-09",
+            "nombre": "Asignación de Recursos",
+            "objetivo_negocio": "Asignar recursos: determinar presupuestos gubernamentales por región.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-09-01",
+                    "titulo": "Panel de indicadores para asignación presupuestal",
+                    "descripcion": "El sistema debe consolidar indicadores clave (población total, NBI, cobertura educativa, vulnerabilidad) por comunidad y región, para apoyar la priorización presupuestal.",
+                    "criterios_aceptacion": [
+                        "El panel permite ordenar/comparar comunidades por indicador.",
+                        "El panel es exportable a formatos usados por entidades gubernamentales (CSV/Excel/PDF)."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "comunidad",
+                        "indicadores_agregados"
+                    ]
+                },
+                {
+                    "id": "RF-09-02",
+                    "titulo": "Registro de asignaciones presupuestales",
+                    "descripcion": "El sistema debe permitir registrar y consultar el presupuesto asignado por región/comunidad y periodo, para trazabilidad y posterior análisis de impacto frente a los indicadores censales.",
+                    "criterios_aceptacion": [
+                        "El registro de presupuesto queda vinculado a un periodo censal y comunidad/región.",
+                        "Solo roles autorizados (analista/administrador) pueden registrar o modificar esta información."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "presupuesto",
+                        "comunidad",
+                        "periodo_censal"
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "MOD-10",
+            "nombre": "Actualización de Estadísticas y Periodos Censales",
+            "objetivo_negocio": "Actualizar estadísticas: renovar las muestras para encuestas posteriores.",
+            "requerimientos_funcionales": [
+                {
+                    "id": "RF-10-01",
+                    "titulo": "Gestión de periodos censales",
+                    "descripcion": "El sistema debe permitir crear, abrir y cerrar periodos censales (ej. censo 2026), de modo que cada registro quede asociado a un periodo y se conserve el histórico de versiones.",
+                    "criterios_aceptacion": [
+                        "Al cerrar un periodo, los datos quedan congelados como histórico y no editables salvo por administrador con justificación.",
+                        "Se puede iniciar un nuevo periodo censal partiendo de la base poblacional vigente (para actualización, no recaptura total)."
+                    ],
+                    "prioridad": "Alta",
+                    "entidades_relacionadas": [
+                        "periodo_censal"
+                    ]
+                },
+                {
+                    "id": "RF-10-02",
+                    "titulo": "Comparación histórica entre periodos",
+                    "descripcion": "El sistema debe permitir comparar indicadores entre distintos periodos censales (crecimiento poblacional, variación de cobertura de servicios, etc.).",
+                    "criterios_aceptacion": [
+                        "La comparación se muestra en gráficos de series de tiempo.",
+                        "Permite seleccionar dos o más periodos para comparar."
+                    ],
+                    "prioridad": "Media",
+                    "entidades_relacionadas": [
+                        "periodo_censal",
+                        "indicadores_agregados"
+                    ]
+                },
+                {
+                    "id": "RF-10-03",
+                    "titulo": "Programación de actualizaciones/reencuestas",
+                    "descripcion": "El sistema debe permitir programar y notificar fechas de actualización censal o reencuestas muestrales por comunidad.",
+                    "criterios_aceptacion": [
+                        "El sistema envía notificación (in-app o correo) a censistas y administradores cuando se aproxima una fecha programada."
+                    ],
+                    "prioridad": "Baja",
+                    "entidades_relacionadas": [
+                        "periodo_censal",
+                        "notificacion"
+                    ]
+                }
+            ]
+        }
+    ],
+    "requerimientos_no_funcionales": [
+        {
+            "id": "RNF-01",
+            "categoria": "Disponibilidad offline",
+            "descripcion": "La aplicación Angular debe funcionar como PWA, con un modo de funcionamiento fuera de línea (offline) opcional/activable para captura de datos sin conexión a internet, almacenando localmente (IndexedDB) y sincronizando con el backend NestJS cuando haya conectividad. Se confirma que la PWA es suficiente para el trabajo de campo; no se contempla desarrollo de app móvil nativa.",
+            "prioridad": "Alta"
+        },
+        {
+            "id": "RNF-02",
+            "categoria": "Seguridad y protección de datos sensibles",
+            "descripcion": "Los datos de etnia, salud/discapacidad, ubicación exacta e ingresos se consideran sensibles. Deben cifrarse en tránsito (HTTPS/TLS) y en reposo cuando aplique, con control de acceso granular por rol y por campo.",
+            "prioridad": "Alta"
+        },
+        {
+            "id": "RNF-03",
+            "categoria": "Consentimiento informado y normatividad de protección de datos",
+            "descripcion": "El sistema debe registrar evidencia de consentimiento informado del habitante u hogar para el tratamiento de sus datos personales, dando cumplimiento a la normatividad colombiana de protección de datos personales (Ley 1581 de 2012 y su decreto reglamentario 1377 de 2013, junto con la Ley Estatutaria 1266 de 2008 de Habeas Data). Debe contemplarse el tratamiento especial de datos sensibles (origen étnico, salud/discapacidad) conforme al artículo 5 de la Ley 1581 de 2012, incluyendo finalidad explícita del tratamiento, derechos ARCO (acceso, rectificación, cancelación, oposición) y política de retención/eliminación de datos.",
+            "prioridad": "Alta"
+        },
+        {
+            "id": "RNF-04",
+            "categoria": "Auditoría y trazabilidad",
+            "descripcion": "Todo registro debe mantener trazabilidad de creación/modificación (usuario, fecha, valor anterior/nuevo), implementada vía interceptores en NestJS y/o triggers en PostgreSQL.",
+            "prioridad": "Alta"
+        },
+        {
+            "id": "RNF-05",
+            "categoria": "Escalabilidad",
+            "descripcion": "La arquitectura backend (NestJS modular) y la base de datos (PostgreSQL) deben soportar el crecimiento en número de comunidades, habitantes y periodos censales sin degradación significativa de rendimiento. Dimensionamiento de referencia: aproximadamente 1,9 millones de personas autorreconocidas como indígenas en Colombia, agrupadas en 115 pueblos originarios (cerca del 4,4% de la población nacional), distribuidas entre territorios colectivos/resguardos y centros urbanos. El sistema debe diseñarse para escalar de forma incremental por comunidad (no requiere soportar la totalidad de comunidades del país desde el primer despliegue), considerando particionamiento/índices adecuados en PostgreSQL a medida que crece el volumen de habitantes y periodos censales históricos.",
+            "prioridad": "Media"
+        },
+        {
+            "id": "RNF-06",
+            "categoria": "Multilingüismo",
+            "descripcion": "La interfaz Angular debe soportar internacionalización (i18n), priorizando español y dejando preparada la estructura para incluir lenguas indígenas según necesidad de cada comunidad.",
+            "prioridad": "Media"
+        },
+        {
+            "id": "RNF-07",
+            "categoria": "Usabilidad en campo",
+            "descripcion": "La interfaz debe ser utilizable en dispositivos móviles de gama media/baja, con formularios optimizados para captura rápida y baja necesidad de digitación (listas, selección, autocompletado).",
+            "prioridad": "Alta"
+        },
+        {
+            "id": "RNF-08",
+            "categoria": "Interoperabilidad / Exportación",
+            "descripcion": "El sistema debe permitir exportar datos agregados en formatos estándar (CSV, Excel, JSON, PDF) para su uso por entidades gubernamentales externas.",
+            "prioridad": "Media"
+        },
+        {
+            "id": "RNF-09",
+            "categoria": "Rendimiento de reportes/dashboards",
+            "descripcion": "Los dashboards y reportes agregados deben responder en tiempos aceptables (objetivo referencial: menor a 3 segundos) incluso con grandes volúmenes de datos, considerando uso de vistas materializadas en PostgreSQL.",
+            "prioridad": "Media"
+        },
+        {
+            "id": "RNF-10",
+            "categoria": "Disponibilidad del servicio",
+            "descripcion": "El backend NestJS debe definir un objetivo de disponibilidad (SLA) acorde al uso institucional, con estrategia de respaldo y recuperación ante fallos para la base de datos PostgreSQL.",
+            "prioridad": "Media"
+        }
+    ],
+    "requerimientos_transversales": [
+        {
+            "id": "RT-01",
+            "titulo": "Gestión de roles y permisos (RBAC)",
+            "descripcion": "El sistema debe implementar control de acceso basado en roles, con posibilidad de restringir acceso por comunidad (ej. un censista solo ve/edita su comunidad asignada)."
+        },
+        {
+            "id": "RT-02",
+            "titulo": "Gestión de catálogos maestros",
+            "descripcion": "El sistema debe permitir administrar catálogos configurables: etnias, lenguas, niveles educativos, ocupaciones, tipos de vivienda, condiciones de vulnerabilidad, jerarquía geográfica. En la fase inicial, la definición y administración de los catálogos de etnias/lenguas es responsabilidad exclusiva del equipo del proyecto (rol Administrador); el diseño debe dejar abierta la posibilidad de habilitar en el futuro un flujo de propuesta/validación por parte de cada comunidad (ver INT-02)."
+        },
+        {
+            "id": "RT-03",
+            "titulo": "Sincronización de datos offline-online",
+            "descripcion": "El sistema debe resolver conflictos de sincronización (ej. mismo registro editado en dos dispositivos) con una estrategia clara (última escritura gana, o resolución manual)."
+        },
+        {
+            "id": "RT-04",
+            "titulo": "Adjuntos y evidencia",
+            "descripcion": "El sistema debe permitir adjuntar evidencia fotográfica o documentos (ej. consentimiento firmado, foto de vivienda) asociados a hogar/habitante."
+        },
+        {
+            "id": "RT-05",
+            "titulo": "Anonimización para reportes públicos",
+            "descripcion": "El sistema debe aplicar reglas de anonimización/agregación mínima cuando se generan reportes públicos o se exportan datos para terceros, evitando identificación indirecta de individuos en comunidades pequeñas."
+        }
+    ],
+    "preguntas_pendientes_para_siguiente_iteracion": [],
+    "notas_levantamiento": [
+        "Las 5 preguntas abiertas de la iteración anterior fueron resueltas por el cliente el 2026-06-30. Sus respuestas quedaron incorporadas en: integraciones_futuras, RT-02 (catálogos), RNF-01 (PWA/offline), RNF-03 (normatividad colombiana) y RNF-05 (dimensionamiento de escala).",
+        "Con esta iteración se da por cerrada la fase de levantamiento de alto nivel. Siguientes pasos sugeridos: modelo de datos (entidades/tablas PostgreSQL) y especificación de endpoints de la API NestJS."
+    ]
+}

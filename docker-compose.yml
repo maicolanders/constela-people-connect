@@ -1,0 +1,20 @@
+services:
+  db:
+    image: postgis/postgis:16-3.4
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-censo_indigena}
+      POSTGRES_USER: ${DB_USER:-censo}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-censo}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - censo_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-censo} -d ${DB_NAME:-censo_indigena}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  censo_db_data:

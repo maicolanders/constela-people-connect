@@ -12,10 +12,10 @@ describe('AppController', () => {
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
+  describe('getEstado', () => {
+    it('debe reportar estado ok', () => {
       const appController = app.get<AppController>(AppController);
-      expect(appController.getData()).toEqual({ message: 'Hello API' });
+      expect(appController.getEstado()).toEqual({ estado: 'ok', servicio: 'censo-indigena-api' });
     });
   });
 });

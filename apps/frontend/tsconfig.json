@@ -26,9 +26,6 @@
     },
     {
       "path": "./tsconfig.spec.json"
-    },
-    {
-      "path": "apps/frontend/tsconfig.server.json"
     }
   ]
 }

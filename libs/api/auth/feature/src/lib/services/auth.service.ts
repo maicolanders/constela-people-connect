@@ -24,7 +24,7 @@ export class AuthService {
     @InjectRepository(RefreshToken) private readonly refreshTokenRepository: Repository<RefreshToken>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   async login(email: string, password: string): Promise<ParDeTokens> {
     const usuario = await this.usuarioRepository.findOne({ where: { email } });
@@ -32,6 +32,8 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    const hash = await bcrypt.hash(password, RONDAS_BCRYPT);
+    console.log(hash, password);
     const passwordValido = await bcrypt.compare(password, usuario.passwordHash);
     if (!passwordValido) {
       throw new UnauthorizedException('Credenciales inválidas');

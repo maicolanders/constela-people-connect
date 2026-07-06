@@ -73,15 +73,34 @@
       class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
     />
 
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="fechaNacimiento">
-      {{ 'poblacion.fechaNacimiento' | translate }}
+    <label class="mb-2 flex items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" formControlName="edadEstimada" class="h-4 w-4 rounded border-slate-300" />
+      {{ 'poblacion.edadEstimada' | translate }}
     </label>
-    <input
-      id="fechaNacimiento"
-      type="date"
-      formControlName="fechaNacimiento"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    />
+
+    @if (!formulario.controls.edadEstimada.value) {
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="fechaNacimiento">
+        {{ 'poblacion.fechaNacimiento' | translate }}
+      </label>
+      <input
+        id="fechaNacimiento"
+        type="date"
+        formControlName="fechaNacimiento"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+      />
+    } @else {
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="edadAproximada">
+        {{ 'poblacion.edadAproximada' | translate }}
+      </label>
+      <input
+        id="edadAproximada"
+        type="number"
+        min="0"
+        max="120"
+        formControlName="edadAproximada"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+      />
+    }
 
     <label class="mb-1 block text-sm font-medium text-slate-700" for="sexo">{{ 'poblacion.sexo' | translate }}</label>
     <select
@@ -109,6 +128,22 @@
       }
     </select>
 
+    @if (capturaIdentidadGenero()) {
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="identidadGeneroCatalogoItemId">
+        {{ 'poblacion.identidadGenero' | translate }}
+      </label>
+      <select
+        id="identidadGeneroCatalogoItemId"
+        formControlName="identidadGeneroCatalogoItemId"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+      >
+        <option [value]="null">—</option>
+        @for (identidad of identidadesGenero(); track identidad.id) {
+          <option [value]="identidad.id">{{ identidad.nombre }}</option>
+        }
+      </select>
+    }
+
     <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
       <input type="checkbox" formControlName="consentimientoInformado" class="h-4 w-4 rounded border-slate-300" />
       {{ 'poblacion.consentimientoInformado' | translate }}
@@ -120,7 +155,7 @@
 
     <button
       type="submit"
-      [disabled]="formulario.invalid || guardando()"
+      [disabled]="formulario.invalid || !datosEdadValidos() || guardando()"
       class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
     >
       {{ (guardando() ? 'poblacion.guardando' : 'poblacion.guardarHabitante') | translate }}

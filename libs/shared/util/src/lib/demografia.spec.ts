@@ -1,4 +1,11 @@
-import { calcularEdad, calcularGrupoQuinquenal, calcularHacinamiento } from './demografia';
+import {
+  calcularEdad,
+  calcularGrupoQuinquenal,
+  calcularHacinamiento,
+  calcularIndiceEnvejecimiento,
+  calcularRazonDependencia,
+  calcularTasaPorMil,
+} from './demografia';
 
 describe('calcularEdad', () => {
   it('calcula la edad cuando ya pasó el cumpleaños este año', () => {
@@ -43,5 +50,39 @@ describe('calcularHacinamiento', () => {
 
   it('lanza error si no hay dormitorios', () => {
     expect(() => calcularHacinamiento(4, 0)).toThrow();
+  });
+});
+
+describe('calcularRazonDependencia', () => {
+  it('calcula (0-14 + 65+) / 15-64 * 100', () => {
+    expect(calcularRazonDependencia(30, 10, 100)).toBe(40);
+  });
+
+  it('lanza error si la población de 15 a 64 años es cero', () => {
+    expect(() => calcularRazonDependencia(10, 5, 0)).toThrow();
+  });
+});
+
+describe('calcularIndiceEnvejecimiento', () => {
+  it('calcula 65+ / 0-14 * 100', () => {
+    expect(calcularIndiceEnvejecimiento(20, 40)).toBe(50);
+  });
+
+  it('lanza error si la población de 0 a 14 años es cero', () => {
+    expect(() => calcularIndiceEnvejecimiento(10, 0)).toThrow();
+  });
+});
+
+describe('calcularTasaPorMil', () => {
+  it('calcula eventos / poblacionBase * 1000', () => {
+    expect(calcularTasaPorMil(5, 1000)).toBe(5);
+  });
+
+  it('funciona igual para natalidad y mortalidad aparente (misma fórmula)', () => {
+    expect(calcularTasaPorMil(2, 500)).toBe(4);
+  });
+
+  it('lanza error si la población base es cero', () => {
+    expect(() => calcularTasaPorMil(1, 0)).toThrow();
   });
 });

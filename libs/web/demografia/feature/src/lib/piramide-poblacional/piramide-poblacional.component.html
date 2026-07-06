@@ -1,0 +1,77 @@
+<div class="mx-auto max-w-2xl p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'demografia.piramideTitulo' | translate }}</h1>
+
+  <div class="mb-4 flex flex-wrap gap-3">
+    <select
+      class="rounded border border-slate-300 px-2 py-1 text-sm"
+      [value]="comunidadId()"
+      (change)="onComunidadChange($any($event.target).value)"
+    >
+      @for (comunidad of comunidades(); track comunidad.id) {
+        <option [value]="comunidad.id">{{ comunidad.nombre }}</option>
+      }
+    </select>
+
+    <select
+      class="rounded border border-slate-300 px-2 py-1 text-sm"
+      [value]="periodoCensalId()"
+      (change)="onPeriodoChange($any($event.target).value)"
+    >
+      @for (periodo of periodos(); track periodo.id) {
+        <option [value]="periodo.id">{{ periodo.nombre }} ({{ periodo.estado }})</option>
+      }
+    </select>
+  </div>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else {
+    <div class="mb-3 flex flex-wrap gap-3">
+      <button
+        type="button"
+        class="rounded border border-slate-300 px-3 py-1 text-sm text-slate-700"
+        (click)="exportarCsv()"
+      >
+        {{ 'demografia.exportarDatos' | translate }}
+      </button>
+      <button
+        type="button"
+        class="rounded border border-slate-300 px-3 py-1 text-sm text-slate-700"
+        (click)="exportarImagen(svgPiramide)"
+      >
+        {{ 'demografia.exportarImagen' | translate }}
+      </button>
+    </div>
+
+    <div class="mb-2 flex items-center justify-center gap-6 text-xs text-slate-600">
+      <span class="flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-sm bg-sky-500"></span> {{ 'demografia.masculino' | translate }}</span>
+      <span class="flex items-center gap-1"><span class="h-2.5 w-2.5 rounded-sm bg-pink-500"></span> {{ 'demografia.femenino' | translate }}</span>
+    </div>
+
+    <svg
+      #svgPiramide
+      [attr.viewBox]="'0 0 ' + CHART_WIDTH + ' ' + alturaSvg()"
+      [attr.width]="CHART_WIDTH"
+      [attr.height]="alturaSvg()"
+      class="mx-auto block"
+    >
+      @for (fila of filasVista(); track fila.grupoQuinquenal) {
+        <rect [attr.x]="fila.masculinoX" [attr.y]="fila.y" [attr.width]="fila.masculinoAncho" [attr.height]="ROW_HEIGHT - 2" class="fill-sky-500" />
+        <rect [attr.x]="fila.femeninoX" [attr.y]="fila.y" [attr.width]="fila.femeninoAncho" [attr.height]="ROW_HEIGHT - 2" class="fill-pink-500" />
+        <text [attr.x]="CHART_WIDTH / 2" [attr.y]="fila.y + ROW_HEIGHT - 8" text-anchor="middle" font-size="9" class="fill-slate-700">
+          {{ fila.grupoQuinquenal }}
+        </text>
+        @if (fila.masculinoSuprimido) {
+          <text [attr.x]="CENTER_START - 4" [attr.y]="fila.y + ROW_HEIGHT - 8" text-anchor="end" font-size="8" class="fill-amber-600">—</text>
+        }
+        @if (fila.femeninoSuprimido) {
+          <text [attr.x]="CENTER_END + 4" [attr.y]="fila.y + ROW_HEIGHT - 8" text-anchor="start" font-size="8" class="fill-amber-600">—</text>
+        }
+      } @empty {
+        <text [attr.x]="CHART_WIDTH / 2" [attr.y]="ROW_HEIGHT / 2" text-anchor="middle" font-size="10" class="fill-slate-500">
+          {{ 'demografia.sinDatos' | translate }}
+        </text>
+      }
+    </svg>
+  }
+</div>

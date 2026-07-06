@@ -1,15 +1,15 @@
 {
-  "name": "api-shared-util",
+  "name": "api-demografia-data-access",
   "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
-  "sourceRoot": "libs/api/shared/util/src",
+  "sourceRoot": "libs/api/demografia/data-access/src",
   "projectType": "library",
-  "tags": ["scope:api", "type:util", "domain:shared"],
+  "tags": ["scope:api", "type:data-access", "domain:demografia"],
   "targets": {
     "test": {
       "executor": "@nx/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
-        "jestConfig": "libs/api/shared/util/jest.config.cts"
+        "jestConfig": "libs/api/demografia/data-access/jest.config.cts"
       }
     }
   }

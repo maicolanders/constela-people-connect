@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Auditoria } from '@censo/api-shared-data-access';
+import { PeriodoCierreHookRegistry } from '@censo/api-shared-feature';
 import { PeriodoCensal } from '@censo/api-periodo-censal-data-access';
 import { EstadoPeriodo } from '@censo/shared-data-access';
 import { Repository } from 'typeorm';
@@ -18,6 +19,7 @@ export class PeriodoCensalService {
   constructor(
     @InjectRepository(PeriodoCensal) private readonly periodoRepository: Repository<PeriodoCensal>,
     @InjectRepository(Auditoria) private readonly auditoriaRepository: Repository<Auditoria>,
+    private readonly periodoCierreHookRegistry: PeriodoCierreHookRegistry,
   ) {}
 
   listar(): Promise<PeriodoCensal[]> {
@@ -54,7 +56,14 @@ export class PeriodoCensalService {
     }
     periodo.estado = EstadoPeriodo.CERRADO;
     periodo.fechaCierre = new Date().toISOString().slice(0, 10);
-    return this.periodoRepository.save(periodo);
+    const guardado = await this.periodoRepository.save(periodo);
+
+    // RF-02-03: los indicadores demográficos (y cualquier otro artefacto de
+    // cierre futuro) se recalculan aquí, sin que este servicio conozca a sus
+    // consumidores (ver PeriodoCierreHookRegistry).
+    await this.periodoCierreHookRegistry.ejecutarTodos(guardado.id);
+
+    return guardado;
   }
 
   /** Implementa PeriodoEstadoProvider (contrato consumido por PeriodoAbiertoGuard). */

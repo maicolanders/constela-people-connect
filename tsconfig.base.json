@@ -20,7 +20,6 @@
         "./libs/api/shared/data-access/src/index.ts"
       ],
       "@censo/api-shared-feature": ["./libs/api/shared/feature/src/index.ts"],
-      "@censo/api-shared-util": ["./libs/api/shared/util/src/index.ts"],
       "@censo/api-auth-data-access": [
         "./libs/api/auth/data-access/src/index.ts"
       ],
@@ -49,6 +48,12 @@
       "@censo/api-poblacion-feature": [
         "./libs/api/poblacion/feature/src/index.ts"
       ],
+      "@censo/api-demografia-data-access": [
+        "./libs/api/demografia/data-access/src/index.ts"
+      ],
+      "@censo/api-demografia-feature": [
+        "./libs/api/demografia/feature/src/index.ts"
+      ],
       "@censo/web-shared-data-access": [
         "./libs/web/shared/data-access/src/index.ts"
       ],
@@ -59,6 +64,12 @@
       ],
       "@censo/web-poblacion-feature": [
         "./libs/web/poblacion/feature/src/index.ts"
+      ],
+      "@censo/web-demografia-data-access": [
+        "./libs/web/demografia/data-access/src/index.ts"
+      ],
+      "@censo/web-demografia-feature": [
+        "./libs/web/demografia/feature/src/index.ts"
       ]
     }
   },

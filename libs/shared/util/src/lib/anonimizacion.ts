@@ -2,7 +2,10 @@
  * Regla de anonimización mínima (RT-05) para reportes/exportes agregados:
  * cualquier fila cuyo total sea menor al umbral de k-anonimity se suprime
  * (se oculta el valor exacto) para evitar identificación indirecta de
- * individuos en comunidades pequeñas.
+ * individuos en comunidades pequeñas. Cross-runtime (frontend y backend
+ * deben aplicar exactamente la misma regla, p.ej. pirámide poblacional
+ * calculada en línea contra el backend vs. calculada localmente sin
+ * conexión).
  */
 export interface FilaReporteAgregado {
   total: number;

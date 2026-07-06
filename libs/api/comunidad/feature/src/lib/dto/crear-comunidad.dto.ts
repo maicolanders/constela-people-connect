@@ -16,4 +16,8 @@ export class CrearComunidadDto {
   @IsOptional()
   @IsBoolean()
   activa?: boolean;
+
+  @IsOptional()
+  @IsBoolean()
+  capturaIdentidadGenero?: boolean;
 }

@@ -47,6 +47,18 @@ const CATALOGOS: CatalogoSemilla[] = [
     ],
   },
   {
+    codigo: 'identidad_genero',
+    nombre: 'Identidad de género',
+    jerarquico: false,
+    items: [
+      { codigo: 'femenina', nombre: 'Femenina' },
+      { codigo: 'masculina', nombre: 'Masculina' },
+      { codigo: 'no_binario', nombre: 'No binario' },
+      { codigo: 'otro', nombre: 'Otra' },
+      { codigo: 'prefiere_no_decir', nombre: 'Prefiere no decir' },
+    ],
+  },
+  {
     codigo: 'nivel_geografico',
     nombre: 'Nivel de la jerarquía geográfica',
     jerarquico: false,

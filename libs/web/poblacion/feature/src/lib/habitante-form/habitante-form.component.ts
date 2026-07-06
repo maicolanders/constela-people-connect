@@ -1,6 +1,8 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import {
   CatalogoItemCache,
   CatalogoOfflineService,
@@ -15,6 +17,10 @@ import {
 } from '@censo/web-poblacion-data-access';
 import { EstadoHabitante, SexoHabitante } from '@censo/shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
+
+interface ComunidadApi {
+  capturaIdentidadGenero: boolean;
+}
 
 /**
  * RF-01-01/03/05: registra un habitante de un hogar ya existente. Antes de
@@ -33,6 +39,7 @@ export class HabitanteFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly http = inject(HttpClient);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly hogaresOffline = inject(HogaresOfflineService);
   private readonly habitantesOffline = inject(HabitantesOfflineService);
@@ -44,6 +51,8 @@ export class HabitanteFormComponent implements OnInit {
   readonly error = signal<string | null>(null);
   readonly tiposDocumento = signal<CatalogoItemCache[]>([]);
   readonly parentescos = signal<CatalogoItemCache[]>([]);
+  readonly identidadesGenero = signal<CatalogoItemCache[]>([]);
+  readonly capturaIdentidadGenero = signal(false);
   readonly candidatosDuplicado = signal<CandidatoDuplicadoOffline[] | null>(null);
 
   private hogarUuid = '';
@@ -55,8 +64,11 @@ export class HabitanteFormComponent implements OnInit {
     apellidos: ['', Validators.required],
     tipoDocumentoId: this.fb.control<number | null>(null),
     numeroDocumento: [''],
-    fechaNacimiento: ['', Validators.required],
+    fechaNacimiento: [''],
+    edadEstimada: [false],
+    edadAproximada: this.fb.control<number | null>(null),
     sexo: this.fb.control<SexoHabitante | ''>('', Validators.required),
+    identidadGeneroCatalogoItemId: this.fb.control<number | null>(null),
     parentescoCatalogoItemId: this.fb.control<number | null>(null, Validators.required),
     consentimientoInformado: [false],
   });
@@ -80,10 +92,33 @@ export class HabitanteFormComponent implements OnInit {
     }
     this.comunidadId = hogar.comunidadId;
     this.periodoCensalId = hogar.periodoCensalId;
+
+    // RF-02-01: la identidad de género es "configurable/activable según parametrización" por comunidad.
+    try {
+      const comunidad = await firstValueFrom(this.http.get<ComunidadApi>(`/api/comunidades/${this.comunidadId}`));
+      if (comunidad.capturaIdentidadGenero) {
+        this.capturaIdentidadGenero.set(true);
+        this.identidadesGenero.set(await this.catalogoOffline.obtenerItems('identidad_genero'));
+      }
+    } catch {
+      // Sin conexión: se omite el campo opcional en vez de bloquear la captura offline-first.
+    }
+  }
+
+  /** RF-02-01: exige fechaNacimiento exacta o (edadEstimada + edadAproximada), no ambas vacías. */
+  datosEdadValidos(): boolean {
+    const { fechaNacimiento, edadEstimada, edadAproximada } = this.formulario.getRawValue();
+    return edadEstimada ? edadAproximada !== null : fechaNacimiento.trim().length > 0;
   }
 
   async guardar(): Promise<void> {
-    if (this.formulario.invalid || this.guardando() || this.comunidadId === null || this.periodoCensalId === null) {
+    if (
+      this.formulario.invalid ||
+      !this.datosEdadValidos() ||
+      this.guardando() ||
+      this.comunidadId === null ||
+      this.periodoCensalId === null
+    ) {
       return;
     }
 
@@ -106,12 +141,21 @@ export class HabitanteFormComponent implements OnInit {
     await this.confirmarYGuardar(this.candidatosDuplicado() ?? []);
   }
 
+  /** Espejo de HabitanteService.resolverFechaNacimiento (backend): misma síntesis 1-enero para edad estimada. */
+  private resolverFechaNacimiento(): string {
+    const { fechaNacimiento, edadEstimada, edadAproximada } = this.formulario.getRawValue();
+    if (edadEstimada && edadAproximada !== null) {
+      return `${new Date().getFullYear() - edadAproximada}-01-01`;
+    }
+    return fechaNacimiento;
+  }
+
   private async buscarDuplicados(): Promise<CandidatoDuplicadoOffline[]> {
-    const { nombres, apellidos, fechaNacimiento } = this.formulario.getRawValue();
+    const { nombres, apellidos } = this.formulario.getRawValue();
     return this.deteccionDuplicados.buscarCandidatos({
       nombres,
       apellidos,
-      fechaNacimiento: new Date(fechaNacimiento),
+      fechaNacimiento: new Date(this.resolverFechaNacimiento()),
       comunidadId: this.comunidadId as number,
     });
   }
@@ -134,8 +178,10 @@ export class HabitanteFormComponent implements OnInit {
         apellidos: valores.apellidos,
         tipoDocumentoId: valores.tipoDocumentoId,
         numeroDocumento: valores.numeroDocumento || null,
-        fechaNacimiento: valores.fechaNacimiento,
+        fechaNacimiento: this.resolverFechaNacimiento(),
+        edadEstimada: valores.edadEstimada,
         sexo: valores.sexo as SexoHabitante,
+        identidadGeneroCatalogoItemId: valores.identidadGeneroCatalogoItemId ?? undefined,
         parentescoCatalogoItemId: valores.parentescoCatalogoItemId ?? undefined,
         consentimientoInformado: valores.consentimientoInformado,
         consentimientoFecha: valores.consentimientoInformado ? new Date().toISOString() : null,

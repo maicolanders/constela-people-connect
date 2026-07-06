@@ -1,5 +1,5 @@
 import { randomUUID } from 'crypto';
-import { ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import {
   Habitante,
@@ -175,8 +175,10 @@ export class HabitanteService {
           tipoDocumentoId: dto.tipoDocumentoId ?? null,
           numeroDocumento: dto.numeroDocumento ?? null,
           identificadorInterno: dto.numeroDocumento ? null : dto.uuid,
-          fechaNacimiento: dto.fechaNacimiento,
+          fechaNacimiento: this.resolverFechaNacimiento(dto),
+          edadEstimada: dto.edadEstimada ?? false,
           sexo: dto.sexo,
+          identidadGeneroCatalogoItemId: dto.identidadGeneroCatalogoItemId ?? null,
           consentimientoInformado: dto.consentimientoInformado ?? false,
           consentimientoFecha: dto.consentimientoFecha ? new Date(dto.consentimientoFecha) : null,
         }),
@@ -235,8 +237,19 @@ export class HabitanteService {
       habitante.numeroDocumento = dto.numeroDocumento;
       habitante.identificadorInterno = dto.numeroDocumento ? null : habitante.uuid;
     }
-    if (dto.fechaNacimiento !== undefined) habitante.fechaNacimiento = dto.fechaNacimiento;
+    if (dto.fechaNacimiento !== undefined) {
+      habitante.fechaNacimiento = dto.fechaNacimiento;
+      habitante.edadEstimada = false;
+    } else if (dto.edadEstimada === true || dto.edadAproximada !== undefined) {
+      habitante.fechaNacimiento = this.resolverFechaNacimiento({ edadEstimada: true, edadAproximada: dto.edadAproximada });
+      habitante.edadEstimada = true;
+    } else if (dto.edadEstimada === false) {
+      habitante.edadEstimada = false;
+    }
     if (dto.sexo !== undefined) habitante.sexo = dto.sexo;
+    if (dto.identidadGeneroCatalogoItemId !== undefined) {
+      habitante.identidadGeneroCatalogoItemId = dto.identidadGeneroCatalogoItemId;
+    }
     if (dto.consentimientoInformado !== undefined) habitante.consentimientoInformado = dto.consentimientoInformado;
     if (dto.consentimientoFecha !== undefined) habitante.consentimientoFecha = new Date(dto.consentimientoFecha);
     if (dto.estado !== undefined) habitante.estado = dto.estado;
@@ -294,6 +307,30 @@ export class HabitanteService {
     if (item.codigo === CODIGO_JEFE_HOGAR) {
       await this.hogarService.actualizarJefeHogar(habitante.hogarId, habitante.id);
     }
+  }
+
+  /**
+   * RF-02-01 ("edad estimada"): sintetiza el 1 de enero del año de
+   * nacimiento aproximado cuando no hay fecha exacta, para que el resto del
+   * sistema (cálculo de edad, pirámide poblacional, indicadores) siga
+   * operando sobre una única columna `fechaNacimiento`.
+   */
+  private resolverFechaNacimiento(dto: {
+    edadEstimada?: boolean;
+    edadAproximada?: number;
+    fechaNacimiento?: string;
+  }): string {
+    if (dto.edadEstimada) {
+      if (dto.edadAproximada === undefined) {
+        throw new BadRequestException('edadAproximada es requerida cuando edadEstimada es true');
+      }
+      const anioNacimiento = new Date().getFullYear() - dto.edadAproximada;
+      return `${anioNacimiento}-01-01`;
+    }
+    if (!dto.fechaNacimiento) {
+      throw new BadRequestException('fechaNacimiento es requerida cuando edadEstimada no es true');
+    }
+    return dto.fechaNacimiento;
   }
 
   private verificarAcceso(comunidadId: number, usuario: UsuarioAutenticado): void {

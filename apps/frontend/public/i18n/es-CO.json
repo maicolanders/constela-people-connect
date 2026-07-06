@@ -44,6 +44,26 @@
     "errorGuardarHabitante": "No se pudo guardar el habitante",
     "posibleDuplicadoTitulo": "Posible duplicado: revise antes de continuar",
     "confirmarNoDuplicado": "Confirmar que no es duplicado",
-    "cancelar": "Cancelar"
+    "cancelar": "Cancelar",
+    "edadEstimada": "No conozco la fecha de nacimiento exacta (edad estimada)",
+    "edadAproximada": "Edad aproximada",
+    "identidadGenero": "Identidad de género"
+  },
+  "demografia": {
+    "piramideTitulo": "Pirámide poblacional",
+    "indicadoresTitulo": "Indicadores demográficos",
+    "exportarDatos": "Exportar datos (CSV)",
+    "exportarImagen": "Exportar imagen",
+    "masculino": "Masculino",
+    "femenino": "Femenino",
+    "sinDatos": "Sin datos para mostrar",
+    "sinPeriodosCerrados": "No hay periodos cerrados todavía",
+    "indicadoresNoDisponibles": "Los indicadores se calculan al cerrar el periodo censal",
+    "suprimidoPorAnonimizacion": "Datos no disponibles: la comunidad tiene muy pocos habitantes para publicar cifras exactas (RT-05)",
+    "poblacionTotal": "Población total",
+    "razonDependencia": "Razón de dependencia",
+    "indiceEnvejecimiento": "Índice de envejecimiento",
+    "tasaNatalidad": "Tasa de natalidad aparente (‰)",
+    "tasaMortalidad": "Tasa de mortalidad aparente (‰)"
   }
 }

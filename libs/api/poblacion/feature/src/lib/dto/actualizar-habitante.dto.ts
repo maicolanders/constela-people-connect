@@ -5,7 +5,9 @@ import {
   IsInt,
   IsOptional,
   IsString,
+  Max,
   MaxLength,
+  Min,
 } from 'class-validator';
 import { EstadoHabitante, SexoHabitante } from '@censo/shared-data-access';
 
@@ -38,9 +40,24 @@ export class ActualizarHabitanteDto {
   @IsDateString()
   fechaNacimiento?: string;
 
+  /** RF-02-01: si viene junto con `edadAproximada`, el servicio recalcula `fechaNacimiento` sintética. */
+  @IsOptional()
+  @IsBoolean()
+  edadEstimada?: boolean;
+
+  @IsOptional()
+  @IsInt()
+  @Min(0)
+  @Max(120)
+  edadAproximada?: number;
+
   @IsOptional()
   @IsEnum(SexoHabitante)
   sexo?: SexoHabitante;
+
+  @IsOptional()
+  @IsInt()
+  identidadGeneroCatalogoItemId?: number;
 
   @IsOptional()
   @IsBoolean()

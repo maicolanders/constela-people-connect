@@ -1,5 +1,7 @@
+import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { of } from 'rxjs';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CatalogoOfflineService, SyncQueueService, SyncService } from '@censo/web-shared-data-access';
 import {
@@ -20,6 +22,7 @@ function crearComponente(candidatos: CandidatoDuplicadoOffline[] = []) {
   const syncQueue = { encolar: jest.fn().mockResolvedValue(undefined) };
   const syncService = { sincronizar: jest.fn().mockResolvedValue(undefined) };
   const router = { navigate: jest.fn().mockResolvedValue(true) };
+  const http = { get: jest.fn().mockReturnValue(of({ capturaIdentidadGenero: false })) };
 
   TestBed.configureTestingModule({
     providers: [
@@ -31,6 +34,7 @@ function crearComponente(candidatos: CandidatoDuplicadoOffline[] = []) {
       { provide: SyncQueueService, useValue: syncQueue },
       { provide: SyncService, useValue: syncService },
       { provide: Router, useValue: router },
+      { provide: HttpClient, useValue: http },
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ hogarUuid: 'hogar-uuid-1' }) } } },
     ],
   });

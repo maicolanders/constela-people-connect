@@ -3,7 +3,13 @@ import { RolCodigo } from '@censo/shared-data-access';
 
 export const CAMPO_SENSIBLE_METADATA_KEY = 'censo:campos-sensibles';
 
-export type CategoriaCampoSensible = 'etnia' | 'salud' | 'ingresos' | 'ubicacion-exacta' | 'documento-identidad';
+export type CategoriaCampoSensible =
+  | 'etnia'
+  | 'salud'
+  | 'ingresos'
+  | 'ubicacion-exacta'
+  | 'documento-identidad'
+  | 'identidad-genero';
 
 export interface CampoSensibleOptions {
   categoria: CategoriaCampoSensible;

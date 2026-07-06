@@ -8,7 +8,10 @@ import {
   IsOptional,
   IsString,
   IsUUID,
+  Max,
   MaxLength,
+  Min,
+  ValidateIf,
   ValidateNested,
 } from 'class-validator';
 import { SexoHabitante } from '@censo/shared-data-access';
@@ -41,11 +44,28 @@ export class CrearHabitanteDto {
   @MaxLength(50)
   numeroDocumento?: string;
 
+  /** RF-02-01: si `edadEstimada` es true, se exige `edadAproximada` en su lugar (ver HabitanteService). */
+  @IsOptional()
+  @IsBoolean()
+  edadEstimada?: boolean;
+
+  @ValidateIf((dto: CrearHabitanteDto) => !dto.edadEstimada)
   @IsDateString()
-  fechaNacimiento!: string;
+  fechaNacimiento?: string;
+
+  @ValidateIf((dto: CrearHabitanteDto) => dto.edadEstimada === true)
+  @IsInt()
+  @Min(0)
+  @Max(120)
+  edadAproximada?: number;
 
   @IsEnum(SexoHabitante)
   sexo!: SexoHabitante;
+
+  /** Catálogo `identidad_genero`, solo si la comunidad del hogar lo tiene activado (Comunidad.capturaIdentidadGenero). */
+  @IsOptional()
+  @IsInt()
+  identidadGeneroCatalogoItemId?: number;
 
   @IsOptional()
   @IsBoolean()

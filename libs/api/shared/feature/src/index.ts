@@ -3,6 +3,7 @@ export * from './lib/filters/global-exception.filter';
 export * from './lib/guards/periodo-abierto.guard';
 export * from './lib/interceptors/cls-user.interceptor';
 export * from './lib/interceptors/sensitive-fields.interceptor';
+export * from './lib/periodo-cierre/periodo-cierre-hook-registry';
 export * from './lib/subscribers/audit.subscriber';
 export * from './lib/sync/sync-handler-registry';
 export * from './lib/sync/sync.module';

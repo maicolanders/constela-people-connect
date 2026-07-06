@@ -72,11 +72,33 @@ export class Habitante extends AuditableBaseEntity {
   @Column({ name: 'identificador_interno', type: 'varchar', length: 36, nullable: true, unique: true })
   identificadorInterno!: string | null;
 
+  /**
+   * RF-02-01 ("edad estimada" sin fecha exacta): en vez de una columna
+   * paralela nullable, se sintetiza aquí el 1 de enero del año estimado
+   * (ver HabitanteService), y `edadEstimada` queda solo como marca de
+   * aproximación — así el resto del sistema (cálculo de edad, pirámide
+   * poblacional, indicadores) sigue usando una única columna sin lógica
+   * condicional adicional.
+   */
   @Column({ name: 'fecha_nacimiento', type: 'date' })
   fechaNacimiento!: string;
 
+  @Column({ name: 'edad_estimada', type: 'boolean', default: false })
+  edadEstimada!: boolean;
+
   @Column({ type: 'varchar', length: 1 })
   sexo!: SexoHabitante;
+
+  @Column({ name: 'identidad_genero_catalogo_item_id', type: 'integer', nullable: true })
+  @CampoSensible({
+    categoria: 'identidad-genero',
+    rolesPermitidos: [RolCodigo.CENSISTA, RolCodigo.LIDER_COMUNITARIO],
+  })
+  identidadGeneroCatalogoItemId!: number | null;
+
+  @ManyToOne(() => CatalogoItem, { nullable: true })
+  @JoinColumn({ name: 'identidad_genero_catalogo_item_id' })
+  identidadGenero?: CatalogoItem | null;
 
   @Column({ name: 'consentimiento_informado', type: 'boolean', default: false })
   consentimientoInformado!: boolean;

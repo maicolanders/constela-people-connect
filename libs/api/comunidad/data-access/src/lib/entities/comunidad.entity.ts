@@ -14,4 +14,8 @@ export class Comunidad extends AuditableBaseEntity {
 
   @Column({ type: 'boolean', default: true })
   activa!: boolean;
+
+  /** RF-02-01: la identidad de género es "configurable/activable según parametrización" por comunidad. */
+  @Column({ name: 'captura_identidad_genero', type: 'boolean', default: false })
+  capturaIdentidadGenero!: boolean;
 }

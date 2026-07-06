@@ -1,4 +1,4 @@
-import { ConflictException, ForbiddenException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
 import { Habitante } from '@censo/api-poblacion-data-access';
 import { DecisionRevisionDuplicado, EstadoHabitante, RolCodigo, SexoHabitante } from '@censo/shared-data-access';
@@ -143,6 +143,35 @@ describe('HabitanteService.crear', () => {
 
     expect(habitante.identificadorInterno).toBe(dtoBase.uuid);
     expect(habitante.numeroDocumento).toBeNull();
+  });
+
+  it('RF-02-01: con edadEstimada sintetiza fechaNacimiento (1 de enero del año aproximado)', async () => {
+    const { servicio } = crearServicio();
+    const anioActual = new Date().getFullYear();
+
+    const habitante = await servicio.crear(
+      { ...dtoBase, fechaNacimiento: undefined, edadEstimada: true, edadAproximada: 30 },
+      crearUsuario(),
+    );
+
+    expect(habitante.fechaNacimiento).toBe(`${anioActual - 30}-01-01`);
+    expect(habitante.edadEstimada).toBe(true);
+  });
+
+  it('rechaza edadEstimada=true sin edadAproximada', async () => {
+    const { servicio } = crearServicio();
+
+    await expect(
+      servicio.crear({ ...dtoBase, fechaNacimiento: undefined, edadEstimada: true }, crearUsuario()),
+    ).rejects.toThrow(BadRequestException);
+  });
+
+  it('guarda identidadGeneroCatalogoItemId cuando se provee', async () => {
+    const { servicio } = crearServicio();
+
+    const habitante = await servicio.crear({ ...dtoBase, identidadGeneroCatalogoItemId: 77 }, crearUsuario());
+
+    expect(habitante.identidadGeneroCatalogoItemId).toBe(77);
   });
 
   it('es idempotente por uuid: si el habitante ya existe, lo devuelve sin reprocesar', async () => {

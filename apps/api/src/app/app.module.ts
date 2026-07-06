@@ -8,6 +8,7 @@ import { ApiComunidadFeatureModule } from '@censo/api-comunidad-feature';
 import { ApiPeriodoCensalFeatureModule } from '@censo/api-periodo-censal-feature';
 import { ApiPoblacionFeatureModule } from '@censo/api-poblacion-feature';
 import { ApiDemografiaFeatureModule } from '@censo/api-demografia-feature';
+import { ApiGeorreferenciacionFeatureModule } from '@censo/api-georreferenciacion-feature';
 import { ApiSharedFeatureModule, GlobalExceptionFilter } from '@censo/api-shared-feature';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -35,6 +36,7 @@ import { AppService } from './app.service';
     ApiComunidadFeatureModule,
     ApiPeriodoCensalFeatureModule,
     ApiCatalogoFeatureModule,
+    ApiGeorreferenciacionFeatureModule,
     ApiPoblacionFeatureModule,
     ApiDemografiaFeatureModule,
   ],

@@ -3,10 +3,10 @@ import { Response } from 'express';
 import { ComunidadScopeGuard, CurrentUser, Roles, RolesGuard } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
 import { RolCodigo } from '@censo/shared-data-access';
+import { generarCsv } from '@censo/shared-util';
 import { DemografiaQueryDto } from '../dto/demografia-query.dto';
 import { BucketPiramide, PiramidePoblacionalService } from '../services/piramide-poblacional.service';
 import { IndicadoresDemograficosDto, IndicadoresDemograficosService } from '../services/indicadores-demograficos.service';
-import { generarCsv } from '../util/csv.util';
 
 const ROLES_LECTURA_DEMOGRAFIA = [
   RolCodigo.CENSISTA,

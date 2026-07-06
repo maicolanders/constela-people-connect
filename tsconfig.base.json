@@ -70,6 +70,18 @@
       ],
       "@censo/web-demografia-feature": [
         "./libs/web/demografia/feature/src/index.ts"
+      ],
+      "@censo/api-georreferenciacion-data-access": [
+        "./libs/api/georreferenciacion/data-access/src/index.ts"
+      ],
+      "@censo/api-georreferenciacion-feature": [
+        "./libs/api/georreferenciacion/feature/src/index.ts"
+      ],
+      "@censo/web-georreferenciacion-data-access": [
+        "./libs/web/georreferenciacion/data-access/src/index.ts"
+      ],
+      "@censo/web-georreferenciacion-feature": [
+        "./libs/web/georreferenciacion/feature/src/index.ts"
       ]
     }
   },

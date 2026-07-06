@@ -32,8 +32,6 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
-    const hash = await bcrypt.hash(password, RONDAS_BCRYPT);
-    console.log(hash, password);
     const passwordValido = await bcrypt.compare(password, usuario.passwordHash);
     if (!passwordValido) {
       throw new UnauthorizedException('Credenciales inválidas');

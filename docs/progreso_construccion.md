@@ -1,6 +1,6 @@
 # Progreso de construcción — Censo Poblacional Indígena Multi-Comunidad
 
-Última actualización: 2026-07-04 (Fase 2 completada)
+Última actualización: 2026-07-06 (Fase 3 completada)
 
 Referencias:
 - Detalle funcional/no funcional completo: `docs/requerimientos_censo_indigena.json`
@@ -98,11 +98,35 @@ database/migrations/1751700120000-CreateMvIndicadoresDemograficosPeriodo.ts
 
 Extensiones a libs de Fases 0-1 (no regenerar, ya tienen lógica): `libs/api/shared/data-access` (`CategoriaCampoSensible` + `'identidad-genero'`), `libs/api/shared/feature` (`PeriodoCierreHookRegistry`, nuevo), `libs/api/periodo-censal/feature` (`PeriodoCensalService.cerrar()` invoca el registro), `libs/api/comunidad/data-access` (`Comunidad.capturaIdentidadGenero`), `libs/api/poblacion/data-access` (`Habitante.edadEstimada`/`identidadGeneroCatalogoItemId`), `libs/shared/util` (`anonimizacion.ts` movido aquí desde `libs/api/shared/util`, que se eliminó por quedar vacío), `libs/web/poblacion/feature` (`HabitanteFormComponent` con edad estimada/identidad de género condicional).
 
-## Fase 3 — Georreferenciación (MOD-03) — **PENDIENTE**
+## Fase 3 — Georreferenciación (MOD-03) — **COMPLETADA**
 
-- [ ] Entidades PostGIS: `ubicaciones_geograficas`, `hogar_ubicaciones` (geometry punto)
-- [ ] Mapa interactivo con Leaflet, captura GPS offline
-- [ ] Endpoint de mapa agregado/anonimizado según rol
+- [x] `UbicacionGeografica` (`ubicaciones_geograficas`): árbol real de lugares (país→departamento→municipio→resguardo/territorio→vereda), autoreferenciado por `padreId` (mismo patrón que `CatalogoItem`), clasificado por el catálogo plano `nivel_geografico` (ya sembrado en Fase 0/seed, sin usar hasta ahora). No reutiliza `catalogo_items` genérico para los lugares reales (saturaría el catálogo administrable con miles de municipios/veredas); sí para `nivel_geografico`/`tipo_territorio`, ambos ya seeded.
+- [x] `HogarUbicacion` (`hogar_ubicaciones`): captura GPS de un hogar — `coordenadas geometry(Point,4326)` (primer uso de columnas espaciales reales del proyecto, vía soporte nativo de TypeORM `spatialFeatureType`/GeoJSON, sin SQL crudo), `precisionMetros`, `capturadoEn`, `clasificacion` (rural/urbana), `tipoTerritorioCatalogoItemId`, FK a `UbicacionGeografica` (nodo hoja). `coordenadas` marcada `@CampoSensible({categoria:'ubicacion-exacta'})` (primer uso de esa categoría, reservada desde Fase 0/2) — censista/líder la ven, analista no.
+- [x] `libs/api/georreferenciacion/{data-access,feature}` (dominio nuevo): autocontenido, sin depender de `poblacion`/`comunidad` (restricción ya fijada en `eslint.config.mjs` desde una sesión anterior: la dependencia va `poblacion → georreferenciacion`, nunca al revés). `hogarId`/`comunidadId` en `HogarUbicacion` son columnas simples sin relación TypeORM por esa razón. `UbicacionGeograficaController` (árbol, admin-only para escritura) sí vive en este dominio; la captura de ubicación de un hogar específico NO tiene controller propio aquí — se expone desde `poblacion` (ver abajo) porque solo `HogarService` puede verificar de forma autoritativa a qué comunidad pertenece un `hogarId`.
+- [x] `HogarService` extendido (`libs/api/poblacion/feature`): `registrarUbicacion`/`obtenerUbicacion` delegan en `HogarUbicacionService` (georreferenciacion) pasando siempre el `comunidadId` real del hogar ya cargado — un `comunidadId` falsificado en el body del cliente se ignora (test explícito). Endpoints `PUT`/`GET /poblacion/hogares/:id/ubicacion`.
+- [x] `MapaHogaresService` (`libs/api/poblacion/feature`, nuevo): `GET /poblacion/hogares/mapa` — censista/líder/administrador ven puntos individuales con coordenadas + densidad poblacional (conteo de habitantes por hogar); analista ve agregado por nodo geográfico con `aplicarAnonimizacionKAnonimity` (sin coordenadas exactas en absoluto, no solo campo redactado — misma forma de respuesta distinta que `IndicadoresDemograficosService` en Fase 2). Soporta `?formato=csv`.
+- [x] `generarCsv` consolidado en `libs/shared/util` (estaba duplicado en `api-demografia-feature` y `web-demografia-data-access` desde Fase 2; se unificó aprovechando que este módulo lo necesitaba también) — además corregido para serializar valores objeto (coordenadas GeoJSON) como JSON en vez de `"[object Object]"`.
+- [x] `HogarUbicacionesSyncHandler` (`libs/api/poblacion/feature/src/lib/sync/`): mismo patrón que `HabitantesSyncHandler` — resuelve `hogarUuid → hogarId` y reintenta si el hogar aún no sincronizó.
+- [x] `libs/web/georreferenciacion/{data-access,feature}`: `UbicacionesGeograficasOfflineService` (caché del árbol, mismo patrón que `CatalogoOfflineService`), `HogarUbicacionOfflineService` (Dexie outbox, referencia por `hogarUuid` igual que `HabitanteOffline`), `MapaHogaresComponent` (Leaflet — primer uso real de la dependencia ya instalada desde Fase 0 — puntos individuales o tabla agregada según la forma de la respuesta). `HogarUbicacionFormComponent` vive en `libs/web/poblacion/feature` (no en `georreferenciacion/feature`): necesita `HogaresOfflineService` para resolver `comunidadId`, y `domain:georreferenciacion` no puede depender de `domain:poblacion` (mismo motivo que en el backend).
+- [x] `AppDatabase` → `version(3)`: tablas `hogarUbicaciones` y `ubicacionesGeograficasCache`.
+- [x] Seed de ejemplo (`database/seeders/seed-ubicaciones-geograficas-ejemplo.ts`, no es una migración porque depende de `catalogo_items` ya sembrados): árbol representativo Colombia → Cauca/La Guajira → municipios → resguardos/veredas.
+- [x] Tests: árbol de `UbicacionGeograficaService`, `HogarUbicacionService.upsert` (incluye rechazo si el hogar ya tiene ubicación bajo otra comunidad), `HogarService.registrarUbicacion` (comunidadId autoritativo, no el del DTO), `MapaHogaresService` (individual vs. agregado por rol, supresión k-anonimity, filtra hogares dados de baja), `HogarUbicacionesSyncHandler`, cascada de selects de jerarquía geográfica y guardado offline del formulario, `generarCsv` con valores objeto — 30 tests nuevos (18 backend + 7 frontend + 5 en `shared-util` incluyendo el fix de CSV... ver conteo exacto en el historial de tareas de la sesión).
+- [x] Verificado end-to-end contra Postgres real: migraciones + seed corridos, árbol geográfico consultado (`Colombia → Cauca/La Guajira`), hogar creado y ubicación GPS registrada (coordenadas GeoJSON correctas), censista/líder ven `coordenadas` en `GET .../ubicacion` y analista recibe 403 (rol no permitido en ese endpoint individual), `GET /poblacion/hogares/mapa` devuelve puntos individuales para censista y agregado con `suprimido:true` (1 hogar < umbral 5) para analista, exportación CSV con coordenadas serializadas correctamente; `nx run-many -t build test lint eslint:lint --all` en verde para 30 proyectos.
+
+### Rutas creadas en Fase 3
+
+```
+libs/api/georreferenciacion/data-access/     libs/api/georreferenciacion/feature/
+libs/web/georreferenciacion/data-access/     libs/web/georreferenciacion/feature/
+
+database/migrations/1751800000000-CreateUbicacionesGeograficasTable.ts
+database/migrations/1751800060000-CreateHogarUbicacionesTable.ts
+database/seeders/seed-ubicaciones-geograficas-ejemplo.ts
+```
+
+Extensiones a libs de Fases 0-2 (no regenerar, ya tienen lógica): `libs/shared/data-access` (`ClasificacionUbicacion`), `libs/shared/util` (`csv.ts`, movido/consolidado aquí), `libs/api/poblacion/feature` (`HogarService.registrarUbicacion/obtenerUbicacion`, `MapaHogaresService`, `HogarUbicacionesSyncHandler`, `HogarController` extendido con `/mapa` y `/:id/ubicacion`), `libs/web/poblacion/feature` (`HogarUbicacionFormComponent`, nuevo), `libs/web/shared/data-access` (`AppDatabase` versión 3: tablas `hogarUbicaciones`/`ubicacionesGeograficasCache`), `apps/frontend/project.json` (estilos de `leaflet` agregados, budget de bundle inicial subido a 700kb).
+
+**Nota de diseño para Fases futuras**: si Fase 7 (Migración) necesita reutilizar el mapa para visualizar flujos origen/destino, puede consumir `UbicacionesGeograficasService`/`UbicacionGeografica` (georreferenciacion) directamente ya que `domain:migracion` sí tiene permitido depender de `domain:georreferenciacion` en `eslint.config.mjs`; no necesita pasar por `poblacion`.
 
 ## Fase 4 — Vivienda (MOD-04) — **PENDIENTE**
 
@@ -144,14 +168,23 @@ Extensiones a libs de Fases 0-1 (no regenerar, ya tienen lógica): `libs/api/sha
 - [ ] Entidad `notificaciones`
 - [ ] Comparación histórica en series de tiempo
 
+## Fase 11 - Panel de administración global de comunidades
+
+- [ ] Crear una nueva lib para el administrador de comunidades, para poder ver todas las comunidades, sus estados, y poder administrarlas.  
+- [ ] los usuarios que podran acceder a este panel de administracion son los que tengan el rol de admin.
+- [ ] El rol administrador puede acceder a todas las comunidades, todos los periodos censales y todas las funcionalidades del sistema.
+- [ ] Los usuarios con rol censista, capturador, revisor o analista no tienen acceso al panel de administración global de comunidades.
+
 ---
 
 ## Notas para evitar sobre-escritura
 
-- No volver a correr generadores Nx (`nx g @nx/nest:library`, `nx g @nx/angular:library`) sobre ninguna de las libs listadas como ya creadas en Fases 0-2 — ya existen y tienen lógica implementada, un generador podría sobrescribir archivos.
-- Las migraciones son secuenciales por timestamp; la próxima migración debe numerarse después de `1751700120000` (revisar `database/migrations/` antes de crear una nueva para no chocar con el orden).
-- Antes de crear una lib nueva para un dominio de negocio (Fases 3-10), revisar este archivo y el árbol real de `libs/api/<dominio>` / `libs/web/<dominio>` por si ya quedó un `data-access`/`feature` parcialmente creado en una sesión anterior.
-- `libs/api/poblacion`, `libs/web/poblacion`, `libs/api/demografia` y `libs/web/demografia` ya existen con lógica completa — Fase 3 (Georreferenciación) y posteriores deben extenderlas (nuevas entidades/columnas) cuando corresponda, no regenerarlas.
-- `libs/api/shared/util` **ya no existe** (se eliminó en Fase 2 por quedar vacío): la utilidad de anonimización k-anonimity vive en `libs/shared/util` (cross-runtime), no la busques en la ruta antigua ni la regeneres ahí.
+- No volver a correr generadores Nx (`nx g @nx/nest:library`, `nx g @nx/angular:library`, `nx g @nx/js:library`) sobre ninguna de las libs listadas como ya creadas en Fases 0-3 — ya existen y tienen lógica implementada, un generador podría sobrescribir archivos. Si se crea una lib nueva para `libs/web/<dominio>` con contenido Angular (componentes, `HttpClient`), usar `@nx/angular:library` (no `@nx/js:library`): este último genera un `tsconfig.json` sin `moduleResolution: bundler`/`angularCompilerOptions`, lo que rompe la resolución de `@angular/common/http` — ver el `tsconfig.json`/`tsconfig.spec.json`/`jest.config.cts` de `libs/web/georreferenciacion/{data-access,feature}` como plantilla corregida. Además, cualquier `web-*-data-access` que otra lib `feature` vaya a importar necesita su propio `package.json` (mismo formato que `libs/web/demografia/data-access/package.json`) para que `@nx/js:tsc` la resuelva como "librería buildable" en vez de fallar con `TS6059` (rootDir).
+- Las migraciones son secuenciales por timestamp; la próxima migración debe numerarse después de `1751800060000` (revisar `database/migrations/` antes de crear una nueva para no chocar con el orden).
+- Antes de crear una lib nueva para un dominio de negocio (Fases 4-10), revisar este archivo y el árbol real de `libs/api/<dominio>` / `libs/web/<dominio>` por si ya quedó un `data-access`/`feature` parcialmente creado en una sesión anterior.
+- `libs/api/poblacion`, `libs/web/poblacion`, `libs/api/demografia`, `libs/web/demografia`, `libs/api/georreferenciacion` y `libs/web/georreferenciacion` ya existen con lógica completa — Fase 4 (Vivienda) y posteriores deben extenderlas (nuevas entidades/columnas) cuando corresponda, no regenerarlas.
+- `libs/api/shared/util` **ya no existe** (se eliminó en Fase 2 por quedar vacío): la utilidad de anonimización k-anonimity y `generarCsv` viven en `libs/shared/util` (cross-runtime).
 - `PeriodoCierreHookRegistry` (`libs/api/shared/feature`) es el patrón a seguir para "engancharse" al cierre de un periodo censal desde cualquier dominio nuevo, sin que `domain:periodo-censal` dependa de ese dominio (mismo espíritu que `SyncHandlerRegistry`).
+- Antes de dar por buena la dirección de dependencia entre dos dominios nuevos, revisar `eslint.config.mjs`: varias reglas ya vienen predefinidas desde una sesión anterior (p.ej. `poblacion → georreferenciacion`/`vivienda`, `migracion → georreferenciacion`) y fijan de antemano en qué lib debe vivir la orquestación entre dominios (siempre en el lado que SÍ puede importar al otro, nunca al revés) — ver la sección "Orquestación" del plan de Fase 3 para el razonamiento completo.
+- `catalogo_items` (genérico, administrable) no es el lugar para datos jerárquicos reales potencialmente numerosos (municipios, veredas): úsalo para catálogos planos o de pocas decenas de nodos; para árboles grandes, crea una entidad dedicada (como `UbicacionGeografica`) que solo referencie un catálogo plano para clasificar el "nivel/tipo" de cada nodo.
 - Actualizar este documento (marcar checklist y mover el estado a `COMPLETADA`, agregar rutas creadas) al cerrar cada fase, no solo al final del proyecto.

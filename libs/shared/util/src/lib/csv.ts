@@ -1,4 +1,4 @@
-/** Exportación "como datos" (RF-02-02): CSV simple, sin dependencias externas. */
+/** Exportación "como datos" (RF-02-02, RF-03-03): CSV simple, sin dependencias externas. */
 export function generarCsv(filas: Array<Record<string, unknown>>): string {
   if (filas.length === 0) {
     return '';
@@ -10,7 +10,8 @@ export function generarCsv(filas: Array<Record<string, unknown>>): string {
 }
 
 function escaparValorCsv(valor: unknown): string {
-  const texto = valor === null || valor === undefined ? '' : String(valor);
+  const texto =
+    valor === null || valor === undefined ? '' : typeof valor === 'object' ? JSON.stringify(valor) : String(valor);
   if (texto.includes(',') || texto.includes('"') || texto.includes('\n')) {
     return `"${texto.replace(/"/g, '""')}"`;
   }

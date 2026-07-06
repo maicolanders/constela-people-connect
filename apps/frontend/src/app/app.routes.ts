@@ -1,7 +1,13 @@
 import { Route } from '@angular/router';
 import { authGuard, LoginPageComponent, ShellLayoutComponent } from '@censo/web-shared-feature';
-import { HabitanteFormComponent, HabitantesListComponent, HogarFormComponent } from '@censo/web-poblacion-feature';
+import {
+  HabitanteFormComponent,
+  HabitantesListComponent,
+  HogarFormComponent,
+  HogarUbicacionFormComponent,
+} from '@censo/web-poblacion-feature';
 import { IndicadoresDemograficosComponent, PiramidePoblacionalComponent } from '@censo/web-demografia-feature';
+import { MapaHogaresComponent } from '@censo/web-georreferenciacion-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -15,6 +21,8 @@ export const appRoutes: Route[] = [
       { path: 'poblacion/habitantes', component: HabitantesListComponent },
       { path: 'poblacion/hogares/nuevo', component: HogarFormComponent },
       { path: 'poblacion/hogares/:hogarUuid/habitantes/nuevo', component: HabitanteFormComponent },
+      { path: 'poblacion/hogares/:hogarUuid/ubicacion', component: HogarUbicacionFormComponent },
+      { path: 'poblacion/hogares/mapa', component: MapaHogaresComponent },
       { path: 'poblacion/demografia/piramide', component: PiramidePoblacionalComponent },
       { path: 'poblacion/demografia/indicadores', component: IndicadoresDemograficosComponent },
     ],

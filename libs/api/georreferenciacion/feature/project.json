@@ -1,0 +1,16 @@
+{
+  "name": "api-georreferenciacion-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/georreferenciacion/feature/src",
+  "projectType": "library",
+  "tags": ["scope:api", "type:feature", "domain:georreferenciacion"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/api/georreferenciacion/feature/jest.config.cts"
+      }
+    }
+  }
+}

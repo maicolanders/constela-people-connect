@@ -47,6 +47,33 @@ export interface HogarOffline {
   origen: OrigenRegistroOffline;
 }
 
+export interface UbicacionGeograficaCache {
+  id: number;
+  nivelGeograficoCatalogoItemId: number;
+  padreId: number | null;
+  nombre: string;
+  codigo: string | null;
+}
+
+/**
+ * Captura GPS de un hogar (RF-03-02): 1:1 con el hogar, por eso reutiliza el
+ * mismo `uuid` del hogar como clave (no existe una identidad propia de
+ * "ubicación" distinta del hogar al que pertenece).
+ */
+export interface HogarUbicacionOffline {
+  uuid: string;
+  hogarUuid: string;
+  comunidadId: number;
+  ubicacionGeograficaId: number;
+  latitud: number;
+  longitud: number;
+  precisionMetros?: number | null;
+  capturadoEn: string;
+  clasificacion: string;
+  tipoTerritorioCatalogoItemId?: number | null;
+  origen: OrigenRegistroOffline;
+}
+
 export interface HabitanteOffline {
   uuid: string;
   /** Referencia por uuid al hogar (Fase 0.6): el hogarId numérico puede no existir todavía si se creó en la misma sesión offline. */
@@ -83,6 +110,8 @@ export class AppDatabase extends Dexie {
   catalogoCache!: Table<CatalogoItemCache, string>;
   hogares!: Table<HogarOffline, string>;
   habitantes!: Table<HabitanteOffline, string>;
+  hogarUbicaciones!: Table<HogarUbicacionOffline, string>;
+  ubicacionesGeograficasCache!: Table<UbicacionGeograficaCache, number>;
 
   constructor() {
     super('censo-indigena-db');
@@ -95,6 +124,14 @@ export class AppDatabase extends Dexie {
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
       habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+    });
+    this.version(3).stores({
+      colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
+      catalogoCache: 'clave, tipoCodigo',
+      hogares: 'uuid, comunidadId, estado, origen',
+      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
+      ubicacionesGeograficasCache: 'id, padreId',
     });
   }
 }

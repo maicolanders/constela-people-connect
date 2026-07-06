@@ -2,6 +2,8 @@ import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/commo
 import { InjectRepository } from '@nestjs/typeorm';
 import { Hogar } from '@censo/api-poblacion-data-access';
 import { PeriodoCensalService } from '@censo/api-periodo-censal-feature';
+import { HogarUbicacionService, RegistrarUbicacionHogarDto } from '@censo/api-georreferenciacion-feature';
+import { HogarUbicacion } from '@censo/api-georreferenciacion-data-access';
 import { comunidadesPermitidas, tieneAccesoComunidad } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
 import { EstadoHogar } from '@censo/shared-data-access';
@@ -16,6 +18,7 @@ export class HogarService {
   constructor(
     @InjectRepository(Hogar) private readonly hogarRepository: Repository<Hogar>,
     private readonly periodoCensalService: PeriodoCensalService,
+    private readonly hogarUbicacionService: HogarUbicacionService,
   ) {}
 
   async listar(usuario: UsuarioAutenticado, filtros: ListarHogaresQueryDto = {}): Promise<Hogar[]> {
@@ -115,6 +118,25 @@ export class HogarService {
   async eliminar(id: number): Promise<void> {
     const hogar = await this.obtener(id);
     await this.hogarRepository.softRemove(hogar);
+  }
+
+  /**
+   * RF-03-02/03-04: el `comunidadId` que se guarda en `hogar_ubicaciones`
+   * viene siempre del hogar ya cargado (autoritativo), nunca de un valor que
+   * el cliente pudiera incluir en el body.
+   */
+  async registrarUbicacion(
+    hogarId: number,
+    dto: RegistrarUbicacionHogarDto,
+    usuario: UsuarioAutenticado,
+  ): Promise<HogarUbicacion> {
+    const hogar = await this.obtener(hogarId, usuario);
+    return this.hogarUbicacionService.upsert(hogar.id, hogar.comunidadId, dto);
+  }
+
+  async obtenerUbicacion(hogarId: number, usuario: UsuarioAutenticado): Promise<HogarUbicacion | null> {
+    await this.obtener(hogarId, usuario);
+    return this.hogarUbicacionService.obtenerPorHogar(hogarId);
   }
 
   private verificarAcceso(comunidadId: number, usuario: UsuarioAutenticado): void {

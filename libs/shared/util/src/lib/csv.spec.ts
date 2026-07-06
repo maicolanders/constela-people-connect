@@ -1,4 +1,4 @@
-import { generarCsv } from './csv.util';
+import { generarCsv } from './csv';
 
 describe('generarCsv', () => {
   it('genera encabezado y una fila con las columnas del primer objeto', () => {
@@ -26,5 +26,10 @@ describe('generarCsv', () => {
 
   it('retorna cadena vacía si no hay filas', () => {
     expect(generarCsv([])).toBe('');
+  });
+
+  it('serializa valores objeto (p.ej. coordenadas GeoJSON) en vez de "[object Object]"', () => {
+    const csv = generarCsv([{ coordenadas: { type: 'Point', coordinates: [-76.6, 2.44] } }]);
+    expect(csv).toBe('coordenadas\n"{""type"":""Point"",""coordinates"":[-76.6,2.44]}"');
   });
 });

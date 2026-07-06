@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@censo/web-shared-data-access';
-import { generarCsv, IndicadoresDemograficosApi, IndicadoresDemograficosService } from '@censo/web-demografia-data-access';
+import { IndicadoresDemograficosApi, IndicadoresDemograficosService } from '@censo/web-demografia-data-access';
+import { generarCsv } from '@censo/shared-util';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface ComunidadOpcion {

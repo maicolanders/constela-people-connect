@@ -9,6 +9,8 @@ import { Comunidad } from '../libs/api/comunidad/data-access/src/lib/entities/co
 import { PeriodoCensal } from '../libs/api/periodo-censal/data-access/src/lib/entities/periodo-censal.entity';
 import { CatalogoItem } from '../libs/api/catalogo/data-access/src/lib/entities/catalogo-item.entity';
 import { CatalogoTipo } from '../libs/api/catalogo/data-access/src/lib/entities/catalogo-tipo.entity';
+import { UbicacionGeografica } from '../libs/api/georreferenciacion/data-access/src/lib/entities/ubicacion-geografica.entity';
+import { HogarUbicacion } from '../libs/api/georreferenciacion/data-access/src/lib/entities/hogar-ubicacion.entity';
 
 try {
   // Node 20.6+: carga .env sin depender de la librería `dotenv`.
@@ -31,7 +33,19 @@ export const AppDataSource = new DataSource({
   username: process.env['DB_USER'] ?? 'censo',
   password: process.env['DB_PASSWORD'] ?? 'censo',
   database: process.env['DB_NAME'] ?? 'censo_indigena',
-  entities: [Auditoria, Usuario, Rol, UsuarioRol, RefreshToken, Comunidad, PeriodoCensal, CatalogoTipo, CatalogoItem],
+  entities: [
+    Auditoria,
+    Usuario,
+    Rol,
+    UsuarioRol,
+    RefreshToken,
+    Comunidad,
+    PeriodoCensal,
+    CatalogoTipo,
+    CatalogoItem,
+    UbicacionGeografica,
+    HogarUbicacion,
+  ],
   migrations: ['database/migrations/*.ts'],
   synchronize: false,
 });

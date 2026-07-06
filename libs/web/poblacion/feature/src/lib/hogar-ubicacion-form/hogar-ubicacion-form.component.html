@@ -1,0 +1,79 @@
+<div class="mx-auto max-w-lg p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'georreferenciacion.ubicacionHogarTitulo' | translate }}</h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <button
+      type="button"
+      (click)="capturarGps()"
+      [disabled]="capturandoGps()"
+      class="mb-4 w-full rounded border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 disabled:opacity-50"
+    >
+      {{ (capturandoGps() ? 'georreferenciacion.capturandoGps' : 'georreferenciacion.capturarGps') | translate }}
+    </button>
+
+    <p class="mb-4 text-xs text-slate-500">
+      {{ 'georreferenciacion.coordenadasActuales' | translate }}:
+      {{ formulario.getRawValue().latitud }}, {{ formulario.getRawValue().longitud }}
+    </p>
+
+    @for (opciones of niveles(); track $index) {
+      <label class="mb-4 block">
+        <span class="mb-1 block text-sm font-medium text-slate-700">
+          {{ 'georreferenciacion.nivelGeografico' | translate }}
+        </span>
+        <select
+          (change)="seleccionarNodo($index, $any($event.target).value)"
+          class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+        >
+          <option value="">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+          @for (nodo of opciones; track nodo.id) {
+            <option [value]="nodo.id">{{ nodo.nombre }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="clasificacion">
+      {{ 'georreferenciacion.clasificacion' | translate }}
+    </label>
+    <select
+      id="clasificacion"
+      formControlName="clasificacion"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+    >
+      @for (opcion of clasificaciones; track opcion) {
+        <option [value]="opcion">{{ 'georreferenciacion.clasificacion_' + opcion | translate }}</option>
+      }
+    </select>
+
+    <label class="mb-1 block text-sm font-medium text-slate-700" for="tipoTerritorio">
+      {{ 'georreferenciacion.tipoTerritorio' | translate }}
+    </label>
+    <select
+      id="tipoTerritorio"
+      formControlName="tipoTerritorioCatalogoItemId"
+      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm"
+    >
+      <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+      @for (item of tiposTerritorio(); track item.id) {
+        <option [ngValue]="item.id">{{ item.nombre }}</option>
+      }
+    </select>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      {{ (guardando() ? 'poblacion.guardando' : 'georreferenciacion.guardarUbicacion') | translate }}
+    </button>
+  </form>
+</div>

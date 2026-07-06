@@ -65,5 +65,31 @@
     "indiceEnvejecimiento": "Índice de envejecimiento",
     "tasaNatalidad": "Tasa de natalidad aparente (‰)",
     "tasaMortalidad": "Tasa de mortalidad aparente (‰)"
+  },
+  "georreferenciacion": {
+    "ubicacionHogarTitulo": "Ubicación del hogar",
+    "capturarGps": "Capturar ubicación GPS",
+    "capturandoGps": "Capturando...",
+    "coordenadasActuales": "Coordenadas capturadas",
+    "gpsNoDisponible": "Este dispositivo no soporta geolocalización",
+    "errorCapturaGps": "No se pudo capturar la ubicación GPS",
+    "nivelGeografico": "Ubicación geográfica",
+    "seleccionar": "Seleccionar...",
+    "clasificacion": "Clasificación",
+    "clasificacion_rural": "Rural",
+    "clasificacion_urbana": "Urbana",
+    "tipoTerritorio": "Tipo de territorio",
+    "guardarUbicacion": "Guardar ubicación",
+    "errorGuardarUbicacion": "No se pudo guardar la ubicación del hogar",
+    "mapaTitulo": "Mapa de hogares",
+    "comunidad": "Comunidad",
+    "periodoCensal": "Periodo censal",
+    "consultar": "Consultar",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarMapa": "No se pudo cargar el mapa",
+    "nodoGeografico": "Nodo geográfico",
+    "totalHogares": "Total de hogares",
+    "totalHabitantes": "Total de habitantes",
+    "suprimido": "Dato suprimido (RT-05)"
   }
 }

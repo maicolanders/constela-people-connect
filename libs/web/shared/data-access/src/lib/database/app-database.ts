@@ -131,6 +131,16 @@ export interface HabitanteEducacionOffline {
   origen: OrigenRegistroOffline;
 }
 
+/** 1:1 con el habitante (mismo criterio que HabitanteEducacionOffline): reutiliza el uuid del habitante como clave. */
+export interface HabitanteOcupacionOffline {
+  uuid: string;
+  habitanteUuid: string;
+  condicionActividadCatalogoItemId: number;
+  ocupacionCatalogoItemId?: number | null;
+  ingresoMensual?: number | null;
+  origen: OrigenRegistroOffline;
+}
+
 /**
  * Base de datos IndexedDB (offline-first, RNF-01). Los dominios de captura de
  * las Fases 1+ (habitantes, hogares, viviendas, ...) añadirán sus propias
@@ -151,6 +161,7 @@ export class AppDatabase extends Dexie {
   ubicacionesGeograficasCache!: Table<UbicacionGeograficaCache, number>;
   viviendas!: Table<ViviendaOffline, string>;
   habitanteEducaciones!: Table<HabitanteEducacionOffline, string>;
+  habitanteOcupaciones!: Table<HabitanteOcupacionOffline, string>;
 
   constructor() {
     super('censo-indigena-db');
@@ -190,6 +201,17 @@ export class AppDatabase extends Dexie {
       ubicacionesGeograficasCache: 'id, padreId',
       viviendas: 'uuid, hogarUuid, comunidadId',
       habitanteEducaciones: 'uuid, habitanteUuid',
+    });
+    this.version(6).stores({
+      colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
+      catalogoCache: 'clave, tipoCodigo',
+      hogares: 'uuid, comunidadId, estado, origen',
+      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
+      ubicacionesGeograficasCache: 'id, padreId',
+      viviendas: 'uuid, hogarUuid, comunidadId',
+      habitanteEducaciones: 'uuid, habitanteUuid',
+      habitanteOcupaciones: 'uuid, habitanteUuid',
     });
   }
 }

@@ -11,6 +11,7 @@ import { ApiDemografiaFeatureModule } from '@censo/api-demografia-feature';
 import { ApiGeorreferenciacionFeatureModule } from '@censo/api-georreferenciacion-feature';
 import { ApiViviendaFeatureModule } from '@censo/api-vivienda-feature';
 import { ApiEducacionFeatureModule } from '@censo/api-educacion-feature';
+import { ApiEconomiaFeatureModule } from '@censo/api-economia-feature';
 import { ApiSharedFeatureModule, GlobalExceptionFilter } from '@censo/api-shared-feature';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -43,6 +44,7 @@ import { AppService } from './app.service';
     ApiDemografiaFeatureModule,
     ApiViviendaFeatureModule,
     ApiEducacionFeatureModule,
+    ApiEconomiaFeatureModule,
   ],
   controllers: [AppController],
   providers: [

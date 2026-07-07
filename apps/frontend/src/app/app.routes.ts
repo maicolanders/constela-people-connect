@@ -10,6 +10,7 @@ import { IndicadoresDemograficosComponent, PiramidePoblacionalComponent } from '
 import { MapaHogaresComponent } from '@censo/web-georreferenciacion-feature';
 import { CoberturaServiciosComponent, ViviendaFormComponent } from '@censo/web-vivienda-feature';
 import { EducacionFormComponent, IndicadoresEducativosComponent } from '@censo/web-educacion-feature';
+import { EconomiaFormComponent, IndicadoresEconomicosComponent } from '@censo/web-economia-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -29,6 +30,8 @@ export const appRoutes: Route[] = [
       { path: 'vivienda/cobertura', component: CoberturaServiciosComponent },
       { path: 'poblacion/habitantes/:habitanteUuid/educacion', component: EducacionFormComponent },
       { path: 'educacion/indicadores', component: IndicadoresEducativosComponent },
+      { path: 'poblacion/habitantes/:habitanteUuid/economia', component: EconomiaFormComponent },
+      { path: 'economia/indicadores', component: IndicadoresEconomicosComponent },
       { path: 'poblacion/demografia/piramide', component: PiramidePoblacionalComponent },
       { path: 'poblacion/demografia/indicadores', component: IndicadoresDemograficosComponent },
     ],

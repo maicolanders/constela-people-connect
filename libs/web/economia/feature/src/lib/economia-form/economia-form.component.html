@@ -1,0 +1,51 @@
+<div class="mx-auto max-w-lg p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'economia.economiaTitulo' | translate }}</h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'economia.condicionActividad' | translate }}</span>
+      <select
+        (change)="onCondicionChange($any($event.target).value)"
+        class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+      >
+        <option value="">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of condicionesActividad(); track item.id) {
+          <option [value]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    @if (esOcupado()) {
+      <label class="mb-4 block">
+        <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'economia.tipoOcupacion' | translate }}</span>
+        <select formControlName="ocupacionCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+          <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+          @for (item of ocupaciones(); track item.id) {
+            <option [ngValue]="item.id">{{ item.nombre }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'economia.ingresoMensual' | translate }}</span>
+      <input type="number" formControlName="ingresoMensual" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" />
+    </label>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      {{ (guardando() ? 'poblacion.guardando' : 'economia.guardarEconomia') | translate }}
+    </button>
+  </form>
+</div>

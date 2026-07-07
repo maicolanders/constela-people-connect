@@ -104,7 +104,15 @@
       "@censo/web-educacion-data-access": [
         "./libs/web/educacion/data-access/src/index.ts"
       ],
-      "@censo/web-educacion-feature": ["./libs/web/educacion/feature/src/index.ts"]
+      "@censo/web-educacion-feature": ["./libs/web/educacion/feature/src/index.ts"],
+      "@censo/api-economia-data-access": [
+        "./libs/api/economia/data-access/src/index.ts"
+      ],
+      "@censo/api-economia-feature": ["./libs/api/economia/feature/src/index.ts"],
+      "@censo/web-economia-data-access": [
+        "./libs/web/economia/data-access/src/index.ts"
+      ],
+      "@censo/web-economia-feature": ["./libs/web/economia/feature/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

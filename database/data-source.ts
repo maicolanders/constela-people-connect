@@ -17,6 +17,7 @@ import { HabitanteEducacion } from '../libs/api/educacion/data-access/src/lib/en
 import { HabitanteLengua } from '../libs/api/educacion/data-access/src/lib/entities/habitante-lengua.entity';
 import { Hogar } from '../libs/api/poblacion/data-access/src/lib/entities/hogar.entity';
 import { Habitante } from '../libs/api/poblacion/data-access/src/lib/entities/habitante.entity';
+import { HabitanteOcupacion } from '../libs/api/economia/data-access/src/lib/entities/habitante-ocupacion.entity';
 
 try {
   // Node 20.6+: carga .env sin depender de la librería `dotenv`.
@@ -57,6 +58,7 @@ export const AppDataSource = new DataSource({
     HabitanteLengua,
     Hogar,
     Habitante,
+    HabitanteOcupacion,
   ],
   migrations: ['database/migrations/*.ts'],
   synchronize: false,

@@ -185,6 +185,12 @@ const CATALOGOS: CatalogoSemilla[] = [
     ],
   },
   {
+    /**
+     * RF-06-01 distingue "condición de actividad" de "tipo de ocupación": este
+     * catálogo queda solo para el tipo de ocupación/actividad económica (una
+     * vez que la condición = 'ocupado'). `desempleado`/`estudiante`/
+     * `labores_hogar` se movieron a `condicion_actividad` (Fase 6).
+     */
     codigo: 'ocupacion',
     nombre: 'Ocupación',
     jerarquico: false,
@@ -195,10 +201,19 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'jornalero', nombre: 'Jornalero' },
       { codigo: 'empleado_formal', nombre: 'Empleado formal' },
       { codigo: 'comercio_informal', nombre: 'Comercio informal' },
+      { codigo: 'otro', nombre: 'Otro' },
+    ],
+  },
+  {
+    codigo: 'condicion_actividad',
+    nombre: 'Condición de actividad económica',
+    jerarquico: false,
+    items: [
+      { codigo: 'ocupado', nombre: 'Ocupado' },
+      { codigo: 'desempleado', nombre: 'Desempleado' },
+      { codigo: 'inactivo', nombre: 'Inactivo' },
       { codigo: 'estudiante', nombre: 'Estudiante' },
       { codigo: 'labores_hogar', nombre: 'Labores del hogar' },
-      { codigo: 'desempleado', nombre: 'Desempleado' },
-      { codigo: 'otro', nombre: 'Otro' },
     ],
   },
   {

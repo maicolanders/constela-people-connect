@@ -139,5 +139,17 @@
     "total": "Total",
     "exportarCsv": "Exportar datos (CSV)",
     "errorCargarIndicadores": "No se pudo cargar el reporte de indicadores educativos"
+  },
+  "economia": {
+    "economiaTitulo": "Economía y ocupación",
+    "condicionActividad": "Condición de actividad económica",
+    "tipoOcupacion": "Tipo de ocupación",
+    "ingresoMensual": "Ingreso mensual (opcional)",
+    "guardarEconomia": "Guardar información económica",
+    "errorGuardarEconomia": "No se pudo guardar la información económica",
+    "indicadoresTitulo": "Indicadores de empleo",
+    "tasaDesempleo": "Tasa de desempleo",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarIndicadores": "No se pudo cargar el reporte de indicadores económicos"
   }
 }

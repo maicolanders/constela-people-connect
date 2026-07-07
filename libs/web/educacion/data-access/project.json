@@ -1,0 +1,26 @@
+{
+  "name": "web-educacion-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/educacion/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:data-access", "domain:educacion"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/educacion/data-access",
+        "main": "libs/web/educacion/data-access/src/index.ts",
+        "tsConfig": "libs/web/educacion/data-access/tsconfig.lib.json",
+        "assets": ["libs/web/educacion/data-access/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/educacion/data-access/jest.config.cts"
+      }
+    }
+  }
+}

@@ -13,6 +13,10 @@ import { UbicacionGeografica } from '../libs/api/georreferenciacion/data-access/
 import { HogarUbicacion } from '../libs/api/georreferenciacion/data-access/src/lib/entities/hogar-ubicacion.entity';
 import { Vivienda } from '../libs/api/vivienda/data-access/src/lib/entities/vivienda.entity';
 import { VivendaServicio } from '../libs/api/vivienda/data-access/src/lib/entities/vivienda-servicio.entity';
+import { HabitanteEducacion } from '../libs/api/educacion/data-access/src/lib/entities/habitante-educacion.entity';
+import { HabitanteLengua } from '../libs/api/educacion/data-access/src/lib/entities/habitante-lengua.entity';
+import { Hogar } from '../libs/api/poblacion/data-access/src/lib/entities/hogar.entity';
+import { Habitante } from '../libs/api/poblacion/data-access/src/lib/entities/habitante.entity';
 
 try {
   // Node 20.6+: carga .env sin depender de la librería `dotenv`.
@@ -49,6 +53,10 @@ export const AppDataSource = new DataSource({
     HogarUbicacion,
     Vivienda,
     VivendaServicio,
+    HabitanteEducacion,
+    HabitanteLengua,
+    Hogar,
+    Habitante,
   ],
   migrations: ['database/migrations/*.ts'],
   synchronize: false,

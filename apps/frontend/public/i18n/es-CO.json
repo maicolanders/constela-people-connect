@@ -119,5 +119,25 @@
     "servicio_conectividad": "Conectividad",
     "exportarCsv": "Exportar datos (CSV)",
     "errorCargarCobertura": "No se pudo cargar el reporte de cobertura"
+  },
+  "educacion": {
+    "educacionTitulo": "Educación",
+    "alfabetizado": "Sabe leer y escribir",
+    "asisteEscuela": "Asiste actualmente a un centro educativo",
+    "nivelEducativo": "Último nivel educativo alcanzado",
+    "lenguas": "Lenguas habladas",
+    "lengua": "Lengua",
+    "lenguaMaterna": "Lengua materna",
+    "agregarLengua": "Agregar lengua",
+    "quitar": "Quitar",
+    "guardarEducacion": "Guardar educación",
+    "errorGuardarEducacion": "No se pudo guardar la información educativa",
+    "indicadoresTitulo": "Indicadores educativos",
+    "todosLosSexos": "Todos",
+    "tasaAlfabetismo": "Tasa de alfabetismo",
+    "tasaAsistenciaEscolar": "Tasa de asistencia escolar",
+    "total": "Total",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarIndicadores": "No se pudo cargar el reporte de indicadores educativos"
   }
 }

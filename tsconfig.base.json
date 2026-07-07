@@ -92,7 +92,19 @@
       "@censo/web-vivienda-data-access": [
         "./libs/web/vivienda/data-access/src/index.ts"
       ],
-      "@censo/web-vivienda-feature": ["./libs/web/vivienda/feature/src/index.ts"]
+      "@censo/web-vivienda-feature": [
+        "./libs/web/vivienda/feature/src/index.ts"
+      ],
+      "@censo/api-educacion-data-access": [
+        "./libs/api/educacion/data-access/src/index.ts"
+      ],
+      "@censo/api-educacion-feature": [
+        "./libs/api/educacion/feature/src/index.ts"
+      ],
+      "@censo/web-educacion-data-access": [
+        "./libs/web/educacion/data-access/src/index.ts"
+      ],
+      "@censo/web-educacion-feature": ["./libs/web/educacion/feature/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]

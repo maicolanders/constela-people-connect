@@ -1,0 +1,72 @@
+<div class="mx-auto max-w-lg p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'educacion.educacionTitulo' | translate }}</h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" formControlName="alfabetizado" class="h-4 w-4 rounded border-slate-300" />
+      {{ 'educacion.alfabetizado' | translate }}
+    </label>
+
+    <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
+      <input type="checkbox" formControlName="asisteEscuela" class="h-4 w-4 rounded border-slate-300" />
+      {{ 'educacion.asisteEscuela' | translate }}
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'educacion.nivelEducativo' | translate }}</span>
+      <select formControlName="nivelEducativoCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+        <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of nivelesEducativos(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <h2 class="mb-2 mt-4 text-sm font-semibold text-slate-900">{{ 'educacion.lenguas' | translate }}</h2>
+    <div formArrayName="lenguas">
+      @for (control of lenguasFormArray.controls; track $index; let i = $index) {
+        <div [formGroupName]="i" class="mb-3 flex items-end gap-2 rounded border border-slate-200 p-3">
+          <label class="flex-1">
+            <span class="mb-1 block text-xs text-slate-600">{{ 'educacion.lengua' | translate }}</span>
+            <select formControlName="lenguaCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+              <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+              @for (lengua of lenguasDisponibles(); track lengua.id) {
+                <option [ngValue]="lengua.id">{{ lengua.nombre }}</option>
+              }
+            </select>
+          </label>
+          <label class="flex items-center gap-1 text-xs text-slate-600">
+            <input type="checkbox" formControlName="esLenguaMaterna" class="h-4 w-4 rounded border-slate-300" />
+            {{ 'educacion.lenguaMaterna' | translate }}
+          </label>
+          <button type="button" (click)="quitarLengua(i)" class="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700">
+            {{ 'educacion.quitar' | translate }}
+          </button>
+        </div>
+      }
+    </div>
+    <button
+      type="button"
+      (click)="agregarLengua()"
+      class="mb-4 rounded border border-slate-300 px-3 py-1 text-sm text-slate-700"
+    >
+      {{ 'educacion.agregarLengua' | translate }}
+    </button>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      {{ (guardando() ? 'poblacion.guardando' : 'educacion.guardarEducacion') | translate }}
+    </button>
+  </form>
+</div>

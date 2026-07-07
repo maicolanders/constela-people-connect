@@ -5,3 +5,4 @@ export * from './lib/estado-habitante.enum';
 export * from './lib/sexo-habitante.enum';
 export * from './lib/decision-revision-duplicado.enum';
 export * from './lib/clasificacion-ubicacion.enum';
+export * from './lib/estado-servicio.enum';

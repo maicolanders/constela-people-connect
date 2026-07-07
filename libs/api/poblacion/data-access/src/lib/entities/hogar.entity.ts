@@ -39,6 +39,15 @@ export class Hogar extends AuditableBaseEntity {
   @Column({ name: 'direccion_referencia', type: 'text', nullable: true })
   direccionReferencia!: string | null;
 
+  /**
+   * Columna simple (sin `@ManyToOne`): `domain:poblacion` evitaría un
+   * acoplamiento innecesario a `domain:vivienda` solo por este puntero. La
+   * asignación real vive en `HogarService.asignarVivienda` (mismo patrón que
+   * `jefeHogarId`/`actualizarJefeHogar`).
+   */
+  @Column({ name: 'vivienda_id', type: 'integer', nullable: true })
+  viviendaId!: number | null;
+
   @Column({ name: 'consentimiento_informado', type: 'boolean', default: false })
   consentimientoInformado!: boolean;
 

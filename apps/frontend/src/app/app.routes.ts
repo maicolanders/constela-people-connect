@@ -8,6 +8,7 @@ import {
 } from '@censo/web-poblacion-feature';
 import { IndicadoresDemograficosComponent, PiramidePoblacionalComponent } from '@censo/web-demografia-feature';
 import { MapaHogaresComponent } from '@censo/web-georreferenciacion-feature';
+import { CoberturaServiciosComponent, ViviendaFormComponent } from '@censo/web-vivienda-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -22,7 +23,9 @@ export const appRoutes: Route[] = [
       { path: 'poblacion/hogares/nuevo', component: HogarFormComponent },
       { path: 'poblacion/hogares/:hogarUuid/habitantes/nuevo', component: HabitanteFormComponent },
       { path: 'poblacion/hogares/:hogarUuid/ubicacion', component: HogarUbicacionFormComponent },
+      { path: 'poblacion/hogares/:hogarUuid/vivienda', component: ViviendaFormComponent },
       { path: 'poblacion/hogares/mapa', component: MapaHogaresComponent },
+      { path: 'vivienda/cobertura', component: CoberturaServiciosComponent },
       { path: 'poblacion/demografia/piramide', component: PiramidePoblacionalComponent },
       { path: 'poblacion/demografia/indicadores', component: IndicadoresDemograficosComponent },
     ],

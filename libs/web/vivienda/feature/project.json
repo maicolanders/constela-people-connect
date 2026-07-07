@@ -1,0 +1,26 @@
+{
+  "name": "web-vivienda-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/vivienda/feature/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:feature", "domain:vivienda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/vivienda/feature",
+        "main": "libs/web/vivienda/feature/src/index.ts",
+        "tsConfig": "libs/web/vivienda/feature/tsconfig.lib.json",
+        "assets": ["libs/web/vivienda/feature/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/vivienda/feature/jest.config.cts"
+      }
+    }
+  }
+}

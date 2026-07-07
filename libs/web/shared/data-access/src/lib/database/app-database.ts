@@ -74,6 +74,27 @@ export interface HogarUbicacionOffline {
   origen: OrigenRegistroOffline;
 }
 
+export interface ServicioViviendaOffline {
+  tipoServicioCatalogoItemId: number;
+  estado: string;
+  fuenteCatalogoItemId?: number | null;
+}
+
+/** 1:1 con el hogar (mismo criterio que HogarUbicacionOffline): reutiliza el uuid del hogar como clave. */
+export interface ViviendaOffline {
+  uuid: string;
+  hogarUuid: string;
+  comunidadId: number;
+  tipoViviendaCatalogoItemId: number;
+  materialParedCatalogoItemId: number;
+  materialPisoCatalogoItemId: number;
+  materialTechoCatalogoItemId: number;
+  numeroHabitaciones?: number | null;
+  numeroDormitorios: number;
+  servicios: ServicioViviendaOffline[];
+  origen: OrigenRegistroOffline;
+}
+
 export interface HabitanteOffline {
   uuid: string;
   /** Referencia por uuid al hogar (Fase 0.6): el hogarId numérico puede no existir todavía si se creó en la misma sesión offline. */
@@ -112,6 +133,7 @@ export class AppDatabase extends Dexie {
   habitantes!: Table<HabitanteOffline, string>;
   hogarUbicaciones!: Table<HogarUbicacionOffline, string>;
   ubicacionesGeograficasCache!: Table<UbicacionGeograficaCache, number>;
+  viviendas!: Table<ViviendaOffline, string>;
 
   constructor() {
     super('censo-indigena-db');
@@ -132,6 +154,15 @@ export class AppDatabase extends Dexie {
       habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
       hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
       ubicacionesGeograficasCache: 'id, padreId',
+    });
+    this.version(4).stores({
+      colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
+      catalogoCache: 'clave, tipoCodigo',
+      hogares: 'uuid, comunidadId, estado, origen',
+      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
+      ubicacionesGeograficasCache: 'id, padreId',
+      viviendas: 'uuid, hogarUuid, comunidadId',
     });
   }
 }

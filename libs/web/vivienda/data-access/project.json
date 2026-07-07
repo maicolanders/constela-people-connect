@@ -1,0 +1,26 @@
+{
+  "name": "web-vivienda-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/vivienda/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:data-access", "domain:vivienda"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/vivienda/data-access",
+        "main": "libs/web/vivienda/data-access/src/index.ts",
+        "tsConfig": "libs/web/vivienda/data-access/tsconfig.lib.json",
+        "assets": ["libs/web/vivienda/data-access/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/vivienda/data-access/jest.config.cts"
+      }
+    }
+  }
+}

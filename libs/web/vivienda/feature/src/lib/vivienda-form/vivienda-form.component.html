@@ -1,0 +1,109 @@
+<div class="mx-auto max-w-lg p-4">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'vivienda.viviendaTitulo' | translate }}</h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.tipoVivienda' | translate }}</span>
+      <select formControlName="tipoViviendaCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+        <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of tiposVivienda(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.materialPared' | translate }}</span>
+      <select formControlName="materialParedCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+        <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of materialesPared(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.materialPiso' | translate }}</span>
+      <select formControlName="materialPisoCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+        <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of materialesPiso(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.materialTecho' | translate }}</span>
+      <select formControlName="materialTechoCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+        <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+        @for (item of materialesTecho(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.numeroHabitaciones' | translate }}</span>
+      <input type="number" formControlName="numeroHabitaciones" class="w-full rounded border border-slate-300 px-3 py-2 text-sm" />
+    </label>
+
+    <label class="mb-1 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'vivienda.numeroDormitorios' | translate }}</span>
+      <input
+        type="number"
+        formControlName="numeroDormitorios"
+        (input)="actualizarHacinamiento()"
+        class="w-full rounded border border-slate-300 px-3 py-2 text-sm"
+      />
+    </label>
+    @if (hacinamientoEnVivo() !== null) {
+      <p class="mb-4 text-xs text-slate-500">
+        {{ 'vivienda.hacinamientoEnVivo' | translate }}: {{ hacinamientoEnVivo() }}
+      </p>
+    }
+
+    <h2 class="mb-2 mt-4 text-sm font-semibold text-slate-900">{{ 'vivienda.servicios' | translate }}</h2>
+    <div formArrayName="servicios">
+      @for (tipo of tiposServicio(); track tipo.id; let i = $index) {
+        <div [formGroupName]="i" class="mb-3 rounded border border-slate-200 p-3">
+          <p class="mb-2 text-sm font-medium text-slate-700">{{ tipo.nombre }}</p>
+          <label class="mb-2 block">
+            <span class="mb-1 block text-xs text-slate-600">{{ 'vivienda.estadoServicio' | translate }}</span>
+            <select formControlName="estado" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+              @for (estado of estadosServicio; track estado) {
+                <option [value]="estado">{{ 'vivienda.estadoServicio_' + estado | translate }}</option>
+              }
+            </select>
+          </label>
+          @if (fuentesPara(tipo.codigo).length > 0) {
+            <label class="block">
+              <span class="mb-1 block text-xs text-slate-600">{{ 'vivienda.fuenteServicio' | translate }}</span>
+              <select formControlName="fuenteCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2 text-sm">
+                <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
+                @for (fuente of fuentesPara(tipo.codigo); track fuente.id) {
+                  <option [ngValue]="fuente.id">{{ fuente.nombre }}</option>
+                }
+              </select>
+            </label>
+          }
+        </div>
+      }
+    </div>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
+    >
+      {{ (guardando() ? 'poblacion.guardando' : 'vivienda.guardarVivienda') | translate }}
+    </button>
+  </form>
+</div>

@@ -91,5 +91,33 @@
     "totalHogares": "Total de hogares",
     "totalHabitantes": "Total de habitantes",
     "suprimido": "Dato suprimido (RT-05)"
+  },
+  "vivienda": {
+    "viviendaTitulo": "Vivienda y servicios básicos",
+    "tipoVivienda": "Tipo de vivienda",
+    "materialPared": "Material de las paredes",
+    "materialPiso": "Material del piso",
+    "materialTecho": "Material del techo",
+    "numeroHabitaciones": "Número de habitaciones",
+    "numeroDormitorios": "Número de dormitorios",
+    "hacinamientoEnVivo": "Hacinamiento (habitantes por dormitorio)",
+    "servicios": "Servicios básicos",
+    "estadoServicio": "Estado",
+    "estadoServicio_si": "Sí",
+    "estadoServicio_no": "No",
+    "estadoServicio_parcial": "Parcial",
+    "fuenteServicio": "Fuente / tipo",
+    "guardarVivienda": "Guardar vivienda",
+    "errorGuardarVivienda": "No se pudo guardar la vivienda",
+    "coberturaTitulo": "Cobertura de servicios básicos",
+    "servicio": "Servicio",
+    "coberturaPorcentaje": "% de cobertura",
+    "servicio_agua_potable": "Agua potable",
+    "servicio_saneamiento": "Saneamiento",
+    "servicio_energia_electrica": "Energía eléctrica",
+    "servicio_manejo_residuos": "Manejo de residuos sólidos",
+    "servicio_conectividad": "Conectividad",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarCobertura": "No se pudo cargar el reporte de cobertura"
   }
 }

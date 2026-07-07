@@ -11,6 +11,8 @@ import { CatalogoItem } from '../libs/api/catalogo/data-access/src/lib/entities/
 import { CatalogoTipo } from '../libs/api/catalogo/data-access/src/lib/entities/catalogo-tipo.entity';
 import { UbicacionGeografica } from '../libs/api/georreferenciacion/data-access/src/lib/entities/ubicacion-geografica.entity';
 import { HogarUbicacion } from '../libs/api/georreferenciacion/data-access/src/lib/entities/hogar-ubicacion.entity';
+import { Vivienda } from '../libs/api/vivienda/data-access/src/lib/entities/vivienda.entity';
+import { VivendaServicio } from '../libs/api/vivienda/data-access/src/lib/entities/vivienda-servicio.entity';
 
 try {
   // Node 20.6+: carga .env sin depender de la librería `dotenv`.
@@ -45,6 +47,8 @@ export const AppDataSource = new DataSource({
     CatalogoItem,
     UbicacionGeografica,
     HogarUbicacion,
+    Vivienda,
+    VivendaServicio,
   ],
   migrations: ['database/migrations/*.ts'],
   synchronize: false,

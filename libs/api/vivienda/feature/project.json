@@ -1,0 +1,16 @@
+{
+  "name": "api-vivienda-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/vivienda/feature/src",
+  "projectType": "library",
+  "tags": ["scope:api", "type:feature", "domain:vivienda"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/api/vivienda/feature/jest.config.cts"
+      }
+    }
+  }
+}

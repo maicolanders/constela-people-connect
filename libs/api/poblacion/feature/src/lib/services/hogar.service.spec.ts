@@ -61,3 +61,18 @@ describe('HogarService.registrarUbicacion / obtenerUbicacion', () => {
     expect(hogarUbicacionService.obtenerPorHogar).toHaveBeenCalledWith(10);
   });
 });
+
+describe('HogarService.asignarVivienda', () => {
+  it('carga el hogar, fija viviendaId y lo guarda (mismo patrón que actualizarJefeHogar)', async () => {
+    const hogar = { id: 10, comunidadId: 3, estado: EstadoHogar.ACTIVO, viviendaId: null as number | null };
+    const hogarRepository = {
+      findOne: jest.fn().mockResolvedValue(hogar),
+      save: jest.fn().mockImplementation((h) => Promise.resolve(h)),
+    };
+    const servicio = new HogarService(hogarRepository as never, {} as never, {} as never);
+
+    await servicio.asignarVivienda(10, 77);
+
+    expect(hogarRepository.save).toHaveBeenCalledWith(expect.objectContaining({ viviendaId: 77 }));
+  });
+});

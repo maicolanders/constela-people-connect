@@ -114,6 +114,13 @@ export class HogarService {
     await this.hogarRepository.save(hogar);
   }
 
+  /** Invocado por ViviendaService al registrar la vivienda de un hogar (RF-04-01). */
+  async asignarVivienda(hogarId: number, viviendaId: number): Promise<void> {
+    const hogar = await this.obtener(hogarId);
+    hogar.viviendaId = viviendaId;
+    await this.hogarRepository.save(hogar);
+  }
+
   /** Corrección administrativa real de un registro erróneo (no es "dar de baja", ver ActualizarHogarDto). */
   async eliminar(id: number): Promise<void> {
     const hogar = await this.obtener(id);

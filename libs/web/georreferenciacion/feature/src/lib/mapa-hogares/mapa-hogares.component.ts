@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, Component, ElementRef, OnDestroy, ViewChild, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@censo/web-shared-data-access';
 import { generarCsv } from '@censo/shared-util';
@@ -38,7 +39,7 @@ interface ComunidadOpcion {
 @Component({
   selector: 'app-mapa-hogares',
   standalone: true,
-  imports: [FormsModule, TranslatePipe],
+  imports: [FormsModule, TranslatePipe, RouterLink],
   templateUrl: './mapa-hogares.component.html',
 })
 export class MapaHogaresComponent implements AfterViewInit, OnDestroy {

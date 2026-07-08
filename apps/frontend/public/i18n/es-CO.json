@@ -1,9 +1,28 @@
 {
+  "comun": {
+    "volver": "Volver",
+    "volverInicio": "Volver al inicio"
+  },
   "shell": {
     "title": "Censo Poblacional Indígena",
     "logout": "Cerrar sesión",
     "online": "En línea",
     "offline": "Sin conexión"
+  },
+  "home": {
+    "bienvenida": "Seleccione una opción para continuar",
+    "seccionCaptura": "Captura de campo",
+    "seccionReportes": "Reportes y análisis",
+    "descNuevoHogar": "Registrar un nuevo hogar y sus habitantes",
+    "descHabitantes": "Ver y buscar los habitantes ya registrados",
+    "descMapa": "Ubicación geográfica de los hogares",
+    "descCobertura": "Cobertura de servicios básicos por comunidad",
+    "descPiramide": "Distribución de la población por edad y sexo",
+    "descIndicadoresDemograficos": "Dependencia, envejecimiento, natalidad y mortalidad",
+    "descIndicadoresEducativos": "Alfabetismo y asistencia escolar",
+    "descIndicadoresEconomicos": "Desempleo y ocupación",
+    "descFlujosMigratorios": "Entradas, salidas y saldo migratorio",
+    "descCaracterizacionEtnica": "Pueblos/etnias y condiciones de vulnerabilidad"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -47,7 +66,17 @@
     "cancelar": "Cancelar",
     "edadEstimada": "No conozco la fecha de nacimiento exacta (edad estimada)",
     "edadAproximada": "Edad aproximada",
-    "identidadGenero": "Identidad de género"
+    "identidadGenero": "Identidad de género",
+    "habitanteGuardadoTitulo": "Habitante guardado con éxito",
+    "habitanteGuardadoDescripcion": "¿Qué desea hacer a continuación?",
+    "agregarOtroHabitante": "Agregar otro habitante a este hogar",
+    "irUbicacionHogar": "Registrar ubicación del hogar",
+    "irViviendaHogar": "Registrar vivienda del hogar",
+    "irEducacionHabitante": "Registrar educación de este habitante",
+    "irEconomiaHabitante": "Registrar economía de este habitante",
+    "irMigracionHabitante": "Registrar migración de este habitante",
+    "irEtniaVulnerabilidadHabitante": "Registrar identificación étnica y vulnerabilidad",
+    "irListadoHabitantes": "Ir al listado de habitantes"
   },
   "demografia": {
     "piramideTitulo": "Pirámide poblacional",
@@ -151,5 +180,47 @@
     "tasaDesempleo": "Tasa de desempleo",
     "exportarCsv": "Exportar datos (CSV)",
     "errorCargarIndicadores": "No se pudo cargar el reporte de indicadores económicos"
+  },
+  "migracion": {
+    "migracionTitulo": "Movimientos migratorios",
+    "eventosCapturados": "Eventos capturados",
+    "tipoMovimiento": "Tipo de movimiento",
+    "tipoMovimiento_interna": "Interna",
+    "tipoMovimiento_externa": "Externa",
+    "direccion": "Dirección",
+    "direccion_entrada": "Entrada",
+    "direccion_salida": "Salida",
+    "origen": "Origen",
+    "destino": "Destino",
+    "nodoConocido": "Ubicación en el árbol geográfico",
+    "textoLibre": "Otro (texto libre)",
+    "fechaMovimiento": "Fecha del movimiento",
+    "motivo": "Motivo",
+    "esTemporal": "Movimiento temporal",
+    "agregarEvento": "Agregar evento",
+    "errorGuardarMovimiento": "No se pudo guardar el evento migratorio",
+    "flujosTitulo": "Flujos migratorios",
+    "todosLosMotivos": "Todos los motivos",
+    "totalEntradas": "Total entradas",
+    "totalSalidas": "Total salidas",
+    "saldoNeto": "Saldo migratorio neto",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarFlujos": "No se pudo cargar el reporte de flujos migratorios"
+  },
+  "etniaVulnerabilidad": {
+    "tituloForm": "Identificación étnica y vulnerabilidad",
+    "etnia": "Pueblo o etnia",
+    "lenguaMaterna": "Lengua materna indígena",
+    "resguardo": "Resguardo o territorio asociado",
+    "condicionesVulnerabilidad": "Condiciones de vulnerabilidad",
+    "guardar": "Guardar",
+    "errorGuardar": "No se pudo guardar la información de identificación étnica",
+    "tituloReporte": "Caracterización étnica y de vulnerabilidad",
+    "consolidadoNacional": "Consolidado nacional (todas las comunidades)",
+    "totalHabitantes": "Total de habitantes en el reporte",
+    "porEtnia": "Por pueblo o etnia",
+    "porCondicionVulnerabilidad": "Por condición de vulnerabilidad",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarReporte": "No se pudo cargar el reporte de caracterización"
   }
 }

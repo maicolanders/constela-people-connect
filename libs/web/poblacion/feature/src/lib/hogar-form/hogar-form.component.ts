@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService, SyncService } from '@censo/web-shared-data-access';
 import { HogaresOfflineService, PeriodoActualService } from '@censo/web-poblacion-data-access';
 import { EstadoHogar } from '@censo/shared-data-access';
@@ -16,7 +16,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-hogar-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './hogar-form.component.html',
 })
 export class HogarFormComponent {
@@ -75,6 +75,7 @@ export class HogarFormComponent {
       );
 
       void this.syncService.sincronizar();
+
       await this.router.navigate(['/poblacion/hogares', uuid, 'habitantes', 'nuevo']);
     } catch {
       this.error.set('poblacion.errorGuardarHogar');

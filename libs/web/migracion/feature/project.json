@@ -1,0 +1,26 @@
+{
+  "name": "web-migracion-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/migracion/feature/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:feature", "domain:migracion"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/migracion/feature",
+        "main": "libs/web/migracion/feature/src/index.ts",
+        "tsConfig": "libs/web/migracion/feature/tsconfig.lib.json",
+        "assets": ["libs/web/migracion/feature/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/migracion/feature/jest.config.cts"
+      }
+    }
+  }
+}

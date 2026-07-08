@@ -2,7 +2,11 @@ import { Injectable } from '@angular/core';
 import Dexie, { Table } from 'dexie';
 
 export type OperacionSync = 'crear' | 'actualizar' | 'eliminar';
-export type EstadoColaSync = 'pendiente' | 'sincronizado' | 'conflicto' | 'error';
+export type EstadoColaSync =
+  | 'pendiente'
+  | 'sincronizado'
+  | 'conflicto'
+  | 'error';
 
 export interface ColaSincronizacionEntrada {
   id?: number;
@@ -142,6 +146,43 @@ export interface HabitanteOcupacionOffline {
 }
 
 /**
+ * Evento migratorio de un habitante (RF-07-01). A diferencia de
+ * `HabitanteEducacionOffline`/`HabitanteOcupacionOffline` (1:1, reutilizan el
+ * uuid del habitante), un habitante puede tener múltiples eventos: cada uno
+ * tiene su propio `uuid` y se filtra por `habitanteUuid` al listar.
+ */
+export interface MovimientoMigratorioOffline {
+  uuid: string;
+  habitanteUuid: string;
+  periodoCensalId: number;
+  tipoMovimiento: string;
+  direccion: string;
+  origenUbicacionGeograficaId?: number | null;
+  origenDescripcionLibre?: string | null;
+  destinoUbicacionGeograficaId?: number | null;
+  destinoDescripcionLibre?: string | null;
+  fechaMovimiento: string;
+  motivoCatalogoItemId: number;
+  esTemporal: boolean;
+  origen: OrigenRegistroOffline;
+}
+
+export interface CondicionVulnerabilidadHabitanteOffline {
+  condicionVulnerabilidadCatalogoItemId: number;
+}
+
+/** 1:1 con el habitante (mismo criterio que HabitanteEducacionOffline): reutiliza el uuid del habitante como clave. */
+export interface HabitanteEtniaOffline {
+  uuid: string;
+  habitanteUuid: string;
+  etniaCatalogoItemId: number;
+  lenguaMaternaCatalogoItemId?: number | null;
+  resguardoUbicacionGeograficaId?: number | null;
+  condicionesVulnerabilidad: CondicionVulnerabilidadHabitanteOffline[];
+  origen: OrigenRegistroOffline;
+}
+
+/**
  * Base de datos IndexedDB (offline-first, RNF-01). Los dominios de captura de
  * las Fases 1+ (habitantes, hogares, viviendas, ...) añadirán sus propias
  * tablas incrementando `this.version(N)` con el esquema completo acumulado
@@ -162,6 +203,8 @@ export class AppDatabase extends Dexie {
   viviendas!: Table<ViviendaOffline, string>;
   habitanteEducaciones!: Table<HabitanteEducacionOffline, string>;
   habitanteOcupaciones!: Table<HabitanteOcupacionOffline, string>;
+  movimientosMigratorios!: Table<MovimientoMigratorioOffline, string>;
+  habitanteEtnias!: Table<HabitanteEtniaOffline, string>;
 
   constructor() {
     super('censo-indigena-db');
@@ -173,13 +216,15 @@ export class AppDatabase extends Dexie {
       colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
-      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
     });
     this.version(3).stores({
       colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
-      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
       hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
       ubicacionesGeograficasCache: 'id, padreId',
     });
@@ -187,7 +232,8 @@ export class AppDatabase extends Dexie {
       colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
-      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
       hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
       ubicacionesGeograficasCache: 'id, padreId',
       viviendas: 'uuid, hogarUuid, comunidadId',
@@ -196,7 +242,8 @@ export class AppDatabase extends Dexie {
       colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
-      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
       hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
       ubicacionesGeograficasCache: 'id, padreId',
       viviendas: 'uuid, hogarUuid, comunidadId',
@@ -206,12 +253,40 @@ export class AppDatabase extends Dexie {
       colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
       catalogoCache: 'clave, tipoCodigo',
       hogares: 'uuid, comunidadId, estado, origen',
-      habitantes: 'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
       hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
       ubicacionesGeograficasCache: 'id, padreId',
       viviendas: 'uuid, hogarUuid, comunidadId',
       habitanteEducaciones: 'uuid, habitanteUuid',
       habitanteOcupaciones: 'uuid, habitanteUuid',
+    });
+    this.version(7).stores({
+      colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
+      catalogoCache: 'clave, tipoCodigo',
+      hogares: 'uuid, comunidadId, estado, origen',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
+      ubicacionesGeograficasCache: 'id, padreId',
+      viviendas: 'uuid, hogarUuid, comunidadId',
+      habitanteEducaciones: 'uuid, habitanteUuid',
+      habitanteOcupaciones: 'uuid, habitanteUuid',
+      movimientosMigratorios: 'uuid, habitanteUuid',
+    });
+    this.version(8).stores({
+      colaSincronizacion: '++id, dominio, uuid, estado, [dominio+uuid]',
+      catalogoCache: 'clave, tipoCodigo',
+      hogares: 'uuid, comunidadId, estado, origen',
+      habitantes:
+        'uuid, comunidadId, hogarUuid, estado, origen, [comunidadId+estado]',
+      hogarUbicaciones: 'uuid, hogarUuid, comunidadId',
+      ubicacionesGeograficasCache: 'id, padreId',
+      viviendas: 'uuid, hogarUuid, comunidadId',
+      habitanteEducaciones: 'uuid, habitanteUuid',
+      habitanteOcupaciones: 'uuid, habitanteUuid',
+      movimientosMigratorios: 'uuid, habitanteUuid',
+      habitanteEtnias: 'uuid, habitanteUuid',
     });
   }
 }

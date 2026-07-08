@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@censo/web-shared-data-access';
 import { BucketPiramide, PiramidePoblacionalService } from '@censo/web-demografia-data-access';
@@ -38,7 +39,7 @@ interface FilaPiramideVista extends FilaPiramide {
 @Component({
   selector: 'app-piramide-poblacional',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './piramide-poblacional.component.html',
 })
 export class PiramidePoblacionalComponent implements OnInit {

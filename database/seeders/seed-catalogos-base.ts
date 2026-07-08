@@ -28,7 +28,10 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'tarjeta_identidad', nombre: 'Tarjeta de identidad' },
       { codigo: 'registro_civil', nombre: 'Registro civil de nacimiento' },
       { codigo: 'cedula_extranjeria', nombre: 'Cédula de extranjería' },
-      { codigo: 'sin_documento', nombre: 'Sin documento (identificador interno)' },
+      {
+        codigo: 'sin_documento',
+        nombre: 'Sin documento (identificador interno)',
+      },
     ],
   },
   {
@@ -66,7 +69,10 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'pais', nombre: 'País' },
       { codigo: 'departamento', nombre: 'Departamento' },
       { codigo: 'municipio', nombre: 'Municipio' },
-      { codigo: 'resguardo_territorio', nombre: 'Resguardo / territorio indígena' },
+      {
+        codigo: 'resguardo_territorio',
+        nombre: 'Resguardo / territorio indígena',
+      },
       { codigo: 'vereda_comunidad', nombre: 'Vereda / comunidad' },
     ],
   },
@@ -98,12 +104,36 @@ const CATALOGOS: CatalogoSemilla[] = [
     ],
   },
   {
+    codigo: 'etnia',
+    nombre: 'Pueblo o etnia',
+    jerarquico: false,
+    items: [
+      { codigo: 'wayuu', nombre: 'Wayuu' },
+      { codigo: 'nasa', nombre: 'Nasa' },
+      { codigo: 'embera', nombre: 'Emberá' },
+      { codigo: 'misak_guambiano', nombre: 'Misak (Guambiano)' },
+      { codigo: 'pasto', nombre: 'Pasto' },
+      { codigo: 'zenu', nombre: 'Zenú' },
+      { codigo: 'wounaan', nombre: 'Wounaan' },
+      { codigo: 'kogui', nombre: 'Kogui' },
+      { codigo: 'arhuaco', nombre: 'Arhuaco' },
+      { codigo: 'wiwa', nombre: 'Wiwa' },
+      { codigo: 'kankuamo', nombre: 'Kankuamo' },
+      { codigo: 'pijao', nombre: 'Pijao' },
+      { codigo: 'inga', nombre: 'Inga' },
+      { codigo: 'otro', nombre: 'Otro pueblo' },
+    ],
+  },
+  {
     codigo: 'tipo_servicio_vivienda',
     nombre: 'Tipo de servicio de vivienda',
     jerarquico: false,
     items: [
       { codigo: 'agua_potable', nombre: 'Agua potable' },
-      { codigo: 'saneamiento', nombre: 'Saneamiento / disposición de excretas' },
+      {
+        codigo: 'saneamiento',
+        nombre: 'Saneamiento / disposición de excretas',
+      },
       { codigo: 'energia_electrica', nombre: 'Energía eléctrica' },
       { codigo: 'manejo_residuos', nombre: 'Manejo de residuos sólidos' },
       { codigo: 'conectividad', nombre: 'Conectividad (telefonía/internet)' },
@@ -143,7 +173,10 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'casa', nombre: 'Casa' },
       { codigo: 'apartamento', nombre: 'Apartamento' },
       { codigo: 'choza_rancho', nombre: 'Choza o rancho' },
-      { codigo: 'vivienda_tradicional_indigena', nombre: 'Vivienda tradicional indígena' },
+      {
+        codigo: 'vivienda_tradicional_indigena',
+        nombre: 'Vivienda tradicional indígena',
+      },
       { codigo: 'otro', nombre: 'Otro' },
     ],
   },
@@ -156,7 +189,10 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'adobe_bahareque', nombre: 'Adobe o bahareque' },
       { codigo: 'madera', nombre: 'Madera' },
       { codigo: 'guadua_cana', nombre: 'Guadua o caña' },
-      { codigo: 'material_natural', nombre: 'Material natural (palma, hoja, etc.)' },
+      {
+        codigo: 'material_natural',
+        nombre: 'Material natural (palma, hoja, etc.)',
+      },
       { codigo: 'otro', nombre: 'Otro' },
     ],
   },
@@ -195,7 +231,10 @@ const CATALOGOS: CatalogoSemilla[] = [
     nombre: 'Ocupación',
     jerarquico: false,
     items: [
-      { codigo: 'agricultura_subsistencia', nombre: 'Agricultura de subsistencia' },
+      {
+        codigo: 'agricultura_subsistencia',
+        nombre: 'Agricultura de subsistencia',
+      },
       { codigo: 'artesania', nombre: 'Artesanía' },
       { codigo: 'pesca', nombre: 'Pesca' },
       { codigo: 'jornalero', nombre: 'Jornalero' },
@@ -240,9 +279,18 @@ const CATALOGOS: CatalogoSemilla[] = [
       { codigo: 'discapacidad_visual', nombre: 'Discapacidad visual' },
       { codigo: 'discapacidad_auditiva', nombre: 'Discapacidad auditiva' },
       { codigo: 'discapacidad_cognitiva', nombre: 'Discapacidad cognitiva' },
-      { codigo: 'victima_conflicto_armado', nombre: 'Víctima de conflicto armado' },
-      { codigo: 'adulto_mayor_sin_apoyo', nombre: 'Adulto mayor sin red de apoyo' },
-      { codigo: 'mujer_gestante_lactante', nombre: 'Mujer gestante o lactante' },
+      {
+        codigo: 'victima_conflicto_armado',
+        nombre: 'Víctima de conflicto armado',
+      },
+      {
+        codigo: 'adulto_mayor_sin_apoyo',
+        nombre: 'Adulto mayor sin red de apoyo',
+      },
+      {
+        codigo: 'mujer_gestante_lactante',
+        nombre: 'Mujer gestante o lactante',
+      },
       { codigo: 'ninez_en_riesgo', nombre: 'Niñez en riesgo' },
       { codigo: 'otro', nombre: 'Otra' },
     ],
@@ -306,9 +354,10 @@ export async function seedCatalogosBase(dataSource: DataSource): Promise<void> {
       [catalogo.codigo, catalogo.nombre, catalogo.jerarquico],
     );
 
-    const [{ id: catalogoTipoId }] = await dataSource.query(`SELECT id FROM catalogo_tipos WHERE codigo = $1;`, [
-      catalogo.codigo,
-    ]);
+    const [{ id: catalogoTipoId }] = await dataSource.query(
+      `SELECT id FROM catalogo_tipos WHERE codigo = $1;`,
+      [catalogo.codigo],
+    );
 
     for (const [indice, item] of catalogo.items.entries()) {
       await dataSource.query(

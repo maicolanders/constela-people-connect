@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EducacionOfflineService } from '@censo/web-educacion-data-access';
@@ -13,7 +13,7 @@ import { EducacionOfflineService } from '@censo/web-educacion-data-access';
 @Component({
   selector: 'app-educacion-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './educacion-form.component.html',
 })
 export class EducacionFormComponent implements OnInit {

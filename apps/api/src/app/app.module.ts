@@ -12,7 +12,12 @@ import { ApiGeorreferenciacionFeatureModule } from '@censo/api-georreferenciacio
 import { ApiViviendaFeatureModule } from '@censo/api-vivienda-feature';
 import { ApiEducacionFeatureModule } from '@censo/api-educacion-feature';
 import { ApiEconomiaFeatureModule } from '@censo/api-economia-feature';
-import { ApiSharedFeatureModule, GlobalExceptionFilter } from '@censo/api-shared-feature';
+import { ApiMigracionFeatureModule } from '@censo/api-migracion-feature';
+import { ApiEtniaVulnerabilidadFeatureModule } from '@censo/api-etnia-vulnerabilidad-feature';
+import {
+  ApiSharedFeatureModule,
+  GlobalExceptionFilter,
+} from '@censo/api-shared-feature';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
@@ -45,6 +50,8 @@ import { AppService } from './app.service';
     ApiViviendaFeatureModule,
     ApiEducacionFeatureModule,
     ApiEconomiaFeatureModule,
+    ApiMigracionFeatureModule,
+    ApiEtniaVulnerabilidadFeatureModule,
   ],
   controllers: [AppController],
   providers: [

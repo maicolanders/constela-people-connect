@@ -1,0 +1,16 @@
+{
+  "name": "api-etnia-vulnerabilidad-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/api/etnia-vulnerabilidad/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:api", "type:data-access", "domain:etnia-vulnerabilidad"],
+  "targets": {
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/api/etnia-vulnerabilidad/data-access/jest.config.cts"
+      }
+    }
+  }
+}

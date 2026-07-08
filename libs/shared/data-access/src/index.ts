@@ -6,3 +6,5 @@ export * from './lib/sexo-habitante.enum';
 export * from './lib/decision-revision-duplicado.enum';
 export * from './lib/clasificacion-ubicacion.enum';
 export * from './lib/estado-servicio.enum';
+export * from './lib/tipo-movimiento-migratorio.enum';
+export * from './lib/direccion-migratoria.enum';

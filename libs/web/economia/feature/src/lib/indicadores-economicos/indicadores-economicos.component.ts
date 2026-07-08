@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@censo/web-shared-data-access';
 import { generarCsv } from '@censo/shared-util';
@@ -34,7 +35,7 @@ interface PeriodoOpcion {
 @Component({
   selector: 'app-indicadores-economicos',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './indicadores-economicos.component.html',
 })
 export class IndicadoresEconomicosComponent implements OnInit {

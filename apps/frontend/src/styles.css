@@ -1,2 +1,26 @@
 /* You can add global styles to this file, and also import other style files */
 @import 'tailwindcss';
+
+/*
+ * Paleta del proyecto: "primary" (verde-azulado/territorio) reemplaza el
+ * negro genérico (slate-900) usado antes en botones/enlaces principales.
+ * Definida como escala propia en vez de alias de "teal" para tener un único
+ * punto de ajuste si la identidad visual del proyecto cambia más adelante.
+ */
+@theme {
+  --color-primary-50: #f0fdfa;
+  --color-primary-100: #ccfbf1;
+  --color-primary-200: #99f6e4;
+  --color-primary-300: #5eead4;
+  --color-primary-400: #2dd4bf;
+  --color-primary-500: #14b8a6;
+  --color-primary-600: #0d9488;
+  --color-primary-700: #0f766e;
+  --color-primary-800: #115e59;
+  --color-primary-900: #134e4a;
+  --color-primary-950: #042f2e;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+}

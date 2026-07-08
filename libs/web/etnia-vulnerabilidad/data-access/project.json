@@ -1,0 +1,26 @@
+{
+  "name": "web-etnia-vulnerabilidad-data-access",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/etnia-vulnerabilidad/data-access/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:data-access", "domain:etnia-vulnerabilidad"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/etnia-vulnerabilidad/data-access",
+        "main": "libs/web/etnia-vulnerabilidad/data-access/src/index.ts",
+        "tsConfig": "libs/web/etnia-vulnerabilidad/data-access/tsconfig.lib.json",
+        "assets": ["libs/web/etnia-vulnerabilidad/data-access/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/etnia-vulnerabilidad/data-access/jest.config.cts"
+      }
+    }
+  }
+}

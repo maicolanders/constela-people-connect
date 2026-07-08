@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
 import { HabitantesOfflineService, HogaresOfflineService } from '@censo/web-poblacion-data-access';
 import { EstadoHabitante, EstadoServicio } from '@censo/shared-data-access';
@@ -27,7 +27,7 @@ const CATALOGO_FUENTE_POR_SERVICIO: Record<string, string> = {
 @Component({
   selector: 'app-vivienda-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './vivienda-form.component.html',
 })
 export class ViviendaFormComponent implements OnInit {

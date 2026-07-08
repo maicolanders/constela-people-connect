@@ -1,9 +1,18 @@
 <div class="mx-auto max-w-2xl p-4">
-  <div class="mb-4 flex items-center justify-between">
-    <h1 class="text-lg font-semibold text-slate-900">{{ 'poblacion.habitantesTitulo' | translate }}</h1>
+  <a
+    routerLink="/"
+    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+  >
+    <span aria-hidden="true">←</span> {{ 'comun.volverInicio' | translate }}
+  </a>
+
+  <div class="mb-4 flex flex-wrap items-center justify-between gap-3">
+    <h1 class="text-lg font-semibold text-slate-900">
+      {{ 'poblacion.habitantesTitulo' | translate }}
+    </h1>
     <a
       routerLink="/poblacion/hogares/nuevo"
-      class="rounded bg-slate-900 px-3 py-1.5 text-sm font-medium text-white"
+      class="rounded bg-primary-700 px-3 py-2 text-sm font-medium text-white hover:bg-primary-800"
     >
       {{ 'poblacion.nuevoHogar' | translate }}
     </a>
@@ -12,21 +21,83 @@
   @if (cargando()) {
     <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
   } @else if (sinComunidad()) {
-    <p class="text-sm text-red-600">{{ 'poblacion.sinComunidadAsignada' | translate }}</p>
+    <p class="text-sm text-red-600">
+      {{ 'poblacion.sinComunidadAsignada' | translate }}
+    </p>
   } @else {
     <p class="mb-4 text-sm text-slate-600">
       {{ 'poblacion.totalActivos' | translate }}:
       <span class="font-semibold text-slate-900">{{ total() ?? '—' }}</span>
     </p>
 
-    <ul class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+    <ul
+      class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white"
+    >
       @for (habitante of habitantes(); track habitante.uuid) {
-        <li class="flex items-center justify-between px-4 py-3 text-sm">
-          <span class="text-slate-900">{{ habitante.nombres }} {{ habitante.apellidos }}</span>
-          <span class="text-slate-500">{{ habitante.estado }}</span>
+        <li
+          class="flex flex-col gap-2 px-4 py-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+        >
+          <div class="flex items-center gap-2">
+            <span class="font-medium text-slate-900"
+              >{{ habitante.nombres }} {{ habitante.apellidos }}</span
+            >
+            <span
+              class="rounded-full px-2 py-0.5 text-xs font-medium"
+              [class.bg-primary-100]="habitante.estado === 'activo'"
+              [class.text-primary-800]="habitante.estado === 'activo'"
+              [class.bg-slate-100]="habitante.estado !== 'activo'"
+              [class.text-slate-600]="habitante.estado !== 'activo'"
+            >
+              {{ habitante.estado }}
+            </span>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <a
+              [routerLink]="[
+                '/poblacion/habitantes',
+                habitante.uuid,
+                'educacion',
+              ]"
+              class="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-primary-300 hover:text-primary-700"
+            >
+              {{ 'educacion.educacionTitulo' | translate }}
+            </a>
+            <a
+              [routerLink]="[
+                '/poblacion/habitantes',
+                habitante.uuid,
+                'economia',
+              ]"
+              class="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-primary-300 hover:text-primary-700"
+            >
+              {{ 'economia.economiaTitulo' | translate }}
+            </a>
+            <a
+              [routerLink]="[
+                '/poblacion/habitantes',
+                habitante.uuid,
+                'migracion',
+              ]"
+              class="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-primary-300 hover:text-primary-700"
+            >
+              {{ 'migracion.migracionTitulo' | translate }}
+            </a>
+            <a
+              [routerLink]="[
+                '/poblacion/habitantes',
+                habitante.uuid,
+                'etnia-vulnerabilidad',
+              ]"
+              class="rounded border border-slate-300 px-2 py-1 text-xs font-medium text-slate-700 hover:border-primary-300 hover:text-primary-700"
+            >
+              {{ 'etniaVulnerabilidad.tituloForm' | translate }}
+            </a>
+          </div>
         </li>
       } @empty {
-        <li class="px-4 py-3 text-sm text-slate-500">{{ 'poblacion.sinHabitantes' | translate }}</li>
+        <li class="px-4 py-3 text-sm text-slate-500">
+          {{ 'poblacion.sinHabitantes' | translate }}
+        </li>
       }
     </ul>
   }

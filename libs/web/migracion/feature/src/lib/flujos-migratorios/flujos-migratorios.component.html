@@ -1,0 +1,117 @@
+<div class="mx-auto max-w-2xl p-4">
+  <a
+    routerLink="/"
+    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+  >
+    <span aria-hidden="true">←</span> {{ 'comun.volverInicio' | translate }}
+  </a>
+
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">
+    {{ 'migracion.flujosTitulo' | translate }}
+  </h1>
+
+  <div class="mb-4 flex flex-wrap gap-3">
+    <select
+      class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      [value]="comunidadId()"
+      (change)="onComunidadChange($any($event.target).value)"
+    >
+      @for (comunidad of comunidades(); track comunidad.id) {
+        <option [value]="comunidad.id">{{ comunidad.nombre }}</option>
+      }
+    </select>
+
+    <select
+      class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      [value]="periodoCensalId()"
+      (change)="onPeriodoChange($any($event.target).value)"
+    >
+      @for (periodo of periodos(); track periodo.id) {
+        <option [value]="periodo.id">{{ periodo.nombre }}</option>
+      }
+    </select>
+
+    <select
+      class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      [value]="motivoCatalogoItemId()"
+      (change)="onMotivoChange($any($event.target).value)"
+    >
+      <option value="">{{ 'migracion.todosLosMotivos' | translate }}</option>
+      @for (motivo of motivos(); track motivo.id) {
+        <option [value]="motivo.id">{{ motivo.nombre }}</option>
+      }
+    </select>
+
+    @if (flujos(); as datos) {
+      @if (datos.flujos.length > 0) {
+        <button
+          type="button"
+          class="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          (click)="exportarCsv()"
+        >
+          {{ 'migracion.exportarCsv' | translate }}
+        </button>
+      }
+    }
+  </div>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else if (error()) {
+    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+  } @else if (flujos(); as datos) {
+    <div class="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs text-slate-500">
+          {{ 'migracion.totalEntradas' | translate }}
+        </p>
+        <p class="text-xl font-semibold text-slate-900">
+          {{ datos.totalEntradas ?? '—' }}
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs text-slate-500">
+          {{ 'migracion.totalSalidas' | translate }}
+        </p>
+        <p class="text-xl font-semibold text-slate-900">
+          {{ datos.totalSalidas ?? '—' }}
+        </p>
+      </div>
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <p class="text-xs text-slate-500">
+          {{ 'migracion.saldoNeto' | translate }}
+        </p>
+        <p class="text-xl font-semibold text-slate-900">
+          {{ datos.saldoNeto ?? '—' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full rounded-lg border border-slate-200 bg-white text-sm">
+        <thead>
+          <tr class="border-b border-slate-200 text-left text-slate-500">
+            <th class="p-3">{{ 'migracion.origen' | translate }}</th>
+            <th class="p-3">{{ 'migracion.destino' | translate }}</th>
+            <th class="p-3">{{ 'educacion.total' | translate }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (fila of datos.flujos; track fila.origen + fila.destino) {
+            <tr class="border-b border-slate-100">
+              <td class="p-3">{{ fila.origen }}</td>
+              <td class="p-3">{{ fila.destino }}</td>
+              <td class="p-3">
+                @if (fila.suprimido) {
+                  {{ 'demografia.suprimidoPorAnonimizacion' | translate }}
+                } @else {
+                  {{ fila.total }}
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

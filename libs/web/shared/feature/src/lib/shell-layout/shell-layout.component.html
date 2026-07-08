@@ -1,15 +1,19 @@
 <div class="flex min-h-screen flex-col">
-  <header class="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3">
-    <h1 class="text-sm font-semibold text-slate-900">{{ 'shell.title' | translate }}</h1>
-    <div class="flex items-center gap-3">
+  <header
+    class="sticky top-0 z-10 flex items-center justify-between gap-2 border-b border-primary-900 bg-primary-800 px-4 py-3 shadow-sm"
+  >
+    <a routerLink="/" class="truncate text-sm font-semibold text-white">{{
+      'shell.title' | translate
+    }}</a>
+    <div class="flex shrink-0 items-center gap-3">
       <app-offline-indicator />
-      <button type="button" class="text-sm text-slate-600 hover:text-slate-900" (click)="cerrarSesion()">
+      <button
+        type="button"
+        class="rounded px-2 py-1 text-sm font-medium text-primary-100 hover:bg-primary-700 hover:text-white"
+        (click)="cerrarSesion()"
+      >
         {{ 'shell.logout' | translate }}
       </button>
-    </div>
-    <!-- Profile info -->
-    <div>
-
     </div>
   </header>
 

@@ -1,164 +1,289 @@
 <div class="mx-auto max-w-lg p-4">
-  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'poblacion.nuevoHabitanteTitulo' | translate }}</h1>
+  <a
+    routerLink="/poblacion/habitantes"
+    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+  >
+    <span aria-hidden="true">←</span> {{ 'comun.volver' | translate }}
+  </a>
 
-  @if (candidatosDuplicado(); as candidatos) {
-    <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
-      <p class="mb-2 text-sm font-medium text-amber-900">{{ 'poblacion.posibleDuplicadoTitulo' | translate }}</p>
-      <ul class="mb-3 space-y-1 text-sm text-amber-800">
-        @for (candidato of candidatos; track candidato.uuid) {
-          <li>{{ candidato.nombres }} {{ candidato.apellidos }} — {{ (candidato.score * 100).toFixed(0) }}%</li>
-        }
-      </ul>
-      <div class="flex gap-2">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">
+    {{ 'poblacion.nuevoHabitanteTitulo' | translate }}
+  </h1>
+
+  @if (habitanteGuardado(); as guardado) {
+    <div class="rounded-lg border border-primary-300 bg-primary-50 p-5">
+      <p
+        class="mb-1 flex items-center gap-2 text-sm font-semibold text-primary-900"
+      >
+        <span aria-hidden="true">✓</span>
+        {{ 'poblacion.habitanteGuardadoTitulo' | translate }}
+      </p>
+      <p class="mb-4 text-sm text-primary-800">
+        {{ 'poblacion.habitanteGuardadoDescripcion' | translate }}
+      </p>
+
+      <div class="flex flex-col gap-2">
         <button
           type="button"
-          class="rounded bg-amber-600 px-3 py-1.5 text-sm font-medium text-white"
-          (click)="confirmarNoEsDuplicado()"
+          (click)="agregarOtroHabitante()"
+          class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800"
         >
-          {{ 'poblacion.confirmarNoDuplicado' | translate }}
+          {{ 'poblacion.agregarOtroHabitante' | translate }}
         </button>
-        <button
-          type="button"
-          class="rounded border border-amber-300 px-3 py-1.5 text-sm text-amber-900"
-          (click)="cancelarDuplicado()"
+        <a
+          [routerLink]="['/poblacion/hogares', hogarUuid, 'ubicacion']"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
         >
-          {{ 'poblacion.cancelar' | translate }}
-        </button>
+          {{ 'poblacion.irUbicacionHogar' | translate }}
+        </a>
+        <a
+          [routerLink]="['/poblacion/hogares', hogarUuid, 'vivienda']"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
+        >
+          {{ 'poblacion.irViviendaHogar' | translate }}
+        </a>
+        <a
+          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'educacion']"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
+        >
+          {{ 'poblacion.irEducacionHabitante' | translate }}
+        </a>
+        <a
+          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'economia']"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
+        >
+          {{ 'poblacion.irEconomiaHabitante' | translate }}
+        </a>
+        <a
+          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'migracion']"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
+        >
+          {{ 'poblacion.irMigracionHabitante' | translate }}
+        </a>
+        <a
+          [routerLink]="[
+            '/poblacion/habitantes',
+            guardado.uuid,
+            'etnia-vulnerabilidad',
+          ]"
+          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
+        >
+          {{ 'poblacion.irEtniaVulnerabilidadHabitante' | translate }}
+        </a>
+        <a
+          routerLink="/poblacion/habitantes"
+          class="w-full rounded px-4 py-2.5 text-center text-sm font-medium text-primary-700 hover:bg-primary-100"
+        >
+          {{ 'poblacion.irListadoHabitantes' | translate }}
+        </a>
       </div>
     </div>
-  }
-
-  <form
-    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
-    [formGroup]="formulario"
-    (ngSubmit)="guardar()"
-  >
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="nombres">{{ 'poblacion.nombres' | translate }}</label>
-    <input
-      id="nombres"
-      type="text"
-      formControlName="nombres"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    />
-
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="apellidos">{{ 'poblacion.apellidos' | translate }}</label>
-    <input
-      id="apellidos"
-      type="text"
-      formControlName="apellidos"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    />
-
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="tipoDocumentoId">
-      {{ 'poblacion.tipoDocumento' | translate }}
-    </label>
-    <select
-      id="tipoDocumentoId"
-      formControlName="tipoDocumentoId"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    >
-      <option [value]="null">—</option>
-      @for (tipo of tiposDocumento(); track tipo.id) {
-        <option [value]="tipo.id">{{ tipo.nombre }}</option>
-      }
-    </select>
-
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="numeroDocumento">
-      {{ 'poblacion.numeroDocumento' | translate }}
-    </label>
-    <input
-      id="numeroDocumento"
-      type="text"
-      formControlName="numeroDocumento"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    />
-
-    <label class="mb-2 flex items-center gap-2 text-sm text-slate-700">
-      <input type="checkbox" formControlName="edadEstimada" class="h-4 w-4 rounded border-slate-300" />
-      {{ 'poblacion.edadEstimada' | translate }}
-    </label>
-
-    @if (!formulario.controls.edadEstimada.value) {
-      <label class="mb-1 block text-sm font-medium text-slate-700" for="fechaNacimiento">
-        {{ 'poblacion.fechaNacimiento' | translate }}
-      </label>
-      <input
-        id="fechaNacimiento"
-        type="date"
-        formControlName="fechaNacimiento"
-        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-      />
-    } @else {
-      <label class="mb-1 block text-sm font-medium text-slate-700" for="edadAproximada">
-        {{ 'poblacion.edadAproximada' | translate }}
-      </label>
-      <input
-        id="edadAproximada"
-        type="number"
-        min="0"
-        max="120"
-        formControlName="edadAproximada"
-        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-      />
+  } @else {
+    @if (candidatosDuplicado(); as candidatos) {
+      <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
+        <p class="mb-2 text-sm font-medium text-amber-900">
+          {{ 'poblacion.posibleDuplicadoTitulo' | translate }}
+        </p>
+        <ul class="mb-3 space-y-1 text-sm text-amber-800">
+          @for (candidato of candidatos; track candidato.uuid) {
+            <li>
+              {{ candidato.nombres }} {{ candidato.apellidos }} —
+              {{ (candidato.score * 100).toFixed(0) }}%
+            </li>
+          }
+        </ul>
+        <div class="flex flex-wrap gap-2">
+          <button
+            type="button"
+            class="rounded bg-amber-600 px-3 py-2 text-sm font-medium text-white hover:bg-amber-700"
+            (click)="confirmarNoEsDuplicado()"
+          >
+            {{ 'poblacion.confirmarNoDuplicado' | translate }}
+          </button>
+          <button
+            type="button"
+            class="rounded border border-amber-300 px-3 py-2 text-sm text-amber-900 hover:bg-amber-100"
+            (click)="cancelarDuplicado()"
+          >
+            {{ 'poblacion.cancelar' | translate }}
+          </button>
+        </div>
+      </div>
     }
 
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="sexo">{{ 'poblacion.sexo' | translate }}</label>
-    <select
-      id="sexo"
-      formControlName="sexo"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+    <form
+      class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+      [formGroup]="formulario"
+      (ngSubmit)="guardar()"
     >
-      <option value="">—</option>
-      @for (sexo of sexos; track sexo) {
-        <option [value]="sexo">{{ 'poblacion.sexoValor.' + sexo | translate }}</option>
-      }
-    </select>
+      <label
+        class="mb-1 block text-sm font-medium text-slate-700"
+        for="nombres"
+        >{{ 'poblacion.nombres' | translate }}</label
+      >
+      <input
+        id="nombres"
+        type="text"
+        formControlName="nombres"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
 
-    <label class="mb-1 block text-sm font-medium text-slate-700" for="parentescoCatalogoItemId">
-      {{ 'poblacion.parentesco' | translate }}
-    </label>
-    <select
-      id="parentescoCatalogoItemId"
-      formControlName="parentescoCatalogoItemId"
-      class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
-    >
-      <option [value]="null">—</option>
-      @for (parentesco of parentescos(); track parentesco.id) {
-        <option [value]="parentesco.id">{{ parentesco.nombre }}</option>
-      }
-    </select>
+      <label
+        class="mb-1 block text-sm font-medium text-slate-700"
+        for="apellidos"
+        >{{ 'poblacion.apellidos' | translate }}</label
+      >
+      <input
+        id="apellidos"
+        type="text"
+        formControlName="apellidos"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
 
-    @if (capturaIdentidadGenero()) {
-      <label class="mb-1 block text-sm font-medium text-slate-700" for="identidadGeneroCatalogoItemId">
-        {{ 'poblacion.identidadGenero' | translate }}
+      <label
+        class="mb-1 block text-sm font-medium text-slate-700"
+        for="tipoDocumentoId"
+      >
+        {{ 'poblacion.tipoDocumento' | translate }}
       </label>
       <select
-        id="identidadGeneroCatalogoItemId"
-        formControlName="identidadGeneroCatalogoItemId"
-        class="mb-4 w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+        id="tipoDocumentoId"
+        formControlName="tipoDocumentoId"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
       >
         <option [value]="null">—</option>
-        @for (identidad of identidadesGenero(); track identidad.id) {
-          <option [value]="identidad.id">{{ identidad.nombre }}</option>
+        @for (tipo of tiposDocumento(); track tipo.id) {
+          <option [value]="tipo.id">{{ tipo.nombre }}</option>
         }
       </select>
-    }
 
-    <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
-      <input type="checkbox" formControlName="consentimientoInformado" class="h-4 w-4 rounded border-slate-300" />
-      {{ 'poblacion.consentimientoInformado' | translate }}
-    </label>
+      <label
+        class="mb-1 block text-sm font-medium text-slate-700"
+        for="numeroDocumento"
+      >
+        {{ 'poblacion.numeroDocumento' | translate }}
+      </label>
+      <input
+        id="numeroDocumento"
+        type="text"
+        formControlName="numeroDocumento"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
 
-    @if (error()) {
-      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
-    }
+      <label class="mb-2 flex items-center gap-2 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          formControlName="edadEstimada"
+          class="h-4 w-4 rounded border-slate-300"
+        />
+        {{ 'poblacion.edadEstimada' | translate }}
+      </label>
 
-    <button
-      type="submit"
-      [disabled]="formulario.invalid || !datosEdadValidos() || guardando()"
-      class="w-full rounded bg-slate-900 px-4 py-2 text-sm font-medium text-white disabled:opacity-50"
-    >
-      {{ (guardando() ? 'poblacion.guardando' : 'poblacion.guardarHabitante') | translate }}
-    </button>
-  </form>
+      @if (!formulario.controls.edadEstimada.value) {
+        <label
+          class="mb-1 block text-sm font-medium text-slate-700"
+          for="fechaNacimiento"
+        >
+          {{ 'poblacion.fechaNacimiento' | translate }}
+        </label>
+        <input
+          id="fechaNacimiento"
+          type="date"
+          formControlName="fechaNacimiento"
+          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      } @else {
+        <label
+          class="mb-1 block text-sm font-medium text-slate-700"
+          for="edadAproximada"
+        >
+          {{ 'poblacion.edadAproximada' | translate }}
+        </label>
+        <input
+          id="edadAproximada"
+          type="number"
+          min="0"
+          max="120"
+          formControlName="edadAproximada"
+          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      }
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="sexo">{{
+        'poblacion.sexo' | translate
+      }}</label>
+      <select
+        id="sexo"
+        formControlName="sexo"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option value="">—</option>
+        @for (sexo of sexos; track sexo) {
+          <option [value]="sexo">
+            {{ 'poblacion.sexoValor.' + sexo | translate }}
+          </option>
+        }
+      </select>
+
+      <label
+        class="mb-1 block text-sm font-medium text-slate-700"
+        for="parentescoCatalogoItemId"
+      >
+        {{ 'poblacion.parentesco' | translate }}
+      </label>
+      <select
+        id="parentescoCatalogoItemId"
+        formControlName="parentescoCatalogoItemId"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [value]="null">—</option>
+        @for (parentesco of parentescos(); track parentesco.id) {
+          <option [value]="parentesco.id">{{ parentesco.nombre }}</option>
+        }
+      </select>
+
+      @if (capturaIdentidadGenero()) {
+        <label
+          class="mb-1 block text-sm font-medium text-slate-700"
+          for="identidadGeneroCatalogoItemId"
+        >
+          {{ 'poblacion.identidadGenero' | translate }}
+        </label>
+        <select
+          id="identidadGeneroCatalogoItemId"
+          formControlName="identidadGeneroCatalogoItemId"
+          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        >
+          <option [value]="null">—</option>
+          @for (identidad of identidadesGenero(); track identidad.id) {
+            <option [value]="identidad.id">{{ identidad.nombre }}</option>
+          }
+        </select>
+      }
+
+      <label class="mb-4 flex items-center gap-2 text-sm text-slate-700">
+        <input
+          type="checkbox"
+          formControlName="consentimientoInformado"
+          class="h-4 w-4 rounded border-slate-300"
+        />
+        {{ 'poblacion.consentimientoInformado' | translate }}
+      </label>
+
+      @if (error()) {
+        <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="formulario.invalid || !datosEdadValidos() || guardando()"
+        class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+      >
+        {{
+          (guardando() ? 'poblacion.guardando' : 'poblacion.guardarHabitante')
+            | translate
+        }}
+      </button>
+    </form>
+  }
 </div>

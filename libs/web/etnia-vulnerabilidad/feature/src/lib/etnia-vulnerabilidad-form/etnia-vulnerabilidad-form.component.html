@@ -1,0 +1,103 @@
+<div class="mx-auto max-w-lg p-4">
+  <a
+    routerLink="/poblacion/habitantes"
+    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+  >
+    <span aria-hidden="true">←</span> {{ 'comun.volver' | translate }}
+  </a>
+
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">
+    {{ 'etniaVulnerabilidad.tituloForm' | translate }}
+  </h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'etniaVulnerabilidad.etnia' | translate
+      }}</span>
+      <select
+        formControlName="etniaCatalogoItemId"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">
+          {{ 'georreferenciacion.seleccionar' | translate }}
+        </option>
+        @for (item of etnias(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'etniaVulnerabilidad.lenguaMaterna' | translate
+      }}</span>
+      <select
+        formControlName="lenguaMaternaCatalogoItemId"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">
+          {{ 'georreferenciacion.seleccionar' | translate }}
+        </option>
+        @for (item of lenguas(); track item.id) {
+          <option [ngValue]="item.id">{{ item.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'etniaVulnerabilidad.resguardo' | translate
+      }}</span>
+      <select
+        formControlName="resguardoUbicacionGeograficaId"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">
+          {{ 'georreferenciacion.seleccionar' | translate }}
+        </option>
+        @for (nodo of resguardos(); track nodo.id) {
+          <option [ngValue]="nodo.id">{{ nodo.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <fieldset class="mb-4 rounded border border-slate-200 p-3">
+      <legend class="px-1 text-sm font-medium text-slate-700">
+        {{ 'etniaVulnerabilidad.condicionesVulnerabilidad' | translate }}
+      </legend>
+      @for (condicion of condicionesDisponibles(); track condicion.id) {
+        <label class="mb-2 flex items-center gap-2 text-sm text-slate-700">
+          <input
+            type="checkbox"
+            class="h-4 w-4 rounded border-slate-300"
+            [checked]="condicionesSeleccionadas().has(condicion.id)"
+            (change)="
+              alternarCondicion(condicion.id, $any($event.target).checked)
+            "
+          />
+          {{ condicion.nombre }}
+        </label>
+      }
+    </fieldset>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+    >
+      {{
+        (guardando() ? 'poblacion.guardando' : 'etniaVulnerabilidad.guardar')
+          | translate
+      }}
+    </button>
+  </form>
+</div>

@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
   CatalogoItemCache,
   CatalogoOfflineService,
@@ -21,7 +21,7 @@ import { HogarUbicacionOfflineService, UbicacionesGeograficasOfflineService } fr
 @Component({
   selector: 'app-hogar-ubicacion-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './hogar-ubicacion-form.component.html',
 })
 export class HogarUbicacionFormComponent implements OnInit {

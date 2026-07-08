@@ -1,6 +1,6 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EconomiaOfflineService } from '@censo/web-economia-data-access';
@@ -9,7 +9,7 @@ import { EconomiaOfflineService } from '@censo/web-economia-data-access';
 @Component({
   selector: 'app-economia-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './economia-form.component.html',
 })
 export class EconomiaFormComponent implements OnInit {

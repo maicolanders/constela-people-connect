@@ -104,15 +104,45 @@
       "@censo/web-educacion-data-access": [
         "./libs/web/educacion/data-access/src/index.ts"
       ],
-      "@censo/web-educacion-feature": ["./libs/web/educacion/feature/src/index.ts"],
+      "@censo/web-educacion-feature": [
+        "./libs/web/educacion/feature/src/index.ts"
+      ],
       "@censo/api-economia-data-access": [
         "./libs/api/economia/data-access/src/index.ts"
       ],
-      "@censo/api-economia-feature": ["./libs/api/economia/feature/src/index.ts"],
+      "@censo/api-economia-feature": [
+        "./libs/api/economia/feature/src/index.ts"
+      ],
       "@censo/web-economia-data-access": [
         "./libs/web/economia/data-access/src/index.ts"
       ],
-      "@censo/web-economia-feature": ["./libs/web/economia/feature/src/index.ts"]
+      "@censo/web-economia-feature": [
+        "./libs/web/economia/feature/src/index.ts"
+      ],
+      "@censo/api-migracion-data-access": [
+        "./libs/api/migracion/data-access/src/index.ts"
+      ],
+      "@censo/api-migracion-feature": [
+        "./libs/api/migracion/feature/src/index.ts"
+      ],
+      "@censo/web-migracion-data-access": [
+        "./libs/web/migracion/data-access/src/index.ts"
+      ],
+      "@censo/web-migracion-feature": [
+        "./libs/web/migracion/feature/src/index.ts"
+      ],
+      "@censo/api-etnia-vulnerabilidad-data-access": [
+        "./libs/api/etnia-vulnerabilidad/data-access/src/index.ts"
+      ],
+      "@censo/api-etnia-vulnerabilidad-feature": [
+        "./libs/api/etnia-vulnerabilidad/feature/src/index.ts"
+      ],
+      "@censo/web-etnia-vulnerabilidad-data-access": [
+        "./libs/web/etnia-vulnerabilidad/data-access/src/index.ts"
+      ],
+      "@censo/web-etnia-vulnerabilidad-feature": [
+        "./libs/web/etnia-vulnerabilidad/feature/src/index.ts"
+      ]
     }
   },
   "exclude": ["node_modules", "tmp"]

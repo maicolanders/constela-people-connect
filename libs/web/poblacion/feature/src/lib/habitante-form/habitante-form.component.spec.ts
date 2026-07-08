@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { TestBed } from '@angular/core/testing';
-import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
+import { ActivatedRoute, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CatalogoOfflineService, SyncQueueService, SyncService } from '@censo/web-shared-data-access';
@@ -21,7 +21,6 @@ function crearComponente(candidatos: CandidatoDuplicadoOffline[] = []) {
   const deteccionDuplicados = { buscarCandidatos: jest.fn().mockResolvedValue(candidatos) };
   const syncQueue = { encolar: jest.fn().mockResolvedValue(undefined) };
   const syncService = { sincronizar: jest.fn().mockResolvedValue(undefined) };
-  const router = { navigate: jest.fn().mockResolvedValue(true) };
   const http = { get: jest.fn().mockReturnValue(of({ capturaIdentidadGenero: false })) };
 
   TestBed.configureTestingModule({
@@ -33,14 +32,13 @@ function crearComponente(candidatos: CandidatoDuplicadoOffline[] = []) {
       { provide: DeteccionDuplicadosService, useValue: deteccionDuplicados },
       { provide: SyncQueueService, useValue: syncQueue },
       { provide: SyncService, useValue: syncService },
-      { provide: Router, useValue: router },
       { provide: HttpClient, useValue: http },
       { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ hogarUuid: 'hogar-uuid-1' }) } } },
     ],
   });
 
   const fixture = TestBed.createComponent(HabitanteFormComponent);
-  return { componente: fixture.componentInstance, habitantesOffline, deteccionDuplicados, syncQueue, syncService, router };
+  return { componente: fixture.componentInstance, habitantesOffline, deteccionDuplicados, syncQueue, syncService };
 }
 
 async function llenarFormularioValido(componente: HabitanteFormComponent): Promise<void> {
@@ -68,6 +66,25 @@ describe('HabitanteFormComponent — flujo de confirmación de duplicado (RF-01-
     expect(habitantesOffline.guardar).toHaveBeenCalledTimes(1);
     expect(syncQueue.encolar).not.toHaveBeenCalled();
     expect(componente.candidatosDuplicado()).toBeNull();
+  });
+
+  it('tras guardar, muestra el banner de retroalimentación con el uuid del habitante recién creado', async () => {
+    const { componente } = crearComponente([]);
+    await llenarFormularioValido(componente);
+
+    await componente.guardar();
+
+    expect(componente.habitanteGuardado()).toEqual({ uuid: expect.any(String) });
+  });
+
+  it('agregarOtroHabitante descarta el banner para volver a mostrar el formulario', async () => {
+    const { componente } = crearComponente([]);
+    await llenarFormularioValido(componente);
+    await componente.guardar();
+
+    componente.agregarOtroHabitante();
+
+    expect(componente.habitanteGuardado()).toBeNull();
   });
 
   it('exige confirmación explícita cuando hay candidatos y no guarda hasta que se confirme', async () => {

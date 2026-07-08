@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '@censo/web-shared-data-access';
 import { IndicadoresDemograficosApi, IndicadoresDemograficosService } from '@censo/web-demografia-data-access';
@@ -21,7 +22,7 @@ interface PeriodoOpcion {
 @Component({
   selector: 'app-indicadores-demograficos',
   standalone: true,
-  imports: [TranslatePipe],
+  imports: [TranslatePipe, RouterLink],
   templateUrl: './indicadores-demograficos.component.html',
 })
 export class IndicadoresDemograficosComponent implements OnInit {

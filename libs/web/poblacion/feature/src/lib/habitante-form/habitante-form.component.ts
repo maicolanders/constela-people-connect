@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import {
   CatalogoItemCache,
@@ -32,13 +32,12 @@ interface ComunidadApi {
 @Component({
   selector: 'app-habitante-form',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './habitante-form.component.html',
 })
 export class HabitanteFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   private readonly http = inject(HttpClient);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly hogaresOffline = inject(HogaresOfflineService);
@@ -54,8 +53,10 @@ export class HabitanteFormComponent implements OnInit {
   readonly identidadesGenero = signal<CatalogoItemCache[]>([]);
   readonly capturaIdentidadGenero = signal(false);
   readonly candidatosDuplicado = signal<CandidatoDuplicadoOffline[] | null>(null);
+  /** No-null tras un guardado exitoso: controla el banner de retroalimentación + accesos directos (ver `confirmarYGuardar`). */
+  readonly habitanteGuardado = signal<{ uuid: string } | null>(null);
 
-  private hogarUuid = '';
+  hogarUuid = '';
   private comunidadId: number | null = null;
   private periodoCensalId: number | null = null;
 
@@ -207,11 +208,16 @@ export class HabitanteFormComponent implements OnInit {
       void this.syncService.sincronizar();
       this.candidatosDuplicado.set(null);
       this.formulario.reset({ consentimientoInformado: false });
-      await this.router.navigate(['/poblacion/hogares', this.hogarUuid, 'habitantes', 'nuevo']);
+      this.habitanteGuardado.set({ uuid });
     } catch {
       this.error.set('poblacion.errorGuardarHabitante');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Descarta el banner de retroalimentación para volver a mostrar el formulario, ya reseteado, listo para el siguiente habitante del mismo hogar. */
+  agregarOtroHabitante(): void {
+    this.habitanteGuardado.set(null);
   }
 }

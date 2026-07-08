@@ -1,16 +1,40 @@
 import { Route } from '@angular/router';
-import { authGuard, LoginPageComponent, ShellLayoutComponent } from '@censo/web-shared-feature';
+import {
+  authGuard,
+  LoginPageComponent,
+  ShellLayoutComponent,
+} from '@censo/web-shared-feature';
 import {
   HabitanteFormComponent,
   HabitantesListComponent,
   HogarFormComponent,
   HogarUbicacionFormComponent,
 } from '@censo/web-poblacion-feature';
-import { IndicadoresDemograficosComponent, PiramidePoblacionalComponent } from '@censo/web-demografia-feature';
+import {
+  IndicadoresDemograficosComponent,
+  PiramidePoblacionalComponent,
+} from '@censo/web-demografia-feature';
 import { MapaHogaresComponent } from '@censo/web-georreferenciacion-feature';
-import { CoberturaServiciosComponent, ViviendaFormComponent } from '@censo/web-vivienda-feature';
-import { EducacionFormComponent, IndicadoresEducativosComponent } from '@censo/web-educacion-feature';
-import { EconomiaFormComponent, IndicadoresEconomicosComponent } from '@censo/web-economia-feature';
+import {
+  CoberturaServiciosComponent,
+  ViviendaFormComponent,
+} from '@censo/web-vivienda-feature';
+import {
+  EducacionFormComponent,
+  IndicadoresEducativosComponent,
+} from '@censo/web-educacion-feature';
+import {
+  EconomiaFormComponent,
+  IndicadoresEconomicosComponent,
+} from '@censo/web-economia-feature';
+import {
+  FlujosMigratoriosComponent,
+  MigracionFormComponent,
+} from '@censo/web-migracion-feature';
+import {
+  CaracterizacionEtnicaComponent,
+  EtniaVulnerabilidadFormComponent,
+} from '@censo/web-etnia-vulnerabilidad-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -23,17 +47,57 @@ export const appRoutes: Route[] = [
       { path: '', component: HomePageComponent },
       { path: 'poblacion/habitantes', component: HabitantesListComponent },
       { path: 'poblacion/hogares/nuevo', component: HogarFormComponent },
-      { path: 'poblacion/hogares/:hogarUuid/habitantes/nuevo', component: HabitanteFormComponent },
-      { path: 'poblacion/hogares/:hogarUuid/ubicacion', component: HogarUbicacionFormComponent },
-      { path: 'poblacion/hogares/:hogarUuid/vivienda', component: ViviendaFormComponent },
+      {
+        path: 'poblacion/hogares/:hogarUuid/habitantes/nuevo',
+        component: HabitanteFormComponent,
+      },
+      {
+        path: 'poblacion/hogares/:hogarUuid/ubicacion',
+        component: HogarUbicacionFormComponent,
+      },
+      {
+        path: 'poblacion/hogares/:hogarUuid/vivienda',
+        component: ViviendaFormComponent,
+      },
       { path: 'poblacion/hogares/mapa', component: MapaHogaresComponent },
       { path: 'vivienda/cobertura', component: CoberturaServiciosComponent },
-      { path: 'poblacion/habitantes/:habitanteUuid/educacion', component: EducacionFormComponent },
-      { path: 'educacion/indicadores', component: IndicadoresEducativosComponent },
-      { path: 'poblacion/habitantes/:habitanteUuid/economia', component: EconomiaFormComponent },
-      { path: 'economia/indicadores', component: IndicadoresEconomicosComponent },
-      { path: 'poblacion/demografia/piramide', component: PiramidePoblacionalComponent },
-      { path: 'poblacion/demografia/indicadores', component: IndicadoresDemograficosComponent },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/educacion',
+        component: EducacionFormComponent,
+      },
+      {
+        path: 'educacion/indicadores',
+        component: IndicadoresEducativosComponent,
+      },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/economia',
+        component: EconomiaFormComponent,
+      },
+      {
+        path: 'economia/indicadores',
+        component: IndicadoresEconomicosComponent,
+      },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/migracion',
+        component: MigracionFormComponent,
+      },
+      { path: 'migracion/flujos', component: FlujosMigratoriosComponent },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/etnia-vulnerabilidad',
+        component: EtniaVulnerabilidadFormComponent,
+      },
+      {
+        path: 'etnia-vulnerabilidad/caracterizacion',
+        component: CaracterizacionEtnicaComponent,
+      },
+      {
+        path: 'poblacion/demografia/piramide',
+        component: PiramidePoblacionalComponent,
+      },
+      {
+        path: 'poblacion/demografia/indicadores',
+        component: IndicadoresDemograficosComponent,
+      },
     ],
   },
 ];

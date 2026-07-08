@@ -1,7 +1,8 @@
 {
   "comun": {
     "volver": "Volver",
-    "volverInicio": "Volver al inicio"
+    "volverInicio": "Volver al inicio",
+    "cancelar": "Cancelar"
   },
   "shell": {
     "title": "Censo Poblacional Indígena",
@@ -22,7 +23,12 @@
     "descIndicadoresEducativos": "Alfabetismo y asistencia escolar",
     "descIndicadoresEconomicos": "Desempleo y ocupación",
     "descFlujosMigratorios": "Entradas, salidas y saldo migratorio",
-    "descCaracterizacionEtnica": "Pueblos/etnias y condiciones de vulnerabilidad"
+    "descCaracterizacionEtnica": "Pueblos/etnias y condiciones de vulnerabilidad",
+    "descPanelRecursos": "Comparación de indicadores entre comunidades para priorización presupuestal",
+    "descPresupuesto": "Registrar el presupuesto asignado a una comunidad",
+    "descGestionPeriodos": "Crear, abrir, cerrar e iniciar nuevos periodos censales",
+    "descComparacionHistorica": "Crecimiento poblacional y cobertura de servicios entre periodos",
+    "descNotificaciones": "Recordatorios de actualizaciones censales y reencuestas programadas"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -222,5 +228,60 @@
     "porCondicionVulnerabilidad": "Por condición de vulnerabilidad",
     "exportarCsv": "Exportar datos (CSV)",
     "errorCargarReporte": "No se pudo cargar el reporte de caracterización"
+  },
+  "recursos": {
+    "tituloPanel": "Panel de indicadores para asignación presupuestal",
+    "comunidad": "Comunidad",
+    "poblacionTotal": "Población total",
+    "tasaNbi": "NBI",
+    "coberturaEducativa": "Cobertura educativa",
+    "tasaVulnerabilidad": "Vulnerabilidad",
+    "exportarCsv": "Exportar datos (CSV)",
+    "errorCargarPanel": "No se pudo cargar el panel de indicadores",
+    "tituloFormPresupuesto": "Registrar presupuesto",
+    "periodoCensal": "Periodo censal",
+    "monto": "Monto asignado",
+    "observaciones": "Observaciones",
+    "guardarPresupuesto": "Guardar presupuesto",
+    "presupuestoGuardado": "Presupuesto guardado con éxito",
+    "errorGuardarPresupuesto": "No se pudo guardar el presupuesto",
+    "errorConsultarPresupuesto": "No se pudo consultar el presupuesto existente"
+  },
+  "periodoCensal": {
+    "tituloGestion": "Gestión de periodos censales",
+    "crearPeriodo": "Crear periodo censal",
+    "iniciarNuevoPeriodo": "Iniciar nuevo periodo",
+    "origen": "Periodo origen",
+    "nombre": "Nombre",
+    "codigo": "Código",
+    "fechaInicio": "Fecha de inicio",
+    "estado": "Estado",
+    "acciones": "Acciones",
+    "estado_planeado": "Planeado",
+    "estado_abierto": "Abierto",
+    "estado_cerrado": "Cerrado",
+    "abrir": "Abrir",
+    "cerrar": "Cerrar",
+    "errorCargar": "No se pudo cargar la información",
+    "errorCrear": "No se pudo crear el periodo censal",
+    "errorIniciarNuevo": "No se pudo iniciar el nuevo periodo censal",
+    "tituloComparacion": "Comparación histórica entre periodos",
+    "seleccionarPeriodos": "Seleccione dos o más periodos para comparar",
+    "comparar": "Comparar",
+    "periodo": "Periodo",
+    "coberturaServicios": "Cobertura de servicios",
+    "sinResultados": "No hay resultados para los periodos seleccionados",
+    "errorComparar": "No se pudo generar la comparación histórica",
+    "tituloNotificaciones": "Notificaciones",
+    "programarNotificacion": "Programar recordatorio",
+    "mensaje": "Mensaje",
+    "comunidadIdOpcional": "ID de comunidad (opcional)",
+    "notificacionProgramada": "Recordatorio programado con éxito",
+    "errorProgramarNotificacion": "No se pudo programar el recordatorio",
+    "generarRecordatorios": "Activar recordatorios próximos",
+    "recordatoriosActivados": "Recordatorios activados",
+    "marcarLeida": "Marcar como leída",
+    "sinNotificaciones": "No tiene notificaciones pendientes",
+    "errorCargarNotificaciones": "No se pudieron cargar las notificaciones"
   }
 }

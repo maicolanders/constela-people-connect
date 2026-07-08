@@ -1,10 +1,10 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Auditoria } from '@censo/api-shared-data-access';
 import { PeriodoCierreHookRegistry } from '@censo/api-shared-feature';
 import { PeriodoCensal } from '@censo/api-periodo-censal-data-access';
 import { EstadoPeriodo } from '@censo/shared-data-access';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CrearPeriodoCensalDto } from '../dto/crear-periodo-censal.dto';
 
 export interface OpcionesAssertAbierto {
@@ -20,6 +20,7 @@ export class PeriodoCensalService {
     @InjectRepository(PeriodoCensal) private readonly periodoRepository: Repository<PeriodoCensal>,
     @InjectRepository(Auditoria) private readonly auditoriaRepository: Repository<Auditoria>,
     private readonly periodoCierreHookRegistry: PeriodoCierreHookRegistry,
+    @InjectDataSource() private readonly dataSource: DataSource,
   ) {}
 
   listar(): Promise<PeriodoCensal[]> {
@@ -64,6 +65,54 @@ export class PeriodoCensalService {
     await this.periodoCierreHookRegistry.ejecutarTodos(guardado.id);
 
     return guardado;
+  }
+
+  /**
+   * RF-10-01 (criterio 2): "iniciar un nuevo periodo censal partiendo de la
+   * base poblacional vigente (para actualización, no recaptura total)".
+   * Solo puede partir de un periodo ya CERRADO (su base quedó congelada);
+   * el nuevo queda ABIERTO de inmediato y encadenado vía `periodoOrigenId`.
+   *
+   * `domain:periodo-censal` no puede depender de `domain:poblacion` (ver
+   * eslint.config.mjs) — la "copia" no es un INSERT de filas nuevas: hogares
+   * y habitantes son entidades de una sola fila por identidad (alta/baja,
+   * ver Hogar/Habitante), así que "partir de la base vigente" se resuelve
+   * reasignando hacia adelante el `periodo_censal_id` de los registros
+   * ACTIVOS del periodo origen (UPDATE por SQL directo, sin importar las
+   * entidades), lo que los saca del estado "congelado" (assertAbierto se
+   * evalúa contra el periodo propio de cada registro) y los deja editables
+   * en el nuevo periodo sin que el censista tenga que volver a capturarlos.
+   * Los registros dados de baja permanecen en su periodo original (ya son
+   * historia, no "vigente"). Datos satélite versionados de otros dominios
+   * (vivienda, educación, economía, parentesco, etnia, migración) NO se
+   * mueven automáticamente: cada uno ya modela su dato como "puede cambiar
+   * entre periodos" y se re-captura/actualiza explícitamente en el nuevo
+   * periodo — moverlos también ampliaría el alcance de esta fase a 6+
+   * dominios sin que ningún RF de MOD-10 lo pida.
+   */
+  async iniciarNuevoPeriodo(periodoOrigenId: number, dto: CrearPeriodoCensalDto): Promise<PeriodoCensal> {
+    const origen = await this.obtener(periodoOrigenId);
+    if (origen.estado !== EstadoPeriodo.CERRADO) {
+      throw new ForbiddenException('Solo se puede iniciar un nuevo periodo a partir de uno ya cerrado');
+    }
+
+    const nuevo = await this.periodoRepository.save(
+      this.periodoRepository.create({ ...dto, estado: EstadoPeriodo.PLANEADO, periodoOrigenId }),
+    );
+    const abierto = await this.abrir(nuevo.id);
+    await this.copiarBasePoblacionalVigente(periodoOrigenId, abierto.id);
+    return abierto;
+  }
+
+  private async copiarBasePoblacionalVigente(periodoOrigenId: number, periodoNuevoId: number): Promise<void> {
+    await this.dataSource.query(
+      `UPDATE hogares SET periodo_censal_id = $2 WHERE periodo_censal_id = $1 AND estado = 'activo' AND deleted_at IS NULL`,
+      [periodoOrigenId, periodoNuevoId],
+    );
+    await this.dataSource.query(
+      `UPDATE habitantes SET periodo_censal_id = $2 WHERE periodo_censal_id = $1 AND estado = 'activo' AND deleted_at IS NULL`,
+      [periodoOrigenId, periodoNuevoId],
+    );
   }
 
   /** Implementa PeriodoEstadoProvider (contrato consumido por PeriodoAbiertoGuard). */

@@ -35,6 +35,15 @@ import {
   CaracterizacionEtnicaComponent,
   EtniaVulnerabilidadFormComponent,
 } from '@censo/web-etnia-vulnerabilidad-feature';
+import {
+  PanelIndicadoresRecursosComponent,
+  PresupuestoFormComponent,
+} from '@censo/web-recursos-feature';
+import {
+  ComparacionHistoricaComponent,
+  GestionPeriodosComponent,
+  NotificacionesComponent,
+} from '@censo/web-periodo-censal-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -89,6 +98,26 @@ export const appRoutes: Route[] = [
       {
         path: 'etnia-vulnerabilidad/caracterizacion',
         component: CaracterizacionEtnicaComponent,
+      },
+      {
+        path: 'recursos/presupuestos/nuevo',
+        component: PresupuestoFormComponent,
+      },
+      {
+        path: 'recursos/indicadores',
+        component: PanelIndicadoresRecursosComponent,
+      },
+      {
+        path: 'periodo-censal/gestion',
+        component: GestionPeriodosComponent,
+      },
+      {
+        path: 'periodo-censal/comparacion-historica',
+        component: ComparacionHistoricaComponent,
+      },
+      {
+        path: 'periodo-censal/notificaciones',
+        component: NotificacionesComponent,
       },
       {
         path: 'poblacion/demografia/piramide',

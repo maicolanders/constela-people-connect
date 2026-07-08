@@ -142,6 +142,18 @@
       ],
       "@censo/web-etnia-vulnerabilidad-feature": [
         "./libs/web/etnia-vulnerabilidad/feature/src/index.ts"
+      ],
+      "@censo/api-recursos-data-access": [
+        "./libs/api/recursos/data-access/src/index.ts"
+      ],
+      "@censo/api-recursos-feature": [
+        "./libs/api/recursos/feature/src/index.ts"
+      ],
+      "@censo/web-recursos-feature": [
+        "./libs/web/recursos/feature/src/index.ts"
+      ],
+      "@censo/web-periodo-censal-feature": [
+        "./libs/web/periodo-censal/feature/src/index.ts"
       ]
     }
   },

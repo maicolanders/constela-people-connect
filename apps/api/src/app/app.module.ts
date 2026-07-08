@@ -14,6 +14,7 @@ import { ApiEducacionFeatureModule } from '@censo/api-educacion-feature';
 import { ApiEconomiaFeatureModule } from '@censo/api-economia-feature';
 import { ApiMigracionFeatureModule } from '@censo/api-migracion-feature';
 import { ApiEtniaVulnerabilidadFeatureModule } from '@censo/api-etnia-vulnerabilidad-feature';
+import { ApiRecursosFeatureModule } from '@censo/api-recursos-feature';
 import {
   ApiSharedFeatureModule,
   GlobalExceptionFilter,
@@ -52,6 +53,7 @@ import { AppService } from './app.service';
     ApiEconomiaFeatureModule,
     ApiMigracionFeatureModule,
     ApiEtniaVulnerabilidadFeatureModule,
+    ApiRecursosFeatureModule,
   ],
   controllers: [AppController],
   providers: [

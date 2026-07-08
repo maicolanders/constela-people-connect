@@ -1,0 +1,92 @@
+<div class="mx-auto max-w-2xl p-4">
+  <a routerLink="/" class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800">
+    <span aria-hidden="true">←</span> {{ 'comun.volverInicio' | translate }}
+  </a>
+
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'periodoCensal.tituloNotificaciones' | translate }}</h1>
+
+  @if (esAdministrador()) {
+    <form
+      class="mb-4 rounded-lg border border-slate-200 bg-white p-4"
+      [formGroup]="formulario"
+      (ngSubmit)="programar()"
+    >
+      <h2 class="mb-3 text-sm font-semibold text-slate-700">{{ 'periodoCensal.programarNotificacion' | translate }}</h2>
+
+      <div class="mb-3 grid gap-3 sm:grid-cols-2">
+        <input
+          type="text"
+          formControlName="mensaje"
+          [placeholder]="'periodoCensal.mensaje' | translate"
+          class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500 sm:col-span-2"
+        />
+        <input
+          type="date"
+          formControlName="fechaProgramada"
+          class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+        <input
+          type="number"
+          formControlName="comunidadId"
+          [placeholder]="'periodoCensal.comunidadIdOpcional' | translate"
+          class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+        />
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <button
+          type="submit"
+          [disabled]="formulario.invalid || guardando()"
+          class="rounded bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700 disabled:opacity-50"
+        >
+          {{ 'periodoCensal.programarNotificacion' | translate }}
+        </button>
+        <button
+          type="button"
+          class="rounded border border-slate-300 px-4 py-2 text-sm text-slate-700 hover:bg-slate-50"
+          [disabled]="guardando()"
+          (click)="generarRecordatorios()"
+        >
+          {{ 'periodoCensal.generarRecordatorios' | translate }}
+        </button>
+      </div>
+
+      @if (mensajeAdmin()) {
+        <p class="mt-2 text-sm text-slate-600">{{ mensajeAdmin() | translate }}</p>
+      }
+      @if (recordatoriosActivados() !== null) {
+        <p class="mt-2 text-sm text-slate-600">
+          {{ 'periodoCensal.recordatoriosActivados' | translate }}: {{ recordatoriosActivados() }}
+        </p>
+      }
+    </form>
+  }
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else if (error()) {
+    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+  } @else {
+    <ul class="grid gap-2">
+      @for (notificacion of notificaciones(); track notificacion.id) {
+        <li class="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-3 text-sm">
+          <div>
+            <p class="text-slate-900">{{ notificacion.mensaje }}</p>
+            <p class="text-xs text-slate-500">{{ notificacion.fechaProgramada }}</p>
+          </div>
+          @if (!notificacion.leidaEn) {
+            <button
+              type="button"
+              class="rounded border border-slate-300 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
+              (click)="marcarLeida(notificacion.id)"
+            >
+              {{ 'periodoCensal.marcarLeida' | translate }}
+            </button>
+          }
+        </li>
+      } @empty {
+        <p class="text-sm text-slate-500">{{ 'periodoCensal.sinNotificaciones' | translate }}</p>
+      }
+    </ul>
+  }
+</div>

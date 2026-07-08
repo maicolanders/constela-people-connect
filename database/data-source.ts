@@ -21,6 +21,8 @@ import { HabitanteOcupacion } from '../libs/api/economia/data-access/src/lib/ent
 import { MovimientoMigratorio } from '../libs/api/migracion/data-access/src/lib/entities/movimiento-migratorio.entity';
 import { HabitanteEtnia } from '../libs/api/etnia-vulnerabilidad/data-access/src/lib/entities/habitante-etnia.entity';
 import { HabitanteCondicionVulnerabilidad } from '../libs/api/etnia-vulnerabilidad/data-access/src/lib/entities/habitante-condicion-vulnerabilidad.entity';
+import { Presupuesto } from '../libs/api/recursos/data-access/src/lib/entities/presupuesto.entity';
+import { Notificacion } from '../libs/api/periodo-censal/data-access/src/lib/entities/notificacion.entity';
 
 try {
   // Node 20.6+: carga .env sin depender de la librería `dotenv`.
@@ -65,6 +67,8 @@ export const AppDataSource = new DataSource({
     MovimientoMigratorio,
     HabitanteEtnia,
     HabitanteCondicionVulnerabilidad,
+    Presupuesto,
+    Notificacion,
   ],
   migrations: ['database/migrations/*.ts'],
   synchronize: false,

@@ -70,5 +70,30 @@ export class HomePageComponent {
       tituloKey: 'etniaVulnerabilidad.tituloReporte',
       descripcionKey: 'home.descCaracterizacionEtnica',
     },
+    {
+      ruta: '/recursos/indicadores',
+      tituloKey: 'recursos.tituloPanel',
+      descripcionKey: 'home.descPanelRecursos',
+    },
+    {
+      ruta: '/recursos/presupuestos/nuevo',
+      tituloKey: 'recursos.tituloFormPresupuesto',
+      descripcionKey: 'home.descPresupuesto',
+    },
+    {
+      ruta: '/periodo-censal/gestion',
+      tituloKey: 'periodoCensal.tituloGestion',
+      descripcionKey: 'home.descGestionPeriodos',
+    },
+    {
+      ruta: '/periodo-censal/comparacion-historica',
+      tituloKey: 'periodoCensal.tituloComparacion',
+      descripcionKey: 'home.descComparacionHistorica',
+    },
+    {
+      ruta: '/periodo-censal/notificaciones',
+      tituloKey: 'periodoCensal.tituloNotificaciones',
+      descripcionKey: 'home.descNotificaciones',
+    },
   ];
 }

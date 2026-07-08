@@ -1,0 +1,103 @@
+<div class="mx-auto max-w-lg p-4">
+  <a
+    routerLink="/"
+    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+  >
+    <span aria-hidden="true">←</span> {{ 'comun.volverInicio' | translate }}
+  </a>
+
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">
+    {{ 'recursos.tituloFormPresupuesto' | translate }}
+  </h1>
+
+  <form
+    class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="guardar()"
+  >
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'recursos.comunidad' | translate
+      }}</span>
+      <select
+        formControlName="comunidadId"
+        (change)="onComunidadOPeriodoChange()"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">
+          {{ 'georreferenciacion.seleccionar' | translate }}
+        </option>
+        @for (comunidad of comunidades(); track comunidad.id) {
+          <option [ngValue]="comunidad.id">{{ comunidad.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'recursos.periodoCensal' | translate
+      }}</span>
+      <select
+        formControlName="periodoCensalId"
+        (change)="onComunidadOPeriodoChange()"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">
+          {{ 'georreferenciacion.seleccionar' | translate }}
+        </option>
+        @for (periodo of periodos(); track periodo.id) {
+          <option [ngValue]="periodo.id">{{ periodo.nombre }}</option>
+        }
+      </select>
+    </label>
+
+    @if (cargando()) {
+      <p class="mb-4 text-xs text-slate-500">
+        {{ 'poblacion.cargando' | translate }}
+      </p>
+    }
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'recursos.monto' | translate
+      }}</span>
+      <input
+        type="number"
+        step="0.01"
+        formControlName="monto"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
+    </label>
+
+    <label class="mb-4 block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">{{
+        'recursos.observaciones' | translate
+      }}</span>
+      <textarea
+        formControlName="observaciones"
+        rows="3"
+        class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      ></textarea>
+    </label>
+
+    @if (error()) {
+      <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+    }
+    @if (guardadoExitoso()) {
+      <p class="mb-4 text-sm font-medium text-primary-800">
+        {{ 'recursos.presupuestoGuardado' | translate }}
+      </p>
+    }
+
+    <button
+      type="submit"
+      [disabled]="formulario.invalid || guardando()"
+      class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+    >
+      {{
+        (guardando() ? 'poblacion.guardando' : 'recursos.guardarPresupuesto')
+          | translate
+      }}
+    </button>
+  </form>
+</div>

@@ -230,6 +230,74 @@ describe('HabitanteService.actualizar', () => {
   });
 });
 
+describe('HabitanteService.obtenerNucleoFamiliar', () => {
+  it('arma el organigrama: jefe de hogar marcado, y el parentesco más reciente por habitante (Fase 11)', async () => {
+    const hogar = { id: 10, jefeHogarId: 101 };
+    const habitantes = [
+      { id: 101, nombres: 'Ana', apellidos: 'Perez', estado: EstadoHabitante.ACTIVO },
+      { id: 102, nombres: 'Luis', apellidos: 'Perez', estado: EstadoHabitante.ACTIVO },
+    ];
+    // El repositorio real ordena DESC por periodoCensalId; el fake ignora la opción de orden,
+    // así que el array ya viene pre-ordenado como lo haría la consulta real.
+    const parentescos = [
+      { habitanteId: 102, periodoCensalId: 2, catalogoItem: { codigo: 'nieto', nombre: 'Nieto/a' } },
+      { habitanteId: 102, periodoCensalId: 1, catalogoItem: { codigo: 'hijo', nombre: 'Hijo/a' } },
+    ];
+    const habitanteRepository = { find: jest.fn().mockResolvedValue(habitantes) };
+    const parentescoRepository = { find: jest.fn().mockResolvedValue(parentescos) };
+    const hogarService = { obtener: jest.fn().mockResolvedValue(hogar) };
+
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      parentescoRepository as never,
+      {} as never,
+      {} as never,
+      hogarService as never,
+      {} as never,
+    );
+
+    const resultado = await servicio.obtenerNucleoFamiliar(10, crearUsuario());
+
+    expect(resultado.miembros).toEqual([
+      {
+        habitanteId: 101,
+        nombres: 'Ana',
+        apellidos: 'Perez',
+        estado: EstadoHabitante.ACTIVO,
+        esJefeHogar: true,
+        parentescoCodigo: null,
+        parentescoNombre: null,
+      },
+      {
+        habitanteId: 102,
+        nombres: 'Luis',
+        apellidos: 'Perez',
+        estado: EstadoHabitante.ACTIVO,
+        esJefeHogar: false,
+        parentescoCodigo: 'nieto',
+        parentescoNombre: 'Nieto/a',
+      },
+    ]);
+  });
+
+  it('retorna miembros vacíos si el hogar no tiene habitantes', async () => {
+    const habitanteRepository = { find: jest.fn().mockResolvedValue([]) };
+    const hogarService = { obtener: jest.fn().mockResolvedValue({ id: 11, jefeHogarId: null }) };
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      hogarService as never,
+      {} as never,
+    );
+
+    const resultado = await servicio.obtenerNucleoFamiliar(11, crearUsuario());
+
+    expect(resultado).toEqual({ hogarId: 11, miembros: [] });
+  });
+});
+
 // Referencia cruzada de RF-01-05 usada por el servicio (no se reimplementa el algoritmo aquí, ver similitud-duplicados.spec.ts).
 describe('DecisionRevisionDuplicado', () => {
   it('solo define el valor confirmado_no_duplicado por ahora', () => {

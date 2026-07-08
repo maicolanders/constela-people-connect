@@ -34,4 +34,23 @@
     </a>
     }
   </div>
+
+  @if (esAdministrador()) {
+    <h2 class="mb-3 mt-8 text-xs font-semibold uppercase tracking-wide text-primary-800">
+      {{ 'home.seccionAdministracion' | translate }}
+    </h2>
+    <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      @for (tarjeta of tarjetasAdministracion; track tarjeta.ruta) {
+      <a [routerLink]="tarjeta.ruta"
+        class="rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:border-primary-300 hover:shadow-md active:bg-primary-50">
+        <p class="text-sm font-semibold text-slate-900">
+          {{ tarjeta.tituloKey | translate }}
+        </p>
+        <p class="mt-1 text-xs text-slate-500">
+          {{ tarjeta.descripcionKey | translate }}
+        </p>
+      </a>
+      }
+    </div>
+  }
 </div>

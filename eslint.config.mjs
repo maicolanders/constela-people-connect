@@ -147,6 +147,12 @@ export default [
                                 "domain:recursos", "domain:shared", "domain:auth", "domain:comunidad",
                                 "domain:periodo-censal"
                             ]
+                        },
+                        {
+                            sourceTag: "domain:administracion",
+                            onlyDependOnLibsWithTags: [
+                                "domain:administracion", "domain:shared", "domain:auth"
+                            ]
                         }
                     ]
                 }

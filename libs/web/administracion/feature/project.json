@@ -1,0 +1,26 @@
+{
+  "name": "web-administracion-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/administracion/feature/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:feature", "domain:administracion"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/administracion/feature",
+        "main": "libs/web/administracion/feature/src/index.ts",
+        "tsConfig": "libs/web/administracion/feature/tsconfig.lib.json",
+        "assets": ["libs/web/administracion/feature/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/administracion/feature/jest.config.cts"
+      }
+    }
+  }
+}

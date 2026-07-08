@@ -2,7 +2,9 @@
   "comun": {
     "volver": "Volver",
     "volverInicio": "Volver al inicio",
-    "cancelar": "Cancelar"
+    "cancelar": "Cancelar",
+    "si": "Sí",
+    "no": "No"
   },
   "shell": {
     "title": "Censo Poblacional Indígena",
@@ -28,7 +30,9 @@
     "descPresupuesto": "Registrar el presupuesto asignado a una comunidad",
     "descGestionPeriodos": "Crear, abrir, cerrar e iniciar nuevos periodos censales",
     "descComparacionHistorica": "Crecimiento poblacional y cobertura de servicios entre periodos",
-    "descNotificaciones": "Recordatorios de actualizaciones censales y reencuestas programadas"
+    "descNotificaciones": "Recordatorios de actualizaciones censales y reencuestas programadas",
+    "seccionAdministracion": "Administración",
+    "descPanelAdministracion": "Ver todas las comunidades, sus habitantes y su información completa"
   },
   "auth": {
     "loginTitle": "Iniciar sesión",
@@ -283,5 +287,49 @@
     "marcarLeida": "Marcar como leída",
     "sinNotificaciones": "No tiene notificaciones pendientes",
     "errorCargarNotificaciones": "No se pudieron cargar las notificaciones"
+  },
+  "administracion": {
+    "tituloPanel": "Panel de administración de comunidades",
+    "comunidad": "Comunidad",
+    "codigo": "Código",
+    "estado": "Estado",
+    "activa": "Activa",
+    "inactiva": "Inactiva",
+    "totalHabitantes": "Total habitantes",
+    "verDetalle": "Ver detalle",
+    "errorCargarComunidades": "No se pudieron cargar las comunidades",
+    "hogar": "Hogar",
+    "nombre": "Nombre",
+    "jefeHogar": "Jefe de hogar",
+    "verFicha": "Ver ficha",
+    "verNucleoFamiliar": "Ver núcleo familiar",
+    "sinHabitantes": "Este hogar no tiene habitantes registrados",
+    "sinHogares": "Esta comunidad no tiene hogares registrados",
+    "errorCargarComunidad": "No se pudo cargar la comunidad",
+    "edadEstimada": "edad estimada",
+    "sinDatos": "Sin datos registrados",
+    "seccionVivienda": "Vivienda",
+    "tipoVivienda": "Tipo de vivienda",
+    "materialPared": "Material de pared",
+    "materialPiso": "Material de piso",
+    "materialTecho": "Material de techo",
+    "numeroDormitorios": "Número de dormitorios",
+    "seccionEducacion": "Educación",
+    "nivelEducativo": "Nivel educativo",
+    "alfabetizado": "Alfabetizado",
+    "asisteEscuela": "Asiste a la escuela",
+    "seccionEconomia": "Economía",
+    "condicionActividad": "Condición de actividad",
+    "ocupacion": "Ocupación",
+    "seccionEtnia": "Etnia",
+    "etnia": "Pueblo/etnia",
+    "lenguaMaterna": "Lengua materna",
+    "seccionMigracion": "Migración",
+    "errorCargarHabitante": "No se pudo cargar la ficha del habitante",
+    "tituloNucleoFamiliar": "Núcleo familiar",
+    "sinParentescoRegistrado": "Parentesco no registrado",
+    "sinOtrosMiembros": "Este hogar no tiene otros miembros registrados",
+    "sinJefeHogar": "Este hogar no tiene un jefe de hogar definido",
+    "errorCargarNucleoFamiliar": "No se pudo cargar el núcleo familiar"
   }
 }

@@ -154,6 +154,9 @@
       ],
       "@censo/web-periodo-censal-feature": [
         "./libs/web/periodo-censal/feature/src/index.ts"
+      ],
+      "@censo/web-administracion-feature": [
+        "./libs/web/administracion/feature/src/index.ts"
       ]
     }
   },

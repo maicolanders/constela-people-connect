@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { AuthService } from '@censo/web-shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 
 interface TarjetaInicio {
@@ -15,7 +16,25 @@ interface TarjetaInicio {
   imports: [TranslatePipe, RouterLink],
   templateUrl: './home-page.component.html',
 })
-export class HomePageComponent {
+export class HomePageComponent implements OnInit {
+  private readonly authService = inject(AuthService);
+
+  /** Fase 11: el panel de administración solo se anuncia a quien realmente puede entrar (roleGuard hace cumplir esto en la ruta). */
+  readonly esAdministrador = signal(false);
+
+  async ngOnInit(): Promise<void> {
+    const usuario = await this.authService.obtenerPerfil();
+    this.esAdministrador.set(usuario.roles.includes('administrador'));
+  }
+
+  readonly tarjetasAdministracion: TarjetaInicio[] = [
+    {
+      ruta: '/administracion/comunidades',
+      tituloKey: 'administracion.tituloPanel',
+      descripcionKey: 'home.descPanelAdministracion',
+    },
+  ];
+
   readonly tarjetasCaptura: TarjetaInicio[] = [
     {
       ruta: '/poblacion/hogares/nuevo',

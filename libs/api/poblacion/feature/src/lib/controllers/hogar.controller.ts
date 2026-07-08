@@ -13,6 +13,7 @@ import { CrearHogarDto } from '../dto/crear-hogar.dto';
 import { DarBajaHogarDto } from '../dto/dar-baja-hogar.dto';
 import { ListarHogaresQueryDto } from '../dto/listar-hogares-query.dto';
 import { MapaHogaresQueryDto } from '../dto/mapa-hogares-query.dto';
+import { HabitanteService, NucleoFamiliarDto } from '../services/habitante.service';
 import { HogarService } from '../services/hogar.service';
 import { MapaHogaresService } from '../services/mapa-hogares.service';
 
@@ -28,6 +29,7 @@ export class HogarController {
   constructor(
     private readonly hogarService: HogarService,
     private readonly mapaHogaresService: MapaHogaresService,
+    private readonly habitanteService: HabitanteService,
   ) {}
 
   @Roles(RolCodigo.CENSISTA, RolCodigo.LIDER_COMUNITARIO, RolCodigo.ADMINISTRADOR)
@@ -118,5 +120,15 @@ export class HogarController {
     @CurrentUser() usuario: UsuarioAutenticado,
   ): Promise<HogarUbicacion | null> {
     return this.hogarService.obtenerUbicacion(id, usuario);
+  }
+
+  /** Fase 11: organigrama del núcleo familiar (parentesco de cada miembro respecto al jefe de hogar). */
+  @Roles(RolCodigo.CENSISTA, RolCodigo.LIDER_COMUNITARIO, RolCodigo.ADMINISTRADOR)
+  @Get(':id/nucleo-familiar')
+  nucleoFamiliar(
+    @Param('id', ParseIntPipe) id: number,
+    @CurrentUser() usuario: UsuarioAutenticado,
+  ): Promise<NucleoFamiliarDto> {
+    return this.habitanteService.obtenerNucleoFamiliar(id, usuario);
   }
 }

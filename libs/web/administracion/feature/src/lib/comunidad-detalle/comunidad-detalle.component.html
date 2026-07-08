@@ -1,0 +1,70 @@
+<div class="mx-auto max-w-4xl p-4">
+  <a routerLink="/administracion/comunidades" class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800">
+    <span aria-hidden="true">←</span> {{ 'administracion.tituloPanel' | translate }}
+  </a>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else if (error()) {
+    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+  } @else if (comunidad(); as com) {
+    <h1 class="mb-1 text-lg font-semibold text-slate-900">{{ com.nombre }}</h1>
+    <p class="mb-4 text-sm text-slate-500">{{ com.codigo }}</p>
+
+    <div class="grid gap-4">
+      @for (hogar of hogares(); track hogar.id) {
+        <div class="rounded-lg border border-slate-200 bg-white p-4">
+          <div class="mb-2 flex items-center justify-between">
+            <p class="text-sm font-semibold text-slate-900">
+              {{ 'administracion.hogar' | translate }} #{{ hogar.id }}
+              <span class="ml-2 text-xs font-normal text-slate-500">{{ hogar.direccionReferencia }}</span>
+            </p>
+            <a
+              [routerLink]="['/administracion/hogares', hogar.id, 'nucleo-familiar']"
+              class="text-xs text-primary-700 hover:text-primary-800"
+            >
+              {{ 'administracion.verNucleoFamiliar' | translate }}
+            </a>
+          </div>
+
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-slate-200 text-left text-slate-500">
+                <th class="p-2">{{ 'administracion.nombre' | translate }}</th>
+                <th class="p-2">{{ 'administracion.estado' | translate }}</th>
+                <th class="p-2"></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (habitante of habitantesDeHogar(hogar.id); track habitante.id) {
+                <tr class="border-b border-slate-100">
+                  <td class="p-2">
+                    {{ habitante.nombres }} {{ habitante.apellidos }}
+                    @if (habitante.id === hogar.jefeHogarId) {
+                      <span class="ml-1 text-xs text-primary-700">({{ 'administracion.jefeHogar' | translate }})</span>
+                    }
+                  </td>
+                  <td class="p-2">{{ habitante.estado }}</td>
+                  <td class="p-2">
+                    <a
+                      [routerLink]="['/administracion/habitantes', habitante.id]"
+                      class="text-primary-700 hover:text-primary-800"
+                    >
+                      {{ 'administracion.verFicha' | translate }}
+                    </a>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td class="p-2 text-slate-500" colspan="3">{{ 'administracion.sinHabitantes' | translate }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @empty {
+        <p class="text-sm text-slate-500">{{ 'administracion.sinHogares' | translate }}</p>
+      }
+    </div>
+  }
+</div>

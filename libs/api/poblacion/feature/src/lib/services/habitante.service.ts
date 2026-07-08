@@ -27,6 +27,21 @@ export interface CandidatoDuplicado {
   score: number;
 }
 
+export interface MiembroNucleoFamiliarDto {
+  habitanteId: number;
+  nombres: string;
+  apellidos: string;
+  estado: EstadoHabitante;
+  esJefeHogar: boolean;
+  parentescoCodigo: string | null;
+  parentescoNombre: string | null;
+}
+
+export interface NucleoFamiliarDto {
+  hogarId: number;
+  miembros: MiembroNucleoFamiliarDto[];
+}
+
 const CODIGO_JEFE_HOGAR = 'jefe_hogar';
 
 @Injectable()
@@ -275,6 +290,53 @@ export class HabitanteService {
   async eliminar(id: number): Promise<void> {
     const habitante = await this.obtener(id);
     await this.habitanteRepository.softRemove(habitante);
+  }
+
+  /**
+   * Fase 11 (panel de administración): organigrama del núcleo familiar de un
+   * hogar. El único vínculo familiar que el modelo de datos registra es
+   * "parentesco con el jefe de hogar" (`HabitanteParentesco`, Fase 0) — no
+   * existe un grafo de relaciones habitante-a-habitante más amplio (p.ej.
+   * "hermano de", "tío de"), así que el organigrama se resuelve como una
+   * estrella de un nivel: jefe de hogar en el centro, cada otro miembro
+   * conectado con su parentesco relativo a él. `HabitanteParentesco` está
+   * versionado por periodo censal (puede haber más de una fila histórica por
+   * habitante); se toma la más reciente por `periodoCensalId`.
+   */
+  async obtenerNucleoFamiliar(hogarId: number, usuario: UsuarioAutenticado): Promise<NucleoFamiliarDto> {
+    const hogar = await this.hogarService.obtener(hogarId, usuario);
+    const habitantes = await this.habitanteRepository.find({ where: { hogarId }, order: { id: 'ASC' } });
+    if (habitantes.length === 0) {
+      return { hogarId, miembros: [] };
+    }
+
+    const parentescos = await this.parentescoRepository.find({
+      where: { habitanteId: In(habitantes.map((habitante) => habitante.id)) },
+      relations: { catalogoItem: true },
+      order: { periodoCensalId: 'DESC' },
+    });
+    const parentescoPorHabitante = new Map<number, HabitanteParentesco>();
+    for (const parentesco of parentescos) {
+      if (!parentescoPorHabitante.has(parentesco.habitanteId)) {
+        parentescoPorHabitante.set(parentesco.habitanteId, parentesco);
+      }
+    }
+
+    return {
+      hogarId,
+      miembros: habitantes.map((habitante) => {
+        const parentesco = parentescoPorHabitante.get(habitante.id);
+        return {
+          habitanteId: habitante.id,
+          nombres: habitante.nombres,
+          apellidos: habitante.apellidos,
+          estado: habitante.estado,
+          esJefeHogar: hogar.jefeHogarId === habitante.id,
+          parentescoCodigo: parentesco?.catalogoItem?.codigo ?? null,
+          parentescoNombre: parentesco?.catalogoItem?.nombre ?? null,
+        };
+      }),
+    };
   }
 
   private async actualizarParentesco(habitante: Habitante, catalogoItemId: number): Promise<void> {

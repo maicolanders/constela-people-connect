@@ -1,0 +1,105 @@
+<div class="mx-auto max-w-3xl p-4">
+  <a routerLink="/administracion/comunidades" class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800">
+    <span aria-hidden="true">←</span> {{ 'administracion.tituloPanel' | translate }}
+  </a>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else if (error()) {
+    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+  } @else if (habitante(); as hab) {
+    <h1 class="mb-1 text-lg font-semibold text-slate-900">{{ hab.nombres }} {{ hab.apellidos }}</h1>
+    <p class="mb-4 text-sm text-slate-500">
+      {{ hab.sexo }} · {{ hab.fechaNacimiento }}{{ hab.edadEstimada ? ' (' + ('administracion.edadEstimada' | translate) + ')' : '' }} · {{ hab.estado }}
+    </p>
+
+    <div class="grid gap-4">
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionVivienda' | translate }}</h2>
+        @if (vivienda(); as v) {
+          <dl class="grid grid-cols-2 gap-1 text-sm">
+            <dt class="text-slate-500">{{ 'administracion.tipoVivienda' | translate }}</dt>
+            <dd>{{ nombreCatalogo(v.tipoViviendaCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.materialPared' | translate }}</dt>
+            <dd>{{ nombreCatalogo(v.materialParedCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.materialPiso' | translate }}</dt>
+            <dd>{{ nombreCatalogo(v.materialPisoCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.materialTecho' | translate }}</dt>
+            <dd>{{ nombreCatalogo(v.materialTechoCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.numeroDormitorios' | translate }}</dt>
+            <dd>{{ v.numeroDormitorios }}</dd>
+          </dl>
+        } @else {
+          <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
+        }
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEducacion' | translate }}</h2>
+        @if (educacion(); as edu) {
+          <dl class="grid grid-cols-2 gap-1 text-sm">
+            <dt class="text-slate-500">{{ 'administracion.nivelEducativo' | translate }}</dt>
+            <dd>{{ nombreCatalogo(edu.nivelEducativoCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.alfabetizado' | translate }}</dt>
+            <dd>{{ (edu.alfabetizado ? 'comun.si' : 'comun.no') | translate }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.asisteEscuela' | translate }}</dt>
+            <dd>{{ (edu.asisteEscuela ? 'comun.si' : 'comun.no') | translate }}</dd>
+          </dl>
+        } @else {
+          <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
+        }
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEconomia' | translate }}</h2>
+        @if (ocupacion(); as ocu) {
+          <dl class="grid grid-cols-2 gap-1 text-sm">
+            <dt class="text-slate-500">{{ 'administracion.condicionActividad' | translate }}</dt>
+            <dd>{{ nombreCatalogo(ocu.condicionActividadCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.ocupacion' | translate }}</dt>
+            <dd>{{ nombreCatalogo(ocu.ocupacionCatalogoItemId) }}</dd>
+          </dl>
+        } @else {
+          <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
+        }
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEtnia' | translate }}</h2>
+        @if (etnia(); as etn) {
+          <dl class="grid grid-cols-2 gap-1 text-sm">
+            <dt class="text-slate-500">{{ 'administracion.etnia' | translate }}</dt>
+            <dd>{{ nombreCatalogo(etn.etniaCatalogoItemId) }}</dd>
+            <dt class="text-slate-500">{{ 'administracion.lenguaMaterna' | translate }}</dt>
+            <dd>{{ nombreCatalogo(etn.lenguaMaternaCatalogoItemId) }}</dd>
+          </dl>
+        } @else {
+          <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
+        }
+      </div>
+
+      <div class="rounded-lg border border-slate-200 bg-white p-4">
+        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionMigracion' | translate }}</h2>
+        @if (migraciones().length > 0) {
+          <ul class="grid gap-1 text-sm">
+            @for (mov of migraciones(); track mov.id) {
+              <li>
+                {{ mov.fechaMovimiento }} — {{ mov.direccion }} ({{ mov.tipoMovimiento }}) —
+                {{ nombreCatalogo(mov.motivoCatalogoItemId) }}
+              </li>
+            }
+          </ul>
+        } @else {
+          <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
+        }
+      </div>
+
+      <a
+        [routerLink]="['/administracion/hogares', hab.hogarId, 'nucleo-familiar']"
+        class="text-sm font-medium text-primary-700 hover:text-primary-800"
+      >
+        {{ 'administracion.verNucleoFamiliar' | translate }}
+      </a>
+    </div>
+  }
+</div>

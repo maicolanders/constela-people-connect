@@ -2,6 +2,7 @@ import { Route } from '@angular/router';
 import {
   authGuard,
   LoginPageComponent,
+  roleGuard,
   ShellLayoutComponent,
 } from '@censo/web-shared-feature';
 import {
@@ -44,6 +45,12 @@ import {
   GestionPeriodosComponent,
   NotificacionesComponent,
 } from '@censo/web-periodo-censal-feature';
+import {
+  ComunidadDetalleComponent,
+  HabitanteFichaComponent,
+  NucleoFamiliarComponent,
+  PanelComunidadesComponent,
+} from '@censo/web-administracion-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
@@ -126,6 +133,30 @@ export const appRoutes: Route[] = [
       {
         path: 'poblacion/demografia/indicadores',
         component: IndicadoresDemograficosComponent,
+      },
+      {
+        path: 'administracion/comunidades',
+        component: PanelComunidadesComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
+      },
+      {
+        path: 'administracion/comunidades/:id',
+        component: ComunidadDetalleComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
+      },
+      {
+        path: 'administracion/habitantes/:id',
+        component: HabitanteFichaComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
+      },
+      {
+        path: 'administracion/hogares/:id/nucleo-familiar',
+        component: NucleoFamiliarComponent,
+        canActivate: [roleGuard],
+        data: { roles: ['administrador'] },
       },
     ],
   },

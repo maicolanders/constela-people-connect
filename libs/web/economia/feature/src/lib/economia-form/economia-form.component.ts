@@ -2,6 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EconomiaOfflineService } from '@censo/web-economia-data-access';
 
@@ -17,6 +18,7 @@ export class EconomiaFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly economiaOffline = inject(EconomiaOfflineService);
+  private readonly habitantesOffline = inject(HabitantesOfflineService);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly syncService = inject(SyncService);
 
@@ -32,6 +34,7 @@ export class EconomiaFormComponent implements OnInit {
   });
 
   private habitanteUuid = '';
+  private hogarUuid = '';
 
   readonly formulario = this.fb.nonNullable.group({
     condicionActividadCatalogoItemId: this.fb.control<number | null>(null, Validators.required),
@@ -41,6 +44,8 @@ export class EconomiaFormComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.habitanteUuid = this.route.snapshot.paramMap.get('habitanteUuid') ?? '';
+    const habitante = await this.habitantesOffline.obtener(this.habitanteUuid);
+    this.hogarUuid = habitante?.hogarUuid ?? '';
 
     this.condicionesActividad.set(await this.catalogoOffline.obtenerItems('condicion_actividad'));
     this.ocupaciones.set(await this.catalogoOffline.obtenerItems('ocupacion'));
@@ -75,11 +80,24 @@ export class EconomiaFormComponent implements OnInit {
       });
 
       void this.syncService.sincronizar();
-      await this.router.navigate(['/poblacion/habitantes']);
+      await this.irAAccionesHabitante('exito', 'economia.economiaGuardadaDescripcion');
     } catch {
       this.error.set('economia.errorGuardarEconomia');
+      await this.irAAccionesHabitante('error', 'economia.errorGuardarEconomia');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Regresa al hub de acciones del habitante (Fase de mejora continua). */
+  private async irAAccionesHabitante(resultado: 'exito' | 'error', mensaje: string): Promise<void> {
+    if (!this.hogarUuid) {
+      await this.router.navigate(['/poblacion/habitantes']);
+      return;
+    }
+    await this.router.navigate(
+      ['/poblacion/hogares', this.hogarUuid, 'habitantes', this.habitanteUuid, 'acciones'],
+      { queryParams: { resultado, mensaje } },
+    );
   }
 }

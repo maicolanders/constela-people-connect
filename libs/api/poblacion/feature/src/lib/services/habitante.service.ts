@@ -11,9 +11,10 @@ import { CatalogoItem } from '@censo/api-catalogo-data-access';
 import { PeriodoCensalService } from '@censo/api-periodo-censal-feature';
 import { comunidadesPermitidas, tieneAccesoComunidad } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
-import { DecisionRevisionDuplicado, EstadoHabitante } from '@censo/shared-data-access';
+import { DecisionRevisionDuplicado, EstadoHabitante, EstadoHogar } from '@censo/shared-data-access';
 import { calcularSimilitudHabitante, UMBRAL_POSIBLE_DUPLICADO } from '@censo/shared-util';
-import { DataSource, FindOptionsWhere, In, IsNull, Repository } from 'typeorm';
+import { DataSource, FindOptionsWhere, In, IsNull, Like, Repository } from 'typeorm';
+import { ActualizarContactoPropioDto } from '../dto/actualizar-contacto-propio.dto';
 import { ActualizarHabitanteDto } from '../dto/actualizar-habitante.dto';
 import { ConteoHabitantesQueryDto } from '../dto/conteo-habitantes-query.dto';
 import { CrearHabitanteDto } from '../dto/crear-habitante.dto';
@@ -55,28 +56,47 @@ export class HabitanteService {
     private readonly periodoCensalService: PeriodoCensalService,
   ) {}
 
+  /**
+   * `limit`/`offset` son opcionales (RNF-05): si no se envían, el
+   * comportamiento es idéntico al anterior (sin límite) — solo el listado
+   * paginado de habitantes-list los envía; el resto de consumidores de este
+   * endpoint (pull de duplicados, buscador de hogares, panel de
+   * administración) no cambia. `numeroDocumento` filtra por prefijo (ver
+   * índice `habitantes_comunidad_documento_idx`).
+   */
   async listar(usuario: UsuarioAutenticado, filtros: ListarHabitantesQueryDto = {}): Promise<Habitante[]> {
     const permitido = comunidadesPermitidas(usuario.asignaciones);
     const base: FindOptionsWhere<Habitante> = {
       ...(filtros.hogarId ? { hogarId: filtros.hogarId } : {}),
       ...(filtros.periodoCensalId ? { periodoCensalId: filtros.periodoCensalId } : {}),
       ...(filtros.estado ? { estado: filtros.estado } : {}),
+      ...(filtros.tipoDocumentoId ? { tipoDocumentoId: filtros.tipoDocumentoId } : {}),
+      ...(filtros.numeroDocumento ? { numeroDocumento: Like(`${filtros.numeroDocumento}%`) } : {}),
     };
+    const paginacion = { take: filtros.limit, skip: filtros.offset };
 
     if (filtros.comunidadId !== undefined) {
       if (permitido !== 'global' && !permitido.includes(filtros.comunidadId)) {
         throw new ForbiddenException('No tiene acceso a esta comunidad');
       }
-      return this.habitanteRepository.find({ where: { ...base, comunidadId: filtros.comunidadId }, order: { id: 'ASC' } });
+      return this.habitanteRepository.find({
+        where: { ...base, comunidadId: filtros.comunidadId },
+        order: { id: 'ASC' },
+        ...paginacion,
+      });
     }
 
     if (permitido === 'global') {
-      return this.habitanteRepository.find({ where: base, order: { id: 'ASC' } });
+      return this.habitanteRepository.find({ where: base, order: { id: 'ASC' }, ...paginacion });
     }
     if (permitido.length === 0) {
       return [];
     }
-    return this.habitanteRepository.find({ where: { ...base, comunidadId: In(permitido) }, order: { id: 'ASC' } });
+    return this.habitanteRepository.find({
+      where: { ...base, comunidadId: In(permitido) },
+      order: { id: 'ASC' },
+      ...paginacion,
+    });
   }
 
   async obtener(id: number, usuario?: UsuarioAutenticado): Promise<Habitante> {
@@ -245,6 +265,112 @@ export class HabitanteService {
     const habitante = await this.obtener(id, usuario);
     await this.periodoCensalService.assertAbierto(habitante.periodoCensalId);
 
+    if (dto.hogarId !== undefined && dto.hogarId !== habitante.hogarId) {
+      return this.reasignarHogar(habitante, dto, usuario);
+    }
+
+    this.aplicarCamposSimples(habitante, dto);
+
+    const guardado = await this.habitanteRepository.save(habitante);
+
+    if (dto.parentescoCatalogoItemId !== undefined) {
+      await this.actualizarParentesco(guardado, dto.parentescoCatalogoItemId);
+    }
+
+    return guardado;
+  }
+
+  /**
+   * Fase 14 (autogestión): a diferencia de `actualizar`, no recibe `usuario`
+   * (el `habitanteId` ya viene resuelto desde el JWT propio del habitante,
+   * nunca de un parámetro de cliente) y deliberadamente NO llama a
+   * `periodoCensalService.assertAbierto` — teléfono/correo no son datos
+   * "recensables por periodo" como sexo/fechaNacimiento, deben poder
+   * actualizarse siempre, incluso con el periodo cerrado.
+   */
+  async actualizarContactoPropio(habitanteId: number, dto: ActualizarContactoPropioDto): Promise<Habitante> {
+    const habitante = await this.obtener(habitanteId);
+    if (dto.telefono !== undefined) habitante.telefono = dto.telefono;
+    if (dto.correoElectronico !== undefined) habitante.correoElectronico = dto.correoElectronico;
+    return this.habitanteRepository.save(habitante);
+  }
+
+  /**
+   * Reasigna un habitante a otro hogar de la misma comunidad (cambio de
+   * núcleo familiar). Autocontenida (no reutiliza `actualizarParentesco`):
+   * esa depende de que `hogarId` de la fila de parentesco ya sea el correcto,
+   * cosa que aquí es justo lo que cambia. Toda mutación de `Hogar` se hace
+   * vía el `manager` transaccional, nunca vía `hogarService`, para no invocar
+   * un servicio que usa su propio repositorio inyectado dentro de la
+   * transacción (fuente de bugs ya documentada en otras fases del proyecto).
+   */
+  private async reasignarHogar(
+    habitante: Habitante,
+    dto: ActualizarHabitanteDto,
+    usuario: UsuarioAutenticado,
+  ): Promise<Habitante> {
+    if (dto.parentescoCatalogoItemId === undefined) {
+      throw new BadRequestException('parentescoCatalogoItemId es requerido al reasignar el habitante a otro hogar');
+    }
+
+    const hogarDestino = await this.hogarService.obtener(dto.hogarId as number, usuario);
+    if (hogarDestino.estado !== EstadoHogar.ACTIVO) {
+      throw new ConflictException('El hogar destino no está activo');
+    }
+    if (hogarDestino.comunidadId !== habitante.comunidadId) {
+      throw new BadRequestException('El hogar destino debe pertenecer a la misma comunidad que el habitante');
+    }
+
+    const parentescoItem = await this.catalogoItemRepository.findOne({ where: { id: dto.parentescoCatalogoItemId } });
+    if (!parentescoItem) {
+      throw new NotFoundException(`Ítem de parentesco ${dto.parentescoCatalogoItemId} no encontrado`);
+    }
+
+    return this.dataSource.transaction(async (manager) => {
+      const hogarOrigen = await manager.findOneOrFail(Hogar, { where: { id: habitante.hogarId } });
+
+      this.aplicarCamposSimples(habitante, dto);
+      habitante.hogarId = hogarDestino.id;
+
+      const habitanteGuardado = await manager.save(Habitante, habitante);
+
+      if (hogarOrigen.jefeHogarId === habitanteGuardado.id) {
+        hogarOrigen.jefeHogarId = null;
+        await manager.save(Hogar, hogarOrigen);
+      }
+
+      const existenteParentesco = await manager.findOne(HabitanteParentesco, {
+        where: { habitanteId: habitanteGuardado.id, periodoCensalId: habitanteGuardado.periodoCensalId },
+      });
+      if (existenteParentesco) {
+        existenteParentesco.catalogoItemId = dto.parentescoCatalogoItemId as number;
+        existenteParentesco.hogarId = hogarDestino.id;
+        existenteParentesco.version += 1;
+        await manager.save(HabitanteParentesco, existenteParentesco);
+      } else {
+        await manager.save(
+          HabitanteParentesco,
+          manager.create(HabitanteParentesco, {
+            uuid: randomUUID(),
+            habitanteId: habitanteGuardado.id,
+            hogarId: hogarDestino.id,
+            catalogoItemId: dto.parentescoCatalogoItemId as number,
+            periodoCensalId: habitanteGuardado.periodoCensalId,
+            version: 1,
+          }),
+        );
+      }
+
+      if (parentescoItem.codigo === CODIGO_JEFE_HOGAR) {
+        hogarDestino.jefeHogarId = habitanteGuardado.id;
+        await manager.save(Hogar, hogarDestino);
+      }
+
+      return habitanteGuardado;
+    });
+  }
+
+  private aplicarCamposSimples(habitante: Habitante, dto: ActualizarHabitanteDto): void {
     if (dto.nombres !== undefined) habitante.nombres = dto.nombres;
     if (dto.apellidos !== undefined) habitante.apellidos = dto.apellidos;
     if (dto.tipoDocumentoId !== undefined) habitante.tipoDocumentoId = dto.tipoDocumentoId;
@@ -271,14 +397,6 @@ export class HabitanteService {
     if (dto.motivoBaja !== undefined) habitante.motivoBaja = dto.motivoBaja;
     if (dto.fechaBaja !== undefined) habitante.fechaBaja = dto.fechaBaja;
     if (dto.periodoBajaId !== undefined) habitante.periodoBajaId = dto.periodoBajaId;
-
-    const guardado = await this.habitanteRepository.save(habitante);
-
-    if (dto.parentescoCatalogoItemId !== undefined) {
-      await this.actualizarParentesco(guardado, dto.parentescoCatalogoItemId);
-    }
-
-    return guardado;
   }
 
   /** Transición de estado (RF-01-02), no un soft-delete: debe seguir apareciendo en reportes históricos. */
@@ -305,6 +423,23 @@ export class HabitanteService {
    */
   async obtenerNucleoFamiliar(hogarId: number, usuario: UsuarioAutenticado): Promise<NucleoFamiliarDto> {
     const hogar = await this.hogarService.obtener(hogarId, usuario);
+    return this.armarNucleoFamiliar(hogar);
+  }
+
+  /**
+   * Fase 14 (autogestión): variante para el propio habitante — el `hogarId`
+   * se resuelve SIEMPRE desde el habitante autenticado (`habitante.hogarId`),
+   * nunca se acepta como parámetro de cliente, para que un habitante jamás
+   * pueda ver el núcleo familiar de un hogar ajeno.
+   */
+  async obtenerNucleoFamiliarPropio(habitanteId: number): Promise<NucleoFamiliarDto> {
+    const habitante = await this.obtener(habitanteId);
+    const hogar = await this.hogarService.obtener(habitante.hogarId);
+    return this.armarNucleoFamiliar(hogar);
+  }
+
+  private async armarNucleoFamiliar(hogar: Hogar): Promise<NucleoFamiliarDto> {
+    const hogarId = hogar.id;
     const habitantes = await this.habitanteRepository.find({ where: { hogarId }, order: { id: 'ASC' } });
     if (habitantes.length === 0) {
       return { hogarId, miembros: [] };

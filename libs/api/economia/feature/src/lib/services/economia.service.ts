@@ -19,10 +19,16 @@ export class EconomiaService {
     private readonly habitanteService: HabitanteService,
   ) {}
 
+  /**
+   * `usuario` es opcional: cuando no se pasa (rutas de autogestión del propio
+   * habitante, Fase 14), `HabitanteService.obtener` omite la verificación de
+   * comunidad — seguro porque `habitanteId` en ese caso viene resuelto del
+   * JWT del propio habitante, nunca de un parámetro de cliente.
+   */
   async crearParaHabitante(
     habitanteId: number,
     dto: CrearHabitanteOcupacionDto,
-    usuario: UsuarioAutenticado,
+    usuario?: UsuarioAutenticado,
   ): Promise<HabitanteOcupacion> {
     await this.habitanteService.obtener(habitanteId, usuario);
     const existente = await this.ocupacionRepository.findOne({ where: { habitanteId } });
@@ -40,7 +46,7 @@ export class EconomiaService {
     );
   }
 
-  async obtenerPorHabitante(habitanteId: number, usuario: UsuarioAutenticado): Promise<HabitanteOcupacion> {
+  async obtenerPorHabitante(habitanteId: number, usuario?: UsuarioAutenticado): Promise<HabitanteOcupacion> {
     await this.habitanteService.obtener(habitanteId, usuario);
     const ocupacion = await this.ocupacionRepository.findOne({ where: { habitanteId } });
     if (!ocupacion) {

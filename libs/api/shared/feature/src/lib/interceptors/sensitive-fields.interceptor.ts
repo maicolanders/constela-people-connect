@@ -39,6 +39,15 @@ export class SensitiveFieldsInterceptor implements NestInterceptor {
 
     const copia: Record<string, unknown> = { ...(data as Record<string, unknown>) };
     for (const [campo, opciones] of Object.entries(camposSensibles)) {
+      if (opciones.categoria === 'credencial') {
+        // Bloqueo incondicional (Fase 14): a diferencia de las demás categorías,
+        // una credencial (p.ej. Habitante.passwordHash) nunca debe viajar en
+        // ninguna respuesta HTTP, ni siquiera para 'administrador'.
+        if (campo in copia) {
+          copia[campo] = undefined;
+        }
+        continue;
+      }
       const rolesAutorizados: string[] = [...ROLES_SIN_RESTRICCION, ...(opciones.rolesPermitidos ?? [])];
       const autorizado = roles.some((rol) => rolesAutorizados.includes(rol));
       if (!autorizado && campo in copia) {

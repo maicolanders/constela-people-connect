@@ -1,0 +1,40 @@
+<div class="flex min-h-screen flex-col">
+  <header
+    class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-primary-900 bg-primary-800 px-4 py-3 shadow-sm"
+  >
+    <a routerLink="/autogestion/mi-hogar" class="truncate text-sm font-semibold text-white">
+      {{ 'autogestion.tituloPortal' | translate }}
+    </a>
+    <nav class="flex flex-wrap items-center gap-1 text-sm">
+      <a routerLink="/autogestion/mi-hogar" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navMiHogar' | translate }}
+      </a>
+      <a routerLink="/autogestion/mi-perfil" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navMiPerfil' | translate }}
+      </a>
+      <a routerLink="/autogestion/educacion" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navEducacion' | translate }}
+      </a>
+      <a routerLink="/autogestion/economia" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navEconomia' | translate }}
+      </a>
+      <a routerLink="/autogestion/salud" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navSalud' | translate }}
+      </a>
+      <a routerLink="/autogestion/constancia" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
+        {{ 'autogestion.navConstancia' | translate }}
+      </a>
+      <button
+        type="button"
+        class="rounded px-2 py-1 font-medium text-primary-100 hover:bg-primary-700 hover:text-white"
+        (click)="cerrarSesion()"
+      >
+        {{ 'shell.logout' | translate }}
+      </button>
+    </nav>
+  </header>
+
+  <main class="flex-1 bg-slate-50 p-4">
+    <router-outlet />
+  </main>
+</div>

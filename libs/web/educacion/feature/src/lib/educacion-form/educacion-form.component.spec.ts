@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { EducacionOfflineService } from '@censo/web-educacion-data-access';
 import { EducacionFormComponent } from './educacion-form.component';
 
@@ -11,6 +12,7 @@ const LENGUA_NASA = { id: 2, codigo: 'nasa_yuwe', nombre: 'Nasa Yuwe', padreId: 
 
 function crearComponente() {
   const educacionOffline = { guardar: jest.fn().mockResolvedValue(undefined) };
+  const habitantesOffline = { obtener: jest.fn().mockResolvedValue({ hogarUuid: 'hogar-uuid-1' }) };
   const catalogoOffline = {
     obtenerItems: jest.fn().mockImplementation((tipoCodigo: string) => {
       if (tipoCodigo === 'nivel_educativo') {
@@ -29,6 +31,7 @@ function crearComponente() {
     providers: [
       provideTranslateService(),
       { provide: EducacionOfflineService, useValue: educacionOffline },
+      { provide: HabitantesOfflineService, useValue: habitantesOffline },
       { provide: CatalogoOfflineService, useValue: catalogoOffline },
       { provide: SyncService, useValue: syncService },
       { provide: Router, useValue: router },
@@ -96,6 +99,9 @@ describe('EducacionFormComponent', () => {
       }),
     );
     expect(syncService.sincronizar).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/poblacion/habitantes']);
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/poblacion/hogares', 'hogar-uuid-1', 'habitantes', 'habitante-uuid-1', 'acciones'],
+      { queryParams: { resultado: 'exito', mensaje: 'educacion.educacionGuardadaDescripcion' } },
+    );
   });
 });

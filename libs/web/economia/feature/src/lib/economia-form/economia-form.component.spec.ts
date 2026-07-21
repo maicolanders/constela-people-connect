@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { EconomiaOfflineService } from '@censo/web-economia-data-access';
 import { EconomiaFormComponent } from './economia-form.component';
 
@@ -11,6 +12,7 @@ const OCUPACION_ARTESANIA = { id: 10, codigo: 'artesania', nombre: 'Artesanía',
 
 function crearComponente() {
   const economiaOffline = { guardar: jest.fn().mockResolvedValue(undefined) };
+  const habitantesOffline = { obtener: jest.fn().mockResolvedValue({ hogarUuid: 'hogar-uuid-1' }) };
   const catalogoOffline = {
     obtenerItems: jest.fn().mockImplementation((tipoCodigo: string) => {
       if (tipoCodigo === 'condicion_actividad') {
@@ -29,6 +31,7 @@ function crearComponente() {
     providers: [
       provideTranslateService(),
       { provide: EconomiaOfflineService, useValue: economiaOffline },
+      { provide: HabitantesOfflineService, useValue: habitantesOffline },
       { provide: CatalogoOfflineService, useValue: catalogoOffline },
       { provide: SyncService, useValue: syncService },
       { provide: Router, useValue: router },
@@ -85,7 +88,10 @@ describe('EconomiaFormComponent', () => {
       }),
     );
     expect(syncService.sincronizar).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/poblacion/habitantes']);
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/poblacion/hogares', 'hogar-uuid-1', 'habitantes', 'habitante-uuid-1', 'acciones'],
+      { queryParams: { resultado: 'exito', mensaje: 'economia.economiaGuardadaDescripcion' } },
+    );
   });
 
   it('descarta el tipo de ocupación si la condición cambia a "desempleado" después de haberlo seleccionado', async () => {

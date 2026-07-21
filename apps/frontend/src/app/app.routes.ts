@@ -1,11 +1,14 @@
 import { Route } from '@angular/router';
 import {
   authGuard,
+  habitanteAuthGuard,
   LoginPageComponent,
   roleGuard,
   ShellLayoutComponent,
 } from '@censo/web-shared-feature';
 import {
+  HabitanteAccionesComponent,
+  HabitanteCambioHogarComponent,
   HabitanteFormComponent,
   HabitantesListComponent,
   HogarFormComponent,
@@ -51,10 +54,36 @@ import {
   NucleoFamiliarComponent,
   PanelComunidadesComponent,
 } from '@censo/web-administracion-feature';
+import {
+  AutogestionLoginComponent,
+  AutogestionRegistroComponent,
+  AutogestionShellComponent,
+  MiConstanciaComponent,
+  MiEconomiaComponent,
+  MiEducacionComponent,
+  MiHogarComponent,
+  MiPerfilComponent,
+  MiSaludComponent,
+} from '@censo/web-autogestion-feature';
 import { HomePageComponent } from './home-page/home-page.component';
 
 export const appRoutes: Route[] = [
   { path: 'login', component: LoginPageComponent },
+  { path: 'autogestion/login', component: AutogestionLoginComponent },
+  { path: 'autogestion/registro', component: AutogestionRegistroComponent },
+  {
+    path: 'autogestion',
+    component: AutogestionShellComponent,
+    canActivate: [habitanteAuthGuard],
+    children: [
+      { path: 'mi-hogar', component: MiHogarComponent },
+      { path: 'mi-perfil', component: MiPerfilComponent },
+      { path: 'educacion', component: MiEducacionComponent },
+      { path: 'economia', component: MiEconomiaComponent },
+      { path: 'salud', component: MiSaludComponent },
+      { path: 'constancia', component: MiConstanciaComponent },
+    ],
+  },
   {
     path: '',
     component: ShellLayoutComponent,
@@ -66,6 +95,18 @@ export const appRoutes: Route[] = [
       {
         path: 'poblacion/hogares/:hogarUuid/habitantes/nuevo',
         component: HabitanteFormComponent,
+      },
+      {
+        path: 'poblacion/hogares/:hogarUuid/habitantes/:habitanteUuid/acciones',
+        component: HabitanteAccionesComponent,
+      },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/editar',
+        component: HabitanteFormComponent,
+      },
+      {
+        path: 'poblacion/habitantes/:habitanteUuid/cambiar-hogar',
+        component: HabitanteCambioHogarComponent,
       },
       {
         path: 'poblacion/hogares/:hogarUuid/ubicacion',

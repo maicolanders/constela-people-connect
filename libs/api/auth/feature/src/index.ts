@@ -10,3 +10,4 @@ export * from './lib/guards/roles.guard';
 export * from './lib/services/auth.service';
 export * from './lib/strategies/jwt.strategy';
 export * from './lib/util/comunidad-acceso.util';
+export * from './lib/util/duracion.util';

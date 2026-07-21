@@ -45,7 +45,15 @@ function crearComponente(habitantesActivos: number) {
       { provide: CatalogoOfflineService, useValue: catalogoOffline },
       { provide: SyncService, useValue: syncService },
       { provide: Router, useValue: router },
-      { provide: ActivatedRoute, useValue: { snapshot: { paramMap: convertToParamMap({ hogarUuid: 'hogar-uuid-1' }) } } },
+      {
+        provide: ActivatedRoute,
+        useValue: {
+          snapshot: {
+            paramMap: convertToParamMap({ hogarUuid: 'hogar-uuid-1' }),
+            queryParamMap: convertToParamMap({ habitanteUuid: 'habitante-uuid-1' }),
+          },
+        },
+      },
     ],
   });
 
@@ -114,7 +122,10 @@ describe('ViviendaFormComponent', () => {
       }),
     );
     expect(syncService.sincronizar).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/poblacion/hogares', 'hogar-uuid-1', 'habitantes', 'nuevo']);
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/poblacion/hogares', 'hogar-uuid-1', 'habitantes', 'habitante-uuid-1', 'acciones'],
+      { queryParams: { resultado: 'exito', mensaje: 'vivienda.viviendaGuardadaDescripcion' } },
+    );
   });
 
   it('no guarda si el formulario es inválido (faltan campos requeridos)', async () => {

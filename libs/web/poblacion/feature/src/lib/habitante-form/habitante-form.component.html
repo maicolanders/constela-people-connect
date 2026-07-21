@@ -7,78 +7,9 @@
   </a>
 
   <h1 class="mb-4 text-lg font-semibold text-slate-900">
-    {{ 'poblacion.nuevoHabitanteTitulo' | translate }}
+    {{ (modoEdicion() ? 'poblacion.editarHabitanteTitulo' : 'poblacion.nuevoHabitanteTitulo') | translate }}
   </h1>
 
-  @if (habitanteGuardado(); as guardado) {
-    <div class="rounded-lg border border-primary-300 bg-primary-50 p-5">
-      <p
-        class="mb-1 flex items-center gap-2 text-sm font-semibold text-primary-900"
-      >
-        <span aria-hidden="true">✓</span>
-        {{ 'poblacion.habitanteGuardadoTitulo' | translate }}
-      </p>
-      <p class="mb-4 text-sm text-primary-800">
-        {{ 'poblacion.habitanteGuardadoDescripcion' | translate }}
-      </p>
-
-      <div class="flex flex-col gap-2">
-        <button
-          type="button"
-          (click)="agregarOtroHabitante()"
-          class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800"
-        >
-          {{ 'poblacion.agregarOtroHabitante' | translate }}
-        </button>
-        <a
-          [routerLink]="['/poblacion/hogares', hogarUuid, 'ubicacion']"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irUbicacionHogar' | translate }}
-        </a>
-        <a
-          [routerLink]="['/poblacion/hogares', hogarUuid, 'vivienda']"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irViviendaHogar' | translate }}
-        </a>
-        <a
-          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'educacion']"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irEducacionHabitante' | translate }}
-        </a>
-        <a
-          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'economia']"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irEconomiaHabitante' | translate }}
-        </a>
-        <a
-          [routerLink]="['/poblacion/habitantes', guardado.uuid, 'migracion']"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irMigracionHabitante' | translate }}
-        </a>
-        <a
-          [routerLink]="[
-            '/poblacion/habitantes',
-            guardado.uuid,
-            'etnia-vulnerabilidad',
-          ]"
-          class="w-full rounded border border-primary-300 bg-white px-4 py-2.5 text-center text-sm font-medium text-primary-800 hover:bg-primary-50"
-        >
-          {{ 'poblacion.irEtniaVulnerabilidadHabitante' | translate }}
-        </a>
-        <a
-          routerLink="/poblacion/habitantes"
-          class="w-full rounded px-4 py-2.5 text-center text-sm font-medium text-primary-700 hover:bg-primary-100"
-        >
-          {{ 'poblacion.irListadoHabitantes' | translate }}
-        </a>
-      </div>
-    </div>
-  } @else {
     @if (candidatosDuplicado(); as candidatos) {
       <div class="mb-4 rounded-lg border border-amber-300 bg-amber-50 p-4">
         <p class="mb-2 text-sm font-medium text-amber-900">
@@ -280,10 +211,13 @@
         class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
       >
         {{
-          (guardando() ? 'poblacion.guardando' : 'poblacion.guardarHabitante')
-            | translate
+          (guardando()
+            ? 'poblacion.guardando'
+            : modoEdicion()
+              ? 'poblacion.guardarCambios'
+              : 'poblacion.guardarHabitante'
+          ) | translate
         }}
       </button>
     </form>
-  }
 </div>

@@ -105,4 +105,25 @@ export class Habitante extends AuditableBaseEntity {
 
   @Column({ name: 'consentimiento_fecha', type: 'timestamptz', nullable: true })
   consentimientoFecha!: Date | null;
+
+  /**
+   * Fase 14 (autogestión): credencial propia del habitante para autenticarse
+   * en el portal de autogestión (documento + contraseña). NUNCA debe viajar
+   * en ninguna respuesta HTTP — protegida con categoría 'credencial', que
+   * SensitiveFieldsInterceptor redacta incondicionalmente (incluso para
+   * administrador, a diferencia de las demás categorías sensibles).
+   */
+  @Column({ name: 'password_hash', type: 'varchar', length: 255, nullable: true })
+  @CampoSensible({ categoria: 'credencial' })
+  passwordHash!: string | null;
+
+  @Column({ name: 'credencial_activa', type: 'boolean', default: false })
+  credencialActiva!: boolean;
+
+  /** Contacto autogestionado por el propio habitante (Fase 14), no capturado por el censista. */
+  @Column({ type: 'varchar', length: 30, nullable: true })
+  telefono!: string | null;
+
+  @Column({ name: 'correo_electronico', type: 'varchar', length: 255, nullable: true })
+  correoElectronico!: string | null;
 }

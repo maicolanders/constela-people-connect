@@ -7,6 +7,7 @@ import {
   CatalogoOfflineService,
   SyncService,
 } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { firstValueFrom } from 'rxjs';
 import { EtniaVulnerabilidadOfflineService } from '@censo/web-etnia-vulnerabilidad-data-access';
@@ -43,6 +44,7 @@ export class EtniaVulnerabilidadFormComponent implements OnInit {
   private readonly etniaVulnerabilidadOffline = inject(
     EtniaVulnerabilidadOfflineService,
   );
+  private readonly habitantesOffline = inject(HabitantesOfflineService);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly syncService = inject(SyncService);
 
@@ -55,6 +57,7 @@ export class EtniaVulnerabilidadFormComponent implements OnInit {
   readonly condicionesSeleccionadas = signal<Set<number>>(new Set());
 
   private habitanteUuid = '';
+  private hogarUuid = '';
 
   readonly formulario = this.fb.nonNullable.group({
     etniaCatalogoItemId: this.fb.control<number | null>(
@@ -68,6 +71,8 @@ export class EtniaVulnerabilidadFormComponent implements OnInit {
   async ngOnInit(): Promise<void> {
     this.habitanteUuid =
       this.route.snapshot.paramMap.get('habitanteUuid') ?? '';
+    const habitante = await this.habitantesOffline.obtener(this.habitanteUuid);
+    this.hogarUuid = habitante?.hogarUuid ?? '';
 
     const [etnias, lenguas, condiciones, existente] = await Promise.all([
       this.catalogoOffline.obtenerItems('etnia'),
@@ -144,11 +149,24 @@ export class EtniaVulnerabilidadFormComponent implements OnInit {
       });
 
       void this.syncService.sincronizar();
-      await this.router.navigate(['/poblacion/habitantes']);
+      await this.irAAccionesHabitante('exito', 'etniaVulnerabilidad.identificacionGuardadaDescripcion');
     } catch {
       this.error.set('etniaVulnerabilidad.errorGuardar');
+      await this.irAAccionesHabitante('error', 'etniaVulnerabilidad.errorGuardar');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Regresa al hub de acciones del habitante (Fase de mejora continua). */
+  private async irAAccionesHabitante(resultado: 'exito' | 'error', mensaje: string): Promise<void> {
+    if (!this.hogarUuid) {
+      await this.router.navigate(['/poblacion/habitantes']);
+      return;
+    }
+    await this.router.navigate(
+      ['/poblacion/hogares', this.hogarUuid, 'habitantes', this.habitanteUuid, 'acciones'],
+      { queryParams: { resultado, mensaje } },
+    );
   }
 }

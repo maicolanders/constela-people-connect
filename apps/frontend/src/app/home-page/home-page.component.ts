@@ -115,4 +115,13 @@ export class HomePageComponent implements OnInit {
       descripcionKey: 'home.descNotificaciones',
     },
   ];
+
+  /** Fase 14: visible siempre (no es una sesión de staff) — el propio habitante inicia sesión aparte. */
+  readonly tarjetasAutogestion: TarjetaInicio[] = [
+    {
+      ruta: '/autogestion/login',
+      tituloKey: 'autogestion.tituloPortal',
+      descripcionKey: 'home.descPortalAutogestion',
+    },
+  ];
 }

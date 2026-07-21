@@ -1,13 +1,13 @@
 import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Hogar } from '@censo/api-poblacion-data-access';
+import { Habitante, Hogar } from '@censo/api-poblacion-data-access';
 import { PeriodoCensalService } from '@censo/api-periodo-censal-feature';
 import { HogarUbicacionService, RegistrarUbicacionHogarDto } from '@censo/api-georreferenciacion-feature';
 import { HogarUbicacion } from '@censo/api-georreferenciacion-data-access';
 import { comunidadesPermitidas, tieneAccesoComunidad } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
 import { EstadoHogar } from '@censo/shared-data-access';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { ActualizarHogarDto } from '../dto/actualizar-hogar.dto';
 import { CrearHogarDto } from '../dto/crear-hogar.dto';
 import { DarBajaHogarDto } from '../dto/dar-baja-hogar.dto';
@@ -28,27 +28,34 @@ export class HogarService {
       if (permitido !== 'global' && !permitido.includes(filtros.comunidadId)) {
         throw new ForbiddenException('No tiene acceso a esta comunidad');
       }
-      return this.hogarRepository.find({
-        where: { comunidadId: filtros.comunidadId, ...(filtros.periodoCensalId ? { periodoCensalId: filtros.periodoCensalId } : {}) },
-        order: { id: 'ASC' },
-      });
-    }
-
-    if (permitido === 'global') {
-      return this.hogarRepository.find({
-        where: filtros.periodoCensalId ? { periodoCensalId: filtros.periodoCensalId } : {},
-        order: { id: 'ASC' },
-      });
-    }
-
-    if (permitido.length === 0) {
+    } else if (permitido !== 'global' && permitido.length === 0) {
       return [];
     }
 
-    return this.hogarRepository.find({
-      where: { comunidadId: In(permitido), ...(filtros.periodoCensalId ? { periodoCensalId: filtros.periodoCensalId } : {}) },
-      order: { id: 'ASC' },
-    });
+    const qb = this.hogarRepository.createQueryBuilder('hogar').orderBy('hogar.id', 'ASC');
+
+    if (filtros.comunidadId !== undefined) {
+      qb.andWhere('hogar.comunidadId = :comunidadId', { comunidadId: filtros.comunidadId });
+    } else if (permitido !== 'global') {
+      qb.andWhere('hogar.comunidadId IN (:...comunidades)', { comunidades: permitido });
+    }
+    if (filtros.periodoCensalId !== undefined) {
+      qb.andWhere('hogar.periodoCensalId = :periodoCensalId', { periodoCensalId: filtros.periodoCensalId });
+    }
+    if (filtros.estado !== undefined) {
+      qb.andWhere('hogar.estado = :estado', { estado: filtros.estado });
+    }
+    if (filtros.busqueda) {
+      qb.leftJoin(Habitante, 'jefe', 'jefe.id = hogar.jefeHogarId').andWhere(
+        '(hogar.direccionReferencia ILIKE :termino OR jefe.nombres ILIKE :termino OR jefe.apellidos ILIKE :termino)',
+        { termino: `%${filtros.busqueda}%` },
+      );
+    }
+    if (filtros.ids?.length) {
+      qb.andWhere('hogar.id IN (:...ids)', { ids: filtros.ids });
+    }
+
+    return qb.getMany();
   }
 
   async obtener(id: number, usuario?: UsuarioAutenticado): Promise<Hogar> {
@@ -64,6 +71,18 @@ export class HogarService {
 
   obtenerPorUuid(uuid: string): Promise<Hogar | null> {
     return this.hogarRepository.findOne({ where: { uuid } });
+  }
+
+  /**
+   * Fase 14 (autogestión): el `hogarId` ya viene resuelto desde el propio
+   * habitante autenticado (`habitante.hogarId`), nunca de un parámetro de
+   * cliente. Sin `assertAbierto`: la dirección de referencia no es un dato
+   * "recensable por periodo".
+   */
+  async actualizarDireccionPropia(hogarId: number, direccionReferencia: string | null): Promise<Hogar> {
+    const hogar = await this.obtener(hogarId);
+    hogar.direccionReferencia = direccionReferencia;
+    return this.hogarRepository.save(hogar);
   }
 
   async crear(dto: CrearHogarDto, usuario: UsuarioAutenticado): Promise<Hogar> {

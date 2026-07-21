@@ -71,6 +71,11 @@ export class ActualizarHabitanteDto {
   @IsInt()
   parentescoCatalogoItemId?: number;
 
+  /** Reasignación a otro hogar (misma comunidad): requiere `parentescoCatalogoItemId` en el mismo payload. */
+  @IsOptional()
+  @IsInt()
+  hogarId?: number;
+
   @IsOptional()
   @IsEnum(EstadoHabitante)
   estado?: EstadoHabitante;

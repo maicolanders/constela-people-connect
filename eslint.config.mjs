@@ -153,6 +153,16 @@ export default [
                             onlyDependOnLibsWithTags: [
                                 "domain:administracion", "domain:shared", "domain:auth"
                             ]
+                        },
+                        {
+                            // Fase 14: portal de autogestión del habitante, compone endpoints
+                            // ya existentes de otros dominios vía HTTP directo (mismo criterio
+                            // que domain:administracion) — no necesita depender de ningún otro
+                            // dominio backend.
+                            sourceTag: "domain:autogestion",
+                            onlyDependOnLibsWithTags: [
+                                "domain:autogestion", "domain:shared"
+                            ]
                         }
                     ]
                 }

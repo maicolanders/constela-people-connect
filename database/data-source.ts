@@ -17,6 +17,7 @@ import { HabitanteEducacion } from '../libs/api/educacion/data-access/src/lib/en
 import { HabitanteLengua } from '../libs/api/educacion/data-access/src/lib/entities/habitante-lengua.entity';
 import { Hogar } from '../libs/api/poblacion/data-access/src/lib/entities/hogar.entity';
 import { Habitante } from '../libs/api/poblacion/data-access/src/lib/entities/habitante.entity';
+import { HabitanteRefreshToken } from '../libs/api/poblacion/data-access/src/lib/entities/habitante-refresh-token.entity';
 import { HabitanteOcupacion } from '../libs/api/economia/data-access/src/lib/entities/habitante-ocupacion.entity';
 import { MovimientoMigratorio } from '../libs/api/migracion/data-access/src/lib/entities/movimiento-migratorio.entity';
 import { HabitanteEtnia } from '../libs/api/etnia-vulnerabilidad/data-access/src/lib/entities/habitante-etnia.entity';
@@ -63,6 +64,7 @@ export const AppDataSource = new DataSource({
     HabitanteLengua,
     Hogar,
     Habitante,
+    HabitanteRefreshToken,
     HabitanteOcupacion,
     MovimientoMigratorio,
     HabitanteEtnia,

@@ -1,7 +1,8 @@
 import { BadRequestException, ConflictException, ForbiddenException } from '@nestjs/common';
+import { Like } from 'typeorm';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
 import { Habitante } from '@censo/api-poblacion-data-access';
-import { DecisionRevisionDuplicado, EstadoHabitante, RolCodigo, SexoHabitante } from '@censo/shared-data-access';
+import { DecisionRevisionDuplicado, EstadoHabitante, EstadoHogar, RolCodigo, SexoHabitante } from '@censo/shared-data-access';
 import { CrearHabitanteDto } from '../dto/crear-habitante.dto';
 import { HabitanteService } from './habitante.service';
 
@@ -230,6 +231,200 @@ describe('HabitanteService.actualizar', () => {
   });
 });
 
+describe('HabitanteService.listar — paginación y búsqueda por documento', () => {
+  function crearServicio() {
+    const habitanteRepository = { find: jest.fn().mockResolvedValue([]) };
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+    );
+    return { servicio, habitanteRepository };
+  }
+
+  it('aplica take/skip cuando se envían limit/offset', async () => {
+    const { servicio, habitanteRepository } = crearServicio();
+
+    await servicio.listar(crearUsuario(), { comunidadId: 3, limit: 30, offset: 60 });
+
+    expect(habitanteRepository.find).toHaveBeenCalledWith(
+      expect.objectContaining({ take: 30, skip: 60 }),
+    );
+  });
+
+  it('sin limit/offset no envía take/skip (comportamiento previo, sin límite)', async () => {
+    const { servicio, habitanteRepository } = crearServicio();
+
+    await servicio.listar(crearUsuario(), { comunidadId: 3 });
+
+    expect(habitanteRepository.find).toHaveBeenCalledWith(
+      expect.objectContaining({ take: undefined, skip: undefined }),
+    );
+  });
+
+  it('filtra por numeroDocumento como prefijo (Like) y por tipoDocumentoId exacto', async () => {
+    const { servicio, habitanteRepository } = crearServicio();
+
+    await servicio.listar(crearUsuario(), { comunidadId: 3, tipoDocumentoId: 5, numeroDocumento: '123' });
+
+    const llamada = habitanteRepository.find.mock.calls[0][0];
+    expect(llamada.where.tipoDocumentoId).toBe(5);
+    expect(llamada.where.numeroDocumento).toEqual(Like('123%'));
+  });
+});
+
+describe('HabitanteService.actualizar — reasignación de hogar', () => {
+  const habitanteExistente = {
+    id: 1,
+    uuid: 'habitante-uuid',
+    hogarId: 10,
+    comunidadId: 3,
+    periodoCensalId: 1,
+    nombres: 'Ana',
+    apellidos: 'Perez',
+  };
+
+  function crearManagerFake(
+    parentescoExistente: Record<string, unknown> | null,
+    hogarOrigen: Record<string, unknown>,
+  ) {
+    const guardados: Array<{ entidad: { name: string }; datos: Record<string, unknown> }> = [];
+    return {
+      guardados,
+      findOneOrFail: jest.fn().mockResolvedValue(hogarOrigen),
+      findOne: jest.fn().mockResolvedValue(parentescoExistente),
+      create: jest.fn((_entidad: unknown, datos: Record<string, unknown>) => ({ ...datos })),
+      save: jest.fn(async (entidad: { name: string }, datos: Record<string, unknown>) => {
+        guardados.push({ entidad, datos });
+        return datos;
+      }),
+    };
+  }
+
+  function crearServicio(
+    opciones: {
+      hogarDestino?: Record<string, unknown>;
+      hogarOrigen?: Record<string, unknown>;
+      parentescoItem?: Record<string, unknown> | null;
+      parentescoExistente?: Record<string, unknown> | null;
+    } = {},
+  ) {
+    const hogarDestino = opciones.hogarDestino ?? { id: 20, comunidadId: 3, estado: EstadoHogar.ACTIVO, jefeHogarId: null };
+    const hogarOrigen = opciones.hogarOrigen ?? { id: 10, comunidadId: 3, jefeHogarId: null };
+    const manager = crearManagerFake(
+      opciones.parentescoExistente !== undefined ? opciones.parentescoExistente : null,
+      hogarOrigen,
+    );
+
+    const habitanteRepository = { findOne: jest.fn().mockResolvedValue({ ...habitanteExistente }) };
+    const catalogoItemRepository = {
+      findOne: jest
+        .fn()
+        .mockResolvedValue(opciones.parentescoItem !== undefined ? opciones.parentescoItem : { id: 66, codigo: 'hijo' }),
+    };
+    const dataSource = { transaction: jest.fn((cb: (m: unknown) => Promise<unknown>) => cb(manager)) };
+    const hogarService = { obtener: jest.fn().mockResolvedValue(hogarDestino) };
+    const periodoCensalService = { assertAbierto: jest.fn().mockResolvedValue(undefined) };
+
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      catalogoItemRepository as never,
+      dataSource as never,
+      hogarService as never,
+      periodoCensalService as never,
+    );
+
+    return { servicio, manager, hogarDestino, hogarOrigen };
+  }
+
+  it('reasigna el habitante a un hogar activo de la misma comunidad y versiona el parentesco con el hogarId del destino', async () => {
+    const { servicio, manager, hogarDestino } = crearServicio({
+      parentescoExistente: { id: 5, catalogoItemId: 1, hogarId: 10, version: 1 },
+    });
+
+    const resultado = await servicio.actualizar(1, { hogarId: 20, parentescoCatalogoItemId: 66 }, crearUsuario());
+
+    expect(resultado.hogarId).toBe(hogarDestino['id']);
+    const parentescoGuardado = manager.guardados.find((g) => g.entidad.name === 'HabitanteParentesco');
+    expect((parentescoGuardado?.datos as { hogarId?: number }).hogarId).toBe(20);
+    expect((parentescoGuardado?.datos as { catalogoItemId?: number }).catalogoItemId).toBe(66);
+    expect((parentescoGuardado?.datos as { version?: number }).version).toBe(2);
+  });
+
+  it('rechaza si el hogar destino pertenece a otra comunidad', async () => {
+    const { servicio } = crearServicio({
+      hogarDestino: { id: 20, comunidadId: 99, estado: EstadoHogar.ACTIVO, jefeHogarId: null },
+    });
+
+    await expect(servicio.actualizar(1, { hogarId: 20, parentescoCatalogoItemId: 66 }, crearUsuario())).rejects.toThrow(
+      BadRequestException,
+    );
+  });
+
+  it('rechaza si el hogar destino no está activo', async () => {
+    const { servicio } = crearServicio({
+      hogarDestino: { id: 20, comunidadId: 3, estado: EstadoHogar.INACTIVO, jefeHogarId: null },
+    });
+
+    await expect(servicio.actualizar(1, { hogarId: 20, parentescoCatalogoItemId: 66 }, crearUsuario())).rejects.toThrow(
+      ConflictException,
+    );
+  });
+
+  it('si el habitante era jefe del hogar de origen, ese hogar queda sin jefe tras la reasignación (no se bloquea)', async () => {
+    const { servicio, manager } = crearServicio({ hogarOrigen: { id: 10, comunidadId: 3, jefeHogarId: 1 } });
+
+    await servicio.actualizar(1, { hogarId: 20, parentescoCatalogoItemId: 66 }, crearUsuario());
+
+    const hogarOrigenGuardado = manager.guardados.find(
+      (g) => g.entidad.name === 'Hogar' && (g.datos as { id?: number }).id === 10,
+    );
+    expect((hogarOrigenGuardado?.datos as { jefeHogarId?: number | null }).jefeHogarId).toBeNull();
+  });
+
+  it('si el nuevo parentesco es "jefe_hogar", el hogar destino queda con jefeHogarId = habitante reasignado', async () => {
+    const { servicio, manager } = crearServicio({ parentescoItem: { id: 66, codigo: 'jefe_hogar' } });
+
+    await servicio.actualizar(1, { hogarId: 20, parentescoCatalogoItemId: 66 }, crearUsuario());
+
+    const hogarDestinoGuardado = manager.guardados.find(
+      (g) => g.entidad.name === 'Hogar' && (g.datos as { id?: number }).id === 20,
+    );
+    expect((hogarDestinoGuardado?.datos as { jefeHogarId?: number }).jefeHogarId).toBe(1);
+  });
+
+  it('rechaza con BadRequestException si falta parentescoCatalogoItemId al reasignar', async () => {
+    const { servicio } = crearServicio();
+
+    await expect(servicio.actualizar(1, { hogarId: 20 }, crearUsuario())).rejects.toThrow(BadRequestException);
+  });
+
+  it('la edición simple sin hogarId sigue funcionando igual que antes (regresión)', async () => {
+    const habitanteRepository = {
+      findOne: jest.fn().mockResolvedValue({ ...habitanteExistente }),
+      save: jest.fn(async (entidad: unknown) => entidad),
+    };
+    const periodoCensalService = { assertAbierto: jest.fn().mockResolvedValue(undefined) };
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      periodoCensalService as never,
+    );
+
+    const resultado = await servicio.actualizar(1, { nombres: 'Ana María' }, crearUsuario());
+
+    expect(resultado.nombres).toBe('Ana María');
+    expect(resultado.hogarId).toBe(10);
+  });
+});
+
 describe('HabitanteService.obtenerNucleoFamiliar', () => {
   it('arma el organigrama: jefe de hogar marcado, y el parentesco más reciente por habitante (Fase 11)', async () => {
     const hogar = { id: 10, jefeHogarId: 101 };
@@ -295,6 +490,93 @@ describe('HabitanteService.obtenerNucleoFamiliar', () => {
     const resultado = await servicio.obtenerNucleoFamiliar(11, crearUsuario());
 
     expect(resultado).toEqual({ hogarId: 11, miembros: [] });
+  });
+});
+
+describe('HabitanteService.obtenerNucleoFamiliarPropio (Fase 14, autogestión)', () => {
+  it('resuelve el hogar desde el propio habitante autenticado, ignorando cualquier otro hogarId', async () => {
+    const habitanteAutenticado = { id: 101, hogarId: 10 };
+    const hogar = { id: 10, jefeHogarId: 101 };
+    const habitantes = [{ id: 101, nombres: 'Ana', apellidos: 'Perez', estado: EstadoHabitante.ACTIVO }];
+
+    const habitanteRepository = {
+      findOne: jest.fn().mockResolvedValue(habitanteAutenticado),
+      find: jest.fn().mockResolvedValue(habitantes),
+    };
+    const parentescoRepository = { find: jest.fn().mockResolvedValue([]) };
+    // `hogarService.obtener` solo recibe el `hogarId` del propio habitante — nunca un
+    // segundo argumento `usuario`, ni ningún hogarId provisto por el llamador de la prueba.
+    const hogarService = { obtener: jest.fn().mockResolvedValue(hogar) };
+
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      parentescoRepository as never,
+      {} as never,
+      {} as never,
+      hogarService as never,
+      {} as never,
+    );
+
+    const resultado = await servicio.obtenerNucleoFamiliarPropio(101);
+
+    expect(hogarService.obtener).toHaveBeenCalledWith(10);
+    expect(resultado.hogarId).toBe(10);
+    expect(resultado.miembros[0]).toEqual(
+      expect.objectContaining({ habitanteId: 101, esJefeHogar: true }),
+    );
+  });
+});
+
+describe('HabitanteService.actualizarContactoPropio (Fase 14, autogestión)', () => {
+  it('actualiza solo telefono/correoElectronico, sin exigir periodo abierto', async () => {
+    const habitante = { id: 101, telefono: null, correoElectronico: null };
+    const habitanteRepository = {
+      findOne: jest.fn().mockResolvedValue(habitante),
+      save: jest.fn((valor) => valor),
+    };
+    const periodoCensalService = { assertAbierto: jest.fn() };
+
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      periodoCensalService as never,
+    );
+
+    const resultado = await servicio.actualizarContactoPropio(101, {
+      telefono: '3001234567',
+      correoElectronico: 'ana@correo.test',
+    });
+
+    expect(resultado).toEqual(
+      expect.objectContaining({ telefono: '3001234567', correoElectronico: 'ana@correo.test' }),
+    );
+    expect(periodoCensalService.assertAbierto).not.toHaveBeenCalled();
+  });
+
+  it('no toca un campo omitido en el DTO', async () => {
+    const habitante = { id: 101, telefono: '3000000000', correoElectronico: 'previo@correo.test' };
+    const habitanteRepository = {
+      findOne: jest.fn().mockResolvedValue(habitante),
+      save: jest.fn((valor) => valor),
+    };
+
+    const servicio = new HabitanteService(
+      habitanteRepository as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+      {} as never,
+    );
+
+    const resultado = await servicio.actualizarContactoPropio(101, { telefono: '3001111111' });
+
+    expect(resultado).toEqual(
+      expect.objectContaining({ telefono: '3001111111', correoElectronico: 'previo@correo.test' }),
+    );
   });
 });
 

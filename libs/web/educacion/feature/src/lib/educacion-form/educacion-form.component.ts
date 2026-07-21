@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { EducacionOfflineService } from '@censo/web-educacion-data-access';
 
@@ -21,6 +22,7 @@ export class EducacionFormComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly educacionOffline = inject(EducacionOfflineService);
+  private readonly habitantesOffline = inject(HabitantesOfflineService);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly syncService = inject(SyncService);
 
@@ -30,6 +32,7 @@ export class EducacionFormComponent implements OnInit {
   readonly lenguasDisponibles = signal<CatalogoItemCache[]>([]);
 
   private habitanteUuid = '';
+  private hogarUuid = '';
 
   readonly formulario = this.fb.nonNullable.group({
     alfabetizado: this.fb.nonNullable.control(false),
@@ -52,6 +55,8 @@ export class EducacionFormComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.habitanteUuid = this.route.snapshot.paramMap.get('habitanteUuid') ?? '';
+    const habitante = await this.habitantesOffline.obtener(this.habitanteUuid);
+    this.hogarUuid = habitante?.hogarUuid ?? '';
 
     this.nivelesEducativos.set(await this.catalogoOffline.obtenerItems('nivel_educativo'));
     this.lenguasDisponibles.set(await this.catalogoOffline.obtenerItems('lengua'));
@@ -93,11 +98,24 @@ export class EducacionFormComponent implements OnInit {
       });
 
       void this.syncService.sincronizar();
-      await this.router.navigate(['/poblacion/habitantes']);
+      await this.irAAccionesHabitante('exito', 'educacion.educacionGuardadaDescripcion');
     } catch {
       this.error.set('educacion.errorGuardarEducacion');
+      await this.irAAccionesHabitante('error', 'educacion.errorGuardarEducacion');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Regresa al hub de acciones del habitante (Fase de mejora continua). */
+  private async irAAccionesHabitante(resultado: 'exito' | 'error', mensaje: string): Promise<void> {
+    if (!this.hogarUuid) {
+      await this.router.navigate(['/poblacion/habitantes']);
+      return;
+    }
+    await this.router.navigate(
+      ['/poblacion/hogares', this.hogarUuid, 'habitantes', this.habitanteUuid, 'acciones'],
+      { queryParams: { resultado, mensaje } },
+    );
   }
 }

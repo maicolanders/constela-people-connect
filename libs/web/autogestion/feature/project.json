@@ -1,0 +1,26 @@
+{
+  "name": "web-autogestion-feature",
+  "$schema": "../../../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "libs/web/autogestion/feature/src",
+  "projectType": "library",
+  "tags": ["scope:web", "type:feature", "domain:autogestion"],
+  "targets": {
+    "build": {
+      "executor": "@nx/js:tsc",
+      "outputs": ["{options.outputPath}"],
+      "options": {
+        "outputPath": "dist/libs/web/autogestion/feature",
+        "main": "libs/web/autogestion/feature/src/index.ts",
+        "tsConfig": "libs/web/autogestion/feature/tsconfig.lib.json",
+        "assets": ["libs/web/autogestion/feature/*.md"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "libs/web/autogestion/feature/jest.config.cts"
+      }
+    }
+  }
+}

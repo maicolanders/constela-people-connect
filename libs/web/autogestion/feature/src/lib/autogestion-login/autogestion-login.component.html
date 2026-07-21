@@ -1,0 +1,68 @@
+<div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
+  <p class="mb-6 text-center text-sm font-medium text-primary-800">{{ 'autogestion.tituloPortal' | translate }}</p>
+
+  <form
+    class="w-full max-w-sm overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
+    [formGroup]="formulario"
+    (ngSubmit)="enviar()"
+  >
+    <div class="h-1.5 bg-primary-700"></div>
+    <div class="p-6">
+      <h1 class="mb-6 text-xl font-semibold text-slate-900">{{ 'autogestion.loginTitulo' | translate }}</h1>
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="tipoDocumentoId">
+        {{ 'autogestion.tipoDocumento' | translate }}
+      </label>
+      <select
+        id="tipoDocumentoId"
+        formControlName="tipoDocumentoId"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      >
+        <option [ngValue]="null">—</option>
+        @for (tipo of tiposDocumento(); track tipo.id) {
+          <option [ngValue]="tipo.id">{{ tipo.nombre }}</option>
+        }
+      </select>
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="numeroDocumento">
+        {{ 'autogestion.numeroDocumento' | translate }}
+      </label>
+      <input
+        id="numeroDocumento"
+        type="text"
+        formControlName="numeroDocumento"
+        autocomplete="username"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="password">
+        {{ 'autogestion.password' | translate }}
+      </label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
+
+      @if (error()) {
+        <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="formulario.invalid || enviando()"
+        class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+      >
+        {{ (enviando() ? 'autogestion.iniciandoSesion' : 'autogestion.loginSubmit') | translate }}
+      </button>
+
+      <p class="mt-4 text-center text-sm text-slate-600">
+        <a routerLink="/autogestion/registro" class="text-primary-700 hover:underline">
+          {{ 'autogestion.irARegistro' | translate }}
+        </a>
+      </p>
+    </div>
+  </form>
+</div>

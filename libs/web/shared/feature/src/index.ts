@@ -1,4 +1,5 @@
 export * from './lib/guards/auth.guard';
+export * from './lib/guards/habitante-auth.guard';
 export * from './lib/guards/role.guard';
 export * from './lib/interceptors/auth.interceptor';
 export * from './lib/interceptors/error.interceptor';

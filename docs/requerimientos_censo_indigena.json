@@ -105,7 +105,8 @@
                     "entidades_relacionadas": [
                         "habitante",
                         "auditoria"
-                    ]
+                    ],
+                    "notas": "El criterio 'quién, cuándo, qué campo' se resuelve hoy solo con auditoría genérica de última escritura (createdBy/updatedBy/createdAt/updatedAt en AuditableBaseEntity) — no existe un log campo-por-campo de cambios históricos en ningún dominio del sistema. Limitación preexistente, no específica de esta edición de la funcionalidad de edición de habitantes."
                 },
                 {
                     "id": "RF-01-03",
@@ -113,7 +114,8 @@
                     "descripcion": "El sistema debe permitir crear hogares, asociar habitantes a un hogar y definir el jefe de hogar y parentescos.",
                     "criterios_aceptacion": [
                         "Un habitante pertenece a un único hogar vigente.",
-                        "El sistema permite registrar el tipo de parentesco con el jefe de hogar."
+                        "El sistema permite registrar el tipo de parentesco con el jefe de hogar.",
+                        "El sistema permite reasignar un habitante a otro hogar de la misma comunidad (cambio de núcleo familiar), manteniendo la regla de que pertenece a un único hogar vigente; si el habitante reasignado era jefe del hogar de origen, ese hogar queda sin jefe asignado hasta que se corrija manualmente."
                     ],
                     "prioridad": "Alta",
                     "entidades_relacionadas": [

@@ -4,6 +4,7 @@ import { ActivatedRoute, Router, convertToParamMap } from '@angular/router';
 import { of } from 'rxjs';
 import { provideTranslateService } from '@ngx-translate/core';
 import { CatalogoOfflineService, SyncService } from '@censo/web-shared-data-access';
+import { HabitantesOfflineService } from '@censo/web-poblacion-data-access';
 import { EtniaVulnerabilidadOfflineService } from '@censo/web-etnia-vulnerabilidad-data-access';
 import { EtniaVulnerabilidadFormComponent } from './etnia-vulnerabilidad-form.component';
 
@@ -28,11 +29,13 @@ function crearComponente(existente: unknown = undefined) {
   const syncService = { sincronizar: jest.fn().mockResolvedValue(undefined) };
   const router = { navigate: jest.fn().mockResolvedValue(true) };
   const http = { get: jest.fn().mockReturnValue(of([])) };
+  const habitantesOffline = { obtener: jest.fn().mockResolvedValue({ hogarUuid: 'hogar-uuid-1' }) };
 
   TestBed.configureTestingModule({
     providers: [
       provideTranslateService(),
       { provide: EtniaVulnerabilidadOfflineService, useValue: etniaVulnerabilidadOffline },
+      { provide: HabitantesOfflineService, useValue: habitantesOffline },
       { provide: CatalogoOfflineService, useValue: catalogoOffline },
       { provide: SyncService, useValue: syncService },
       { provide: Router, useValue: router },
@@ -94,7 +97,10 @@ describe('EtniaVulnerabilidadFormComponent', () => {
       }),
     );
     expect(syncService.sincronizar).toHaveBeenCalled();
-    expect(router.navigate).toHaveBeenCalledWith(['/poblacion/habitantes']);
+    expect(router.navigate).toHaveBeenCalledWith(
+      ['/poblacion/hogares', 'hogar-uuid-1', 'habitantes', 'habitante-uuid-1', 'acciones'],
+      { queryParams: { resultado: 'exito', mensaje: 'etniaVulnerabilidad.identificacionGuardadaDescripcion' } },
+    );
   });
 
   it('precarga el formulario y las condiciones si el habitante ya tiene un registro', async () => {

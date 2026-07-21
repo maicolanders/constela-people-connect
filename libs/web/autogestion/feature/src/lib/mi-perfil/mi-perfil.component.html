@@ -1,0 +1,65 @@
+<div class="mx-auto max-w-lg">
+  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'autogestion.tituloMiPerfil' | translate }}</h1>
+
+  @if (cargando()) {
+    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+  } @else {
+    @if (perfil(); as p) {
+      <div class="mb-4 rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700">
+        <p class="font-semibold text-slate-900">{{ p.nombres }} {{ p.apellidos }}</p>
+        <p>{{ 'autogestion.numeroDocumento' | translate }}: {{ p.numeroDocumento ?? '—' }}</p>
+      </div>
+    }
+
+    <form
+      class="rounded-lg border border-slate-200 bg-white p-4"
+      [formGroup]="formulario"
+      (ngSubmit)="guardar()"
+    >
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="telefono">
+        {{ 'autogestion.telefono' | translate }}
+      </label>
+      <input
+        id="telefono"
+        type="tel"
+        formControlName="telefono"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="correoElectronico">
+        {{ 'autogestion.correoElectronico' | translate }}
+      </label>
+      <input
+        id="correoElectronico"
+        type="email"
+        formControlName="correoElectronico"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      />
+
+      <label class="mb-1 block text-sm font-medium text-slate-700" for="direccionReferencia">
+        {{ 'autogestion.direccionReferencia' | translate }}
+      </label>
+      <textarea
+        id="direccionReferencia"
+        formControlName="direccionReferencia"
+        rows="3"
+        class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      ></textarea>
+
+      @if (error()) {
+        <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+      }
+      @if (guardadoExitoso()) {
+        <p class="mb-4 text-sm text-green-700">{{ 'autogestion.guardadoExitoso' | translate }}</p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="formulario.invalid || guardando()"
+        class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+      >
+        {{ (guardando() ? 'autogestion.guardando' : 'autogestion.guardar') | translate }}
+      </button>
+    </form>
+  }
+</div>

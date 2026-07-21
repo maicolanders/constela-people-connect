@@ -1,9 +1,9 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CatalogoItemCache, CatalogoOfflineService, SyncService, UbicacionGeograficaCache } from '@censo/web-shared-data-access';
 import { UbicacionesGeograficasOfflineService } from '@censo/web-georreferenciacion-data-access';
-import { PeriodoActualService } from '@censo/web-poblacion-data-access';
+import { HabitantesOfflineService, PeriodoActualService } from '@censo/web-poblacion-data-access';
 import { DireccionMigratoria, TipoMovimientoMigratorio } from '@censo/shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 import { MigracionOfflineService } from '@censo/web-migracion-data-access';
@@ -11,8 +11,10 @@ import { MigracionOfflineService } from '@censo/web-migracion-data-access';
 /**
  * RF-07-01: un habitante puede tener múltiples eventos migratorios — a
  * diferencia de `EconomiaFormComponent`/`EducacionFormComponent` (1:1),
- * `guardar()` no navega fuera del formulario: agrega el evento a la lista
- * (con su propio uuid) y lo deja listo para capturar el siguiente.
+ * `guardar()` agrega el evento a la lista (con su propio uuid) y deja el
+ * formulario listo para capturar el siguiente en vez de navegar de
+ * inmediato; solo al terminar (botón "finalizar") se regresa al hub de
+ * acciones del habitante (Fase de mejora continua).
  */
 @Component({
   selector: 'app-migracion-form',
@@ -23,8 +25,10 @@ import { MigracionOfflineService } from '@censo/web-migracion-data-access';
 export class MigracionFormComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly migracionOffline = inject(MigracionOfflineService);
   private readonly ubicacionesGeograficasOffline = inject(UbicacionesGeograficasOfflineService);
+  private readonly habitantesOffline = inject(HabitantesOfflineService);
   private readonly catalogoOffline = inject(CatalogoOfflineService);
   private readonly periodoActual = inject(PeriodoActualService);
   private readonly syncService = inject(SyncService);
@@ -38,6 +42,7 @@ export class MigracionFormComponent implements OnInit {
   readonly direcciones = Object.values(DireccionMigratoria);
 
   private habitanteUuid = '';
+  private hogarUuid = '';
   private periodoCensalId: number | null = null;
 
   readonly formulario = this.fb.nonNullable.group({
@@ -54,6 +59,8 @@ export class MigracionFormComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.habitanteUuid = this.route.snapshot.paramMap.get('habitanteUuid') ?? '';
+    const habitante = await this.habitantesOffline.obtener(this.habitanteUuid);
+    this.hogarUuid = habitante?.hogarUuid ?? '';
     this.periodoCensalId = await this.periodoActual.obtenerIdAbierto();
 
     this.motivos.set(await this.catalogoOffline.obtenerItems('motivo_migracion'));
@@ -90,16 +97,24 @@ export class MigracionFormComponent implements OnInit {
       });
 
       void this.syncService.sincronizar();
-      this.eventosCapturados.update((total) => total + 1);
-      this.formulario.reset({
-        tipoMovimiento: TipoMovimientoMigratorio.INTERNA,
-        direccion: DireccionMigratoria.SALIDA,
-        esTemporal: true,
-      });
+      await this.irAAccionesHabitante('exito', 'migracion.movimientoGuardadoDescripcion');
     } catch {
       this.error.set('migracion.errorGuardarMovimiento');
+      await this.irAAccionesHabitante('error', 'migracion.errorGuardarMovimiento');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Regresa al hub de acciones del habitante (Fase de mejora continua). */
+  private async irAAccionesHabitante(resultado: 'exito' | 'error', mensaje: string): Promise<void> {
+    if (!this.hogarUuid) {
+      await this.router.navigate(['/poblacion/habitantes']);
+      return;
+    }
+    await this.router.navigate(
+      ['/poblacion/hogares', this.hogarUuid, 'habitantes', this.habitanteUuid, 'acciones'],
+      { queryParams: { resultado, mensaje } },
+    );
   }
 }

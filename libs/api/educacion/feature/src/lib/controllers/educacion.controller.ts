@@ -1,13 +1,15 @@
 import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Put, Query, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ComunidadScopeGuard, CurrentUser, Roles, RolesGuard } from '@censo/api-auth-feature';
+import { ComunidadScopeGuard, CurrentUser, Public, Roles, RolesGuard } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
+import { CurrentHabitante, HabitanteAutenticado, HabitanteJwtAuthGuard } from '@censo/api-poblacion-feature';
 import { HabitanteEducacion, HabitanteLengua } from '@censo/api-educacion-data-access';
 import { RolCodigo } from '@censo/shared-data-access';
 import { generarCsv } from '@censo/shared-util';
 import { ActualizarHabitanteEducacionDto } from '../dto/actualizar-habitante-educacion.dto';
 import { CrearHabitanteEducacionDto } from '../dto/crear-habitante-educacion.dto';
 import { IndicadoresEducativosQueryDto } from '../dto/indicadores-educativos-query.dto';
+import { mapearMiEducacion, MiEducacionDto } from '../dto/mi-educacion.dto';
 import { ReemplazarLenguasHabitanteDto } from '../dto/reemplazar-lenguas-habitante.dto';
 import { EducacionService } from '../services/educacion.service';
 import { IndicadoresEducativosDto, IndicadoresEducativosService } from '../services/indicadores-educativos.service';
@@ -56,6 +58,58 @@ export class EducacionController {
       return generarCsv([resultado as unknown as Record<string, unknown>]);
     }
     return resultado;
+  }
+
+  /**
+   * Autogestión del propio habitante (Fase 14): rutas literales `mi-registro`
+   * declaradas ANTES que `:id` (mismo motivo que las rutas estáticas de
+   * Fase 10) — de lo contrario `PATCH .../mi-registro` matchearía `:id` con
+   * `ParseIntPipe` fallando. `actor.habitanteId` viene del JWT del propio
+   * habitante, nunca de un parámetro de cliente.
+   */
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Post('mi-registro')
+  async crearMiRegistro(
+    @Body() dto: CrearHabitanteEducacionDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<MiEducacionDto> {
+    return mapearMiEducacion(await this.educacionService.crearParaHabitante(actor.habitanteId, dto));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Get('mi-registro')
+  async obtenerMiRegistro(@CurrentHabitante() actor: HabitanteAutenticado): Promise<MiEducacionDto> {
+    return mapearMiEducacion(await this.educacionService.obtenerPorHabitante(actor.habitanteId));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Patch('mi-registro')
+  async actualizarMiRegistro(
+    @Body() dto: ActualizarHabitanteEducacionDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<MiEducacionDto> {
+    const existente = await this.educacionService.obtenerPorHabitante(actor.habitanteId);
+    return mapearMiEducacion(await this.educacionService.actualizar(existente.id, dto));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Get('mi-registro/lenguas')
+  obtenerMisLenguas(@CurrentHabitante() actor: HabitanteAutenticado): Promise<HabitanteLengua[]> {
+    return this.educacionService.obtenerLenguas(actor.habitanteId);
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Put('mi-registro/lenguas')
+  reemplazarMisLenguas(
+    @Body() dto: ReemplazarLenguasHabitanteDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<HabitanteLengua[]> {
+    return this.educacionService.reemplazarLenguas(actor.habitanteId, dto.lenguas);
   }
 
   @Roles(RolCodigo.CENSISTA, RolCodigo.ADMINISTRADOR)

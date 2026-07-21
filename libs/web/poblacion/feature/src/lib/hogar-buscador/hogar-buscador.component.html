@@ -1,0 +1,46 @@
+<div>
+  <div class="mb-3 flex gap-2">
+    <input
+      type="text"
+      [ngModel]="termino()"
+      (ngModelChange)="termino.set($event)"
+      [placeholder]="'poblacion.buscarHogarPlaceholder' | translate"
+      class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+    />
+    <button
+      type="button"
+      (click)="buscar()"
+      [disabled]="buscando()"
+      class="whitespace-nowrap rounded bg-primary-700 px-3 py-2 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+    >
+      {{ (buscando() ? 'poblacion.guardando' : 'poblacion.buscarHogarBoton') | translate }}
+    </button>
+  </div>
+
+  @if (error()) {
+    <p class="mb-2 text-sm text-red-600">{{ error() | translate }}</p>
+  }
+
+  @if (resultados(); as lista) {
+    @if (lista.length === 0) {
+      <p class="text-sm text-slate-500">{{ 'poblacion.sinResultadosHogares' | translate }}</p>
+    } @else {
+      <ul class="divide-y divide-slate-200 rounded border border-slate-200 bg-white">
+        @for (hogar of lista; track hogar.uuid) {
+          <li>
+            <button
+              type="button"
+              (click)="seleccionar(hogar)"
+              class="w-full px-3 py-2 text-left text-sm hover:bg-primary-50"
+            >
+              <span class="font-medium text-slate-900">{{ hogar.direccionReferencia || hogar.uuid }}</span>
+              @if (hogar.jefeHogarNombre) {
+                <span class="block text-xs text-slate-500">{{ 'poblacion.jefeHogar' | translate }}: {{ hogar.jefeHogarNombre }}</span>
+              }
+            </button>
+          </li>
+        }
+      </ul>
+    }
+  }
+</div>

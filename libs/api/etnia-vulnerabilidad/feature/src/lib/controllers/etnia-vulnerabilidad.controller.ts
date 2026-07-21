@@ -15,10 +15,12 @@ import { Response } from 'express';
 import {
   ComunidadScopeGuard,
   CurrentUser,
+  Public,
   Roles,
   RolesGuard,
 } from '@censo/api-auth-feature';
 import { UsuarioAutenticado } from '@censo/api-auth-data-access';
+import { CurrentHabitante, HabitanteAutenticado, HabitanteJwtAuthGuard } from '@censo/api-poblacion-feature';
 import {
   HabitanteCondicionVulnerabilidad,
   HabitanteEtnia,
@@ -28,11 +30,13 @@ import { generarCsv } from '@censo/shared-util';
 import { ActualizarHabitanteEtniaDto } from '../dto/actualizar-habitante-etnia.dto';
 import { CaracterizacionEtnicaQueryDto } from '../dto/caracterizacion-etnica-query.dto';
 import { CrearHabitanteEtniaDto } from '../dto/crear-habitante-etnia.dto';
+import { mapearMiCondicion, mapearMiEtnia, MiCondicionVulnerabilidadDto, MiEtniaDto } from '../dto/mi-etnia.dto';
 import { ReemplazarCondicionesVulnerabilidadDto } from '../dto/reemplazar-condiciones-vulnerabilidad.dto';
 import {
   CaracterizacionEtnicaDto,
   CaracterizacionEtnicaService,
 } from '../services/caracterizacion-etnica.service';
+import { ConstanciaAfiliacionService } from '../services/constancia-afiliacion.service';
 import { EtniaVulnerabilidadService } from '../services/etnia-vulnerabilidad.service';
 
 const ROLES_INDIVIDUAL = [
@@ -53,6 +57,7 @@ export class EtniaVulnerabilidadController {
   constructor(
     private readonly etniaVulnerabilidadService: EtniaVulnerabilidadService,
     private readonly caracterizacionEtnicaService: CaracterizacionEtnicaService,
+    private readonly constanciaAfiliacionService: ConstanciaAfiliacionService,
   ) {}
 
   @Roles(RolCodigo.CENSISTA, RolCodigo.ADMINISTRADOR)
@@ -108,6 +113,73 @@ export class EtniaVulnerabilidadController {
       return generarCsv(filas as unknown as Record<string, unknown>[]);
     }
     return resultado;
+  }
+
+  /**
+   * Autogestión del propio habitante (Fase 14): `mi-registro` declarado ANTES
+   * que `:id` (mismo motivo de orden de rutas que en educación/Fase 10).
+   * `PUT mi-registro/condiciones-vulnerabilidad` es "editar salud" en esta
+   * fase — reusa `reemplazarCondiciones`, no crea entidad de salud nueva.
+   */
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Post('mi-registro')
+  async crearMiRegistro(
+    @Body() dto: CrearHabitanteEtniaDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<MiEtniaDto> {
+    return mapearMiEtnia(await this.etniaVulnerabilidadService.crearParaHabitante(actor.habitanteId, dto));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Get('mi-registro')
+  async obtenerMiRegistro(@CurrentHabitante() actor: HabitanteAutenticado): Promise<MiEtniaDto> {
+    return mapearMiEtnia(await this.etniaVulnerabilidadService.obtenerPorHabitante(actor.habitanteId));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Patch('mi-registro')
+  async actualizarMiRegistro(
+    @Body() dto: ActualizarHabitanteEtniaDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<MiEtniaDto> {
+    const existente = await this.etniaVulnerabilidadService.obtenerPorHabitante(actor.habitanteId);
+    return mapearMiEtnia(await this.etniaVulnerabilidadService.actualizar(existente.id, dto));
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Get('mi-registro/condiciones-vulnerabilidad')
+  async obtenerMisCondiciones(@CurrentHabitante() actor: HabitanteAutenticado): Promise<MiCondicionVulnerabilidadDto[]> {
+    const condiciones = await this.etniaVulnerabilidadService.obtenerCondiciones(actor.habitanteId);
+    return condiciones.map(mapearMiCondicion);
+  }
+
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Put('mi-registro/condiciones-vulnerabilidad')
+  async reemplazarMisCondiciones(
+    @Body() dto: ReemplazarCondicionesVulnerabilidadDto,
+    @CurrentHabitante() actor: HabitanteAutenticado,
+  ): Promise<MiCondicionVulnerabilidadDto[]> {
+    const condiciones = await this.etniaVulnerabilidadService.reemplazarCondiciones(actor.habitanteId, dto.condiciones);
+    return condiciones.map(mapearMiCondicion);
+  }
+
+  /** Constancia de afiliación a resguardo (Fase 14, autogestión): descarga en PDF. */
+  @Public()
+  @UseGuards(HabitanteJwtAuthGuard)
+  @Get('mi-constancia')
+  async miConstancia(
+    @CurrentHabitante() actor: HabitanteAutenticado,
+    @Res() res: Response,
+  ): Promise<void> {
+    const documento = await this.constanciaAfiliacionService.generar(actor.habitanteId);
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', 'attachment; filename="constancia-afiliacion.pdf"');
+    documento.pipe(res);
   }
 
   @Roles(RolCodigo.CENSISTA, RolCodigo.ADMINISTRADOR)

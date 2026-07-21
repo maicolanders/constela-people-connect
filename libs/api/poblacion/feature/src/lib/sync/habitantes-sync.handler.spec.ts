@@ -101,4 +101,78 @@ describe('HabitantesSyncHandler', () => {
 
     expect(resultados[0].estado).toBe('error');
   });
+
+  describe('operación "actualizar" — resuelve hogarUuid a hogarId (reasignación offline)', () => {
+    function crearOperacionActualizar(overrides: Partial<SyncOperacionEntrada> = {}): SyncOperacionEntrada {
+      return {
+        uuid: 'habitante-uuid-1',
+        operacion: 'actualizar',
+        actualizadoEnCliente: new Date('2026-07-10T00:00:00.000Z').toISOString(),
+        payload: {
+          hogarUuid: 'hogar-uuid-destino',
+          nombres: 'Ana',
+          apellidos: 'Perez',
+          parentescoCatalogoItemId: 66,
+        },
+        ...overrides,
+      };
+    }
+
+    it('resuelve hogarUuid -> hogarId y lo incluye en el DTO que recibe HabitanteService.actualizar', async () => {
+      const { handler, hogarService, habitanteService } = crearHandler({ hogarExistente: { id: 20 } });
+      habitanteService.obtenerPorUuid.mockResolvedValue({
+        id: 1,
+        uuid: 'habitante-uuid-1',
+        updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      });
+      habitanteService.actualizar.mockResolvedValue({ id: 1, hogarId: 20 });
+
+      const resultados = await handler.aplicarLote([crearOperacionActualizar()], 1);
+
+      expect(hogarService.obtenerPorUuid).toHaveBeenCalledWith('hogar-uuid-destino');
+      expect(habitanteService.actualizar).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ hogarId: 20, parentescoCatalogoItemId: 66 }),
+        expect.anything(),
+      );
+      expect(resultados).toEqual([expect.objectContaining({ uuid: 'habitante-uuid-1', estado: 'aplicado' })]);
+    });
+
+    it('marca error (para reintento) si el hogar destino aún no está sincronizado en el servidor', async () => {
+      const { handler, habitanteService } = crearHandler({ hogarExistente: null });
+      habitanteService.obtenerPorUuid.mockResolvedValue({
+        id: 1,
+        uuid: 'habitante-uuid-1',
+        updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      });
+
+      const resultados = await handler.aplicarLote([crearOperacionActualizar()], 1);
+
+      expect(habitanteService.actualizar).not.toHaveBeenCalled();
+      expect(resultados).toEqual([expect.objectContaining({ uuid: 'habitante-uuid-1', estado: 'error' })]);
+    });
+
+    it('una edición sin cambio de hogar (hogarUuid resuelve al mismo hogarId) sigue funcionando sin regresión', async () => {
+      const { handler, hogarService, habitanteService } = crearHandler({ hogarExistente: { id: 10 } });
+      habitanteService.obtenerPorUuid.mockResolvedValue({
+        id: 1,
+        uuid: 'habitante-uuid-1',
+        updatedAt: new Date('2026-01-01T00:00:00.000Z'),
+      });
+      habitanteService.actualizar.mockResolvedValue({ id: 1, hogarId: 10 });
+
+      const resultados = await handler.aplicarLote(
+        [crearOperacionActualizar({ payload: { hogarUuid: 'hogar-uuid-origen', nombres: 'Ana María' } })],
+        1,
+      );
+
+      expect(hogarService.obtenerPorUuid).toHaveBeenCalledWith('hogar-uuid-origen');
+      expect(habitanteService.actualizar).toHaveBeenCalledWith(
+        1,
+        expect.objectContaining({ hogarId: 10, nombres: 'Ana María' }),
+        expect.anything(),
+      );
+      expect(resultados).toEqual([expect.objectContaining({ estado: 'aplicado' })]);
+    });
+  });
 });

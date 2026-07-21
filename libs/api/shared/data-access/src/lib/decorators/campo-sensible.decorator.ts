@@ -9,7 +9,8 @@ export type CategoriaCampoSensible =
   | 'ingresos'
   | 'ubicacion-exacta'
   | 'documento-identidad'
-  | 'identidad-genero';
+  | 'identidad-genero'
+  | 'credencial';
 
 export interface CampoSensibleOptions {
   categoria: CategoriaCampoSensible;

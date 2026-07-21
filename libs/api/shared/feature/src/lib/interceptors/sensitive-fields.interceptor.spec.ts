@@ -12,6 +12,9 @@ class HabitanteDePrueba {
 
   @CampoSensible({ categoria: 'etnia' })
   etnia = 'Wayuu';
+
+  @CampoSensible({ categoria: 'credencial' })
+  passwordHash = 'hash-secreto';
 }
 
 function crearContexto(roles?: string[]): ExecutionContext {
@@ -36,6 +39,11 @@ describe('SensitiveFieldsInterceptor', () => {
     const resultado = (await interceptar([RolCodigo.ADMINISTRADOR], new HabitanteDePrueba())) as HabitanteDePrueba;
     expect(resultado.numeroDocumento).toBe('123456');
     expect(resultado.etnia).toBe('Wayuu');
+  });
+
+  it('Fase 14: la categoría "credencial" se redacta incondicionalmente, incluso para administrador', async () => {
+    const resultado = (await interceptar([RolCodigo.ADMINISTRADOR], new HabitanteDePrueba())) as HabitanteDePrueba;
+    expect(resultado.passwordHash).toBeUndefined();
   });
 
   it('censista ve numeroDocumento (rolesPermitidos) pero no etnia (sin rolesPermitidos)', async () => {

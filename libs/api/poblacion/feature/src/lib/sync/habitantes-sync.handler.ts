@@ -26,6 +26,15 @@ const DOMINIO = 'habitantes';
  */
 type CrearHabitantePayloadSync = Omit<CrearHabitanteDto, 'hogarId' | 'uuid'> & { hogarUuid: string };
 
+/**
+ * El payload de "actualizar" que envía el cliente offline es el objeto
+ * `HabitanteOffline` completo (no un diff): trae `hogarUuid`, no `hogarId`.
+ * Para ediciones normales apunta al mismo hogar de siempre (se resuelve al
+ * mismo `hogarId` que ya tenía el habitante, sin efecto); solo activa la
+ * reasignación en `HabitanteService.actualizar` cuando de verdad cambió.
+ */
+type ActualizarHabitantePayloadSync = Omit<ActualizarHabitanteDto, 'hogarId'> & { hogarUuid?: string };
+
 @Injectable()
 export class HabitantesSyncHandler implements DomainSyncHandler, OnModuleInit {
   constructor(
@@ -78,7 +87,21 @@ export class HabitantesSyncHandler implements DomainSyncHandler, OnModuleInit {
         return { uuid: operacion.uuid, estado: 'conflicto', entidad: this.aRegistro(existente) };
       }
 
-      const payload = operacion.payload as unknown as ActualizarHabitanteDto;
+      const payloadCrudo = operacion.payload as unknown as ActualizarHabitantePayloadSync;
+      let hogarId: number | undefined;
+      if (payloadCrudo.hogarUuid) {
+        const hogar = await this.hogarService.obtenerPorUuid(payloadCrudo.hogarUuid);
+        if (!hogar) {
+          return {
+            uuid: operacion.uuid,
+            estado: 'error',
+            mensaje: `Hogar (uuid ${payloadCrudo.hogarUuid}) aún no sincronizado; se reintentará`,
+          };
+        }
+        hogarId = hogar.id;
+      }
+
+      const payload: ActualizarHabitanteDto = { ...payloadCrudo, hogarId };
       const habitante = await this.habitanteService.actualizar(existente.id, payload, usuario);
       return { uuid: operacion.uuid, estado: 'aplicado', entidad: this.aRegistro(habitante) };
     } catch (error) {

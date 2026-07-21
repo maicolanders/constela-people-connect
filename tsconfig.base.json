@@ -157,6 +157,9 @@
       ],
       "@censo/web-administracion-feature": [
         "./libs/web/administracion/feature/src/index.ts"
+      ],
+      "@censo/web-autogestion-feature": [
+        "./libs/web/autogestion/feature/src/index.ts"
       ]
     }
   },

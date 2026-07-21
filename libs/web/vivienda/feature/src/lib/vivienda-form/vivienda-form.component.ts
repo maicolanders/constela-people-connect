@@ -52,6 +52,7 @@ export class ViviendaFormComponent implements OnInit {
   readonly estadosServicio = Object.values(EstadoServicio);
 
   private hogarUuid = '';
+  private habitanteUuid = '';
   private comunidadId: number | null = null;
   private habitantesActivosDelHogar = 0;
 
@@ -79,6 +80,7 @@ export class ViviendaFormComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.hogarUuid = this.route.snapshot.paramMap.get('hogarUuid') ?? '';
+    this.habitanteUuid = this.route.snapshot.queryParamMap.get('habitanteUuid') ?? '';
     const hogar = await this.hogaresOffline.obtener(this.hogarUuid);
     this.comunidadId = hogar?.comunidadId ?? null;
 
@@ -142,11 +144,24 @@ export class ViviendaFormComponent implements OnInit {
       });
 
       void this.syncService.sincronizar();
-      await this.router.navigate(['/poblacion/hogares', this.hogarUuid, 'habitantes', 'nuevo']);
+      await this.irAAccionesHabitante('exito', 'vivienda.viviendaGuardadaDescripcion');
     } catch {
       this.error.set('vivienda.errorGuardarVivienda');
+      await this.irAAccionesHabitante('error', 'vivienda.errorGuardarVivienda');
     } finally {
       this.guardando.set(false);
     }
+  }
+
+  /** Regresa al hub de acciones del habitante que originó esta captura (Fase de mejora continua). */
+  private async irAAccionesHabitante(resultado: 'exito' | 'error', mensaje: string): Promise<void> {
+    if (!this.habitanteUuid) {
+      await this.router.navigate(['/poblacion/habitantes']);
+      return;
+    }
+    await this.router.navigate(
+      ['/poblacion/hogares', this.hogarUuid, 'habitantes', this.habitanteUuid, 'acciones'],
+      { queryParams: { resultado, mensaje } },
+    );
   }
 }

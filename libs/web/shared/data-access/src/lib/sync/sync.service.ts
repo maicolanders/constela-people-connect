@@ -22,6 +22,8 @@ export interface ResultadoSincronizacionServidor {
 export class SyncService {
   readonly enLinea = signal(typeof navigator !== 'undefined' ? navigator.onLine : true);
   readonly sincronizando = signal(false);
+  /** Registros locales que aún no quedaron aplicados en el servidor (pendientes, en error o en conflicto). */
+  readonly pendientes = signal(0);
 
   constructor(
     private readonly http: HttpClient,
@@ -34,23 +36,36 @@ export class SyncService {
       });
       window.addEventListener('offline', () => this.enLinea.set(false));
     }
+    void this.actualizarPendientes();
   }
 
-  async sincronizar(): Promise<void> {
+  /**
+   * `forzarReintento` lo usa la acción manual "Sincronizar ahora": una
+   * entrada en 'error' que ya agotó los reintentos automáticos
+   * (MAX_INTENTOS_AUTOMATICOS) solo vuelve a intentarse cuando el usuario lo
+   * pide explícitamente (ej. tras abrir un nuevo periodo censal, que fue la
+   * causa real de los errores).
+   */
+  async sincronizar(forzarReintento = false): Promise<void> {
     if (!this.enLinea() || this.sincronizando()) {
       return;
     }
 
     this.sincronizando.set(true);
     try {
-      const pendientes = await this.syncQueue.listarPendientes();
+      const pendientes = await this.syncQueue.listarPendientes(forzarReintento);
       const porDominio = this.agruparPorDominio(pendientes);
       for (const [dominio, entradas] of porDominio) {
         await this.sincronizarDominio(dominio, entradas);
       }
     } finally {
       this.sincronizando.set(false);
+      await this.actualizarPendientes();
     }
+  }
+
+  async actualizarPendientes(): Promise<void> {
+    this.pendientes.set(await this.syncQueue.contarPendientes());
   }
 
   private agruparPorDominio(entradas: ColaSincronizacionEntrada[]): Map<string, ColaSincronizacionEntrada[]> {

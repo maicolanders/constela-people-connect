@@ -59,6 +59,14 @@ describe('HogarUbicacionService', () => {
     expect(repositorio.save).toHaveBeenCalledWith(expect.objectContaining({ id: 1 }));
   });
 
+  it('guarda precisionMetros null como null real, no como el string "null" (bug de sync offline)', async () => {
+    const { servicio, repositorio } = crearServicio();
+
+    await servicio.upsert(10, 3, crearDto({ precisionMetros: null as never }));
+
+    expect(repositorio.save).toHaveBeenCalledWith(expect.objectContaining({ precisionMetros: null }));
+  });
+
   it('rechaza si el hogar ya tiene una ubicación registrada bajo otra comunidad', async () => {
     const existente = { id: 1, hogarId: 10, comunidadId: 99 };
     const { servicio } = crearServicio({ existente });

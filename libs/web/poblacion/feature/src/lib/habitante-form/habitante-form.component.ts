@@ -229,6 +229,10 @@ export class HabitanteFormComponent implements OnInit {
             periodoCensalId: this.periodoCensalId as number,
             estado: EstadoHabitante.ACTIVO,
             edadEstimada: valores.edadEstimada,
+            // El backend recalcula/valida contra este valor crudo (CrearHabitanteDto exige
+            // edadAproximada cuando edadEstimada es true); resolverFechaNacimiento() ya lo
+            // consumió para sintetizar fechaNacimiento, pero debe viajar también tal cual.
+            edadAproximada: valores.edadAproximada ?? undefined,
             origen: 'local' as const,
             ...camposComunes,
           };

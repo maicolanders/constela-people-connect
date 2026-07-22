@@ -1,40 +1,98 @@
-<div class="flex min-h-screen flex-col">
-  <header
-    class="sticky top-0 z-10 flex flex-wrap items-center justify-between gap-2 border-b border-primary-900 bg-primary-800 px-4 py-3 shadow-sm"
-  >
-    <a routerLink="/autogestion/mi-hogar" class="truncate text-sm font-semibold text-white">
-      {{ 'autogestion.tituloPortal' | translate }}
-    </a>
-    <nav class="flex flex-wrap items-center gap-1 text-sm">
-      <a routerLink="/autogestion/mi-hogar" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navMiHogar' | translate }}
+<div class="flex min-h-screen flex-col bg-slate-50">
+  <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-900/95 backdrop-blur-md shadow-md">
+    <div class="flex flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+      <!-- Marca -->
+      <a routerLink="/autogestion/mi-hogar" class="group flex items-center gap-2.5 transition-transform active:scale-95">
+        <div class="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-cyan-600 via-cyan-500 to-teal-400 text-white shadow-md transition-transform group-hover:scale-105">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
+          </svg>
+        </div>
+        <span class="leading-tight">
+          <span class="block text-sm font-bold tracking-tight text-white">{{ 'autogestion.tituloPortal' | translate }}</span>
+          <span class="block text-[10px] font-semibold uppercase tracking-wider text-cyan-400/90">Portal del comunero</span>
+        </span>
       </a>
-      <a routerLink="/autogestion/mi-perfil" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navMiPerfil' | translate }}
-      </a>
-      <a routerLink="/autogestion/educacion" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navEducacion' | translate }}
-      </a>
-      <a routerLink="/autogestion/economia" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navEconomia' | translate }}
-      </a>
-      <a routerLink="/autogestion/salud" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navSalud' | translate }}
-      </a>
-      <a routerLink="/autogestion/constancia" class="rounded px-2 py-1 text-primary-100 hover:bg-primary-700 hover:text-white">
-        {{ 'autogestion.navConstancia' | translate }}
-      </a>
+
+      <!-- Cerrar sesión -->
       <button
         type="button"
-        class="rounded px-2 py-1 font-medium text-primary-100 hover:bg-primary-700 hover:text-white"
+        class="inline-flex items-center gap-1.5 rounded-xl border border-rose-500/20 bg-rose-500/10 px-3 py-1.5 text-xs font-semibold text-rose-300 transition-all hover:bg-rose-600 hover:text-white hover:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-500/40"
         (click)="cerrarSesion()"
       >
-        {{ 'shell.logout' | translate }}
+        <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" />
+        </svg>
+        <span class="hidden sm:inline">{{ 'shell.logout' | translate }}</span>
       </button>
+    </div>
+
+    <!-- Navegación de secciones -->
+    <nav class="flex items-center gap-1 overflow-x-auto px-3 pb-2.5 sm:px-6">
+      <a
+        routerLink="/autogestion/mi-hogar"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75" />
+        </svg>
+        {{ 'autogestion.navMiHogar' | translate }}
+      </a>
+      <a
+        routerLink="/autogestion/mi-perfil"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+        </svg>
+        {{ 'autogestion.navMiPerfil' | translate }}
+      </a>
+      <a
+        routerLink="/autogestion/educacion"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347M8.25 15V8.443m7.5 6.557V8.443M3.29 9.336a59.902 59.902 0 018.71-5.843 59.902 59.902 0 018.71 5.843m-17.42 0a48.13 48.13 0 013.288 1.007m14.132-1.007a48.13 48.13 0 00-3.288 1.007" />
+        </svg>
+        {{ 'autogestion.navEducacion' | translate }}
+      </a>
+      <a
+        routerLink="/autogestion/economia"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38a23.978 23.978 0 01-7.577 1.22 23.978 23.978 0 01-7.577-1.22 2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0" />
+        </svg>
+        {{ 'autogestion.navEconomia' | translate }}
+      </a>
+      <a
+        routerLink="/autogestion/salud"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+        </svg>
+        {{ 'autogestion.navSalud' | translate }}
+      </a>
+      <a
+        routerLink="/autogestion/constancia"
+        routerLinkActive="bg-cyan-500/15 text-cyan-300 border-cyan-500/30"
+        class="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg border border-transparent px-3 py-1.5 text-xs font-semibold text-slate-300 transition-all hover:bg-slate-800 hover:text-white"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
+        </svg>
+        {{ 'autogestion.navConstancia' | translate }}
+      </a>
     </nav>
   </header>
 
-  <main class="flex-1 bg-slate-50 p-4">
+  <main class="flex-1 p-4 sm:p-6 lg:p-8">
     <router-outlet />
   </main>
 </div>

@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterOutlet } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HabitanteAuthService } from '@censo/web-shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 
@@ -11,7 +11,7 @@ import { TranslatePipe } from '@ngx-translate/core';
 @Component({
   selector: 'app-autogestion-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, TranslatePipe],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, TranslatePipe],
   templateUrl: './autogestion-shell.component.html',
 })
 export class AutogestionShellComponent {

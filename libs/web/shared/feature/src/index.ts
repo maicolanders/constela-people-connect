@@ -6,3 +6,4 @@ export * from './lib/interceptors/error.interceptor';
 export * from './lib/login-page/login-page.component';
 export * from './lib/offline-indicator/offline-indicator.component';
 export * from './lib/shell-layout/shell-layout.component';
+export * from './lib/sync-status/sync-status.component';

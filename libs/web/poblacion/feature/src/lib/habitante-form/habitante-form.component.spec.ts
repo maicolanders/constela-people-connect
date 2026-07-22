@@ -119,6 +119,26 @@ describe('HabitanteFormComponent — flujo de confirmación de duplicado (RF-01-
     expect(componente.candidatosDuplicado()).toBeNull();
   });
 
+  it('envía edadAproximada en el payload cuando edadEstimada es true (el backend la exige para validar)', async () => {
+    const { componente, habitantesOffline } = crearComponente([]);
+    await componente.ngOnInit();
+    componente.formulario.patchValue({
+      nombres: 'Antonio',
+      apellidos: 'Morales',
+      sexo: 'M',
+      parentescoCatalogoItemId: 7,
+      edadEstimada: true,
+      edadAproximada: 76,
+    });
+
+    await componente.guardar();
+
+    expect(habitantesOffline.guardar).toHaveBeenCalledWith(
+      expect.objectContaining({ edadEstimada: true, edadAproximada: 76 }),
+      'crear',
+    );
+  });
+
   it('cancelarDuplicado limpia la alerta sin guardar el habitante', async () => {
     const candidato: CandidatoDuplicadoOffline = { uuid: 'similar-uuid', nombres: 'Ana', apellidos: 'Perez', score: 0.9 };
     const { componente, habitantesOffline } = crearComponente([candidato]);

@@ -30,7 +30,7 @@ export class HogarUbicacionService {
     const entidad = existente ?? this.repositorio.create({ hogarId, comunidadId });
     entidad.ubicacionGeograficaId = dto.ubicacionGeograficaId;
     entidad.coordenadas = { type: 'Point', coordinates: [dto.longitud, dto.latitud] };
-    entidad.precisionMetros = dto.precisionMetros !== undefined ? String(dto.precisionMetros) : null;
+    entidad.precisionMetros = dto.precisionMetros != null ? String(dto.precisionMetros) : null;
     entidad.capturadoEn = new Date(dto.capturadoEn);
     entidad.clasificacion = dto.clasificacion;
     entidad.tipoTerritorioCatalogoItemId = dto.tipoTerritorioCatalogoItemId ?? null;

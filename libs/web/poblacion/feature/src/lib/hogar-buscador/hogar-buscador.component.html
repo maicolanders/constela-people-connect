@@ -5,33 +5,38 @@
       [ngModel]="termino()"
       (ngModelChange)="termino.set($event)"
       [placeholder]="'poblacion.buscarHogarPlaceholder' | translate"
-      class="w-full rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
     />
     <button
       type="button"
       (click)="buscar()"
       [disabled]="buscando()"
-      class="whitespace-nowrap rounded bg-primary-700 px-3 py-2 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+      class="inline-flex shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-primary-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-primary-700 disabled:cursor-not-allowed disabled:opacity-50"
     >
+      @if (buscando()) {
+        <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+        </svg>
+      }
       {{ (buscando() ? 'poblacion.guardando' : 'poblacion.buscarHogarBoton') | translate }}
     </button>
   </div>
 
   @if (error()) {
-    <p class="mb-2 text-sm text-red-600">{{ error() | translate }}</p>
+    <p class="mb-2 text-sm font-medium text-red-600">{{ error() | translate }}</p>
   }
 
   @if (resultados(); as lista) {
     @if (lista.length === 0) {
       <p class="text-sm text-slate-500">{{ 'poblacion.sinResultadosHogares' | translate }}</p>
     } @else {
-      <ul class="divide-y divide-slate-200 rounded border border-slate-200 bg-white">
+      <ul class="divide-y divide-slate-100 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
         @for (hogar of lista; track hogar.uuid) {
           <li>
             <button
               type="button"
               (click)="seleccionar(hogar)"
-              class="w-full px-3 py-2 text-left text-sm hover:bg-primary-50"
+              class="w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-primary-50"
             >
               <span class="font-medium text-slate-900">{{ hogar.direccionReferencia || hogar.uuid }}</span>
               @if (hogar.jefeHogarNombre) {

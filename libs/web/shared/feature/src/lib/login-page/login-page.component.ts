@@ -1,13 +1,13 @@
 import { Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '@censo/web-shared-data-access';
 import { TranslatePipe } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login-page',
   standalone: true,
-  imports: [ReactiveFormsModule, TranslatePipe],
+  imports: [ReactiveFormsModule, TranslatePipe, RouterLink],
   templateUrl: './login-page.component.html',
 })
 export class LoginPageComponent {

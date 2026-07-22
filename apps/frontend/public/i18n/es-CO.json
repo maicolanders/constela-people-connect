@@ -10,10 +10,21 @@
     "title": "Censo Poblacional Indígena",
     "logout": "Cerrar sesión",
     "online": "En línea",
-    "offline": "Sin conexión"
+    "offline": "Sin conexión",
+    "sincronizarAhora": "Sincronizar ahora",
+    "sincronizando": "Sincronizando...",
+    "pendientesSincronizar": "por sincronizar"
   },
   "home": {
     "bienvenida": "Seleccione una opción para continuar",
+    "heroTitulo": "Panel Principal Constela",
+    "heroSubtitulo": "Accede a las herramientas de registro territorial, reportes demográficos y administración.",
+    "buscarPlaceholder": "Buscar por módulo, opción o reporte...",
+    "todasLasSecciones": "Todas",
+    "sinResultadosTitulo": "No se encontraron opciones",
+    "sinResultadosDesc": "No hay módulos ni reportes que coincidan con tu búsqueda.",
+    "limpiarBusqueda": "Limpiar filtro",
+    "totalOpciones": "opciones disponibles",
     "seccionCaptura": "Captura de campo",
     "seccionReportes": "Reportes y análisis",
     "descNuevoHogar": "Registrar un nuevo hogar y sus habitantes",
@@ -42,7 +53,9 @@
     "password": "Contraseña",
     "loginSubmit": "Ingresar",
     "loggingIn": "Ingresando...",
-    "loginError": "Correo o contraseña incorrectos"
+    "loginError": "Correo o contraseña incorrectos",
+    "loginComuneros": "Portal de Comuneros y Autogestión",
+    "descComuneros": "¿Eres comunero o habitante? Inicia sesión con tu tipo y número de documento"
   },
   "poblacion": {
     "habitantesTitulo": "Habitantes",
@@ -140,6 +153,8 @@
     "coordenadasActuales": "Coordenadas capturadas",
     "gpsNoDisponible": "Este dispositivo no soporta geolocalización",
     "errorCapturaGps": "No se pudo capturar la ubicación GPS",
+    "errorPermisoGps": "El navegador no tiene permiso para acceder a tu ubicación. Revisa los permisos de ubicación del sitio",
+    "errorTimeoutGps": "La captura de ubicación GPS tardó demasiado. Intenta de nuevo",
     "nivelGeografico": "Ubicación geográfica",
     "seleccionar": "Seleccionar...",
     "clasificacion": "Clasificación",

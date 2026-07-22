@@ -1,87 +1,107 @@
-<div class="mx-auto max-w-3xl p-4">
-  <a routerLink="/administracion/comunidades" class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800">
-    <span aria-hidden="true">←</span> {{ 'administracion.tituloPanel' | translate }}
+<div class="mx-auto max-w-3xl p-4 sm:p-6 lg:p-8">
+  <a routerLink="/administracion/comunidades" class="group mb-6 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900">
+    <svg class="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+    {{ 'administracion.tituloPanel' | translate }}
   </a>
 
   @if (cargando()) {
-    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-primary-600"></div>
+      <p class="mt-4 text-sm font-medium text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    </div>
   } @else if (error()) {
-    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+    <div class="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3">
+      <svg class="h-4 w-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+      <p class="text-xs font-medium text-red-800">{{ error() | translate }}</p>
+    </div>
   } @else if (habitante(); as hab) {
-    <h1 class="mb-1 text-lg font-semibold text-slate-900">{{ hab.nombres }} {{ hab.apellidos }}</h1>
-    <p class="mb-4 text-sm text-slate-500">
-      {{ hab.sexo }} · {{ hab.fechaNacimiento }}{{ hab.edadEstimada ? ' (' + ('administracion.edadEstimada' | translate) + ')' : '' }} · {{ hab.estado }}
-    </p>
+    <div class="mb-6 flex items-center gap-4">
+      <div class="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-50 to-primary-100 text-primary-600 ring-4 ring-white shadow-sm">
+        <svg class="h-7 w-7" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+          <path d="M10 9a3 3 0 100-6 3 3 0 000 6zM3.5 17a6.5 6.5 0 0113 0 .75.75 0 01-.75.75h-11.5A.75.75 0 013.5 17z" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ hab.nombres }} {{ hab.apellidos }}</h1>
+        <p class="text-sm text-slate-500">
+          {{ hab.sexo }} · {{ hab.fechaNacimiento }}{{ hab.edadEstimada ? ' (' + ('administracion.edadEstimada' | translate) + ')' : '' }} · {{ hab.estado }}
+        </p>
+      </div>
+    </div>
 
-    <div class="grid gap-4">
-      <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionVivienda' | translate }}</h2>
+    <div class="grid gap-4 sm:grid-cols-2">
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{{ 'administracion.seccionVivienda' | translate }}</h2>
         @if (vivienda(); as v) {
-          <dl class="grid grid-cols-2 gap-1 text-sm">
+          <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
             <dt class="text-slate-500">{{ 'administracion.tipoVivienda' | translate }}</dt>
-            <dd>{{ nombreCatalogo(v.tipoViviendaCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(v.tipoViviendaCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.materialPared' | translate }}</dt>
-            <dd>{{ nombreCatalogo(v.materialParedCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(v.materialParedCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.materialPiso' | translate }}</dt>
-            <dd>{{ nombreCatalogo(v.materialPisoCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(v.materialPisoCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.materialTecho' | translate }}</dt>
-            <dd>{{ nombreCatalogo(v.materialTechoCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(v.materialTechoCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.numeroDormitorios' | translate }}</dt>
-            <dd>{{ v.numeroDormitorios }}</dd>
+            <dd class="text-slate-900">{{ v.numeroDormitorios }}</dd>
           </dl>
         } @else {
           <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
         }
       </div>
 
-      <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEducacion' | translate }}</h2>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{{ 'administracion.seccionEducacion' | translate }}</h2>
         @if (educacion(); as edu) {
-          <dl class="grid grid-cols-2 gap-1 text-sm">
+          <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
             <dt class="text-slate-500">{{ 'administracion.nivelEducativo' | translate }}</dt>
-            <dd>{{ nombreCatalogo(edu.nivelEducativoCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(edu.nivelEducativoCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.alfabetizado' | translate }}</dt>
-            <dd>{{ (edu.alfabetizado ? 'comun.si' : 'comun.no') | translate }}</dd>
+            <dd class="text-slate-900">{{ (edu.alfabetizado ? 'comun.si' : 'comun.no') | translate }}</dd>
             <dt class="text-slate-500">{{ 'administracion.asisteEscuela' | translate }}</dt>
-            <dd>{{ (edu.asisteEscuela ? 'comun.si' : 'comun.no') | translate }}</dd>
+            <dd class="text-slate-900">{{ (edu.asisteEscuela ? 'comun.si' : 'comun.no') | translate }}</dd>
           </dl>
         } @else {
           <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
         }
       </div>
 
-      <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEconomia' | translate }}</h2>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{{ 'administracion.seccionEconomia' | translate }}</h2>
         @if (ocupacion(); as ocu) {
-          <dl class="grid grid-cols-2 gap-1 text-sm">
+          <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
             <dt class="text-slate-500">{{ 'administracion.condicionActividad' | translate }}</dt>
-            <dd>{{ nombreCatalogo(ocu.condicionActividadCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(ocu.condicionActividadCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.ocupacion' | translate }}</dt>
-            <dd>{{ nombreCatalogo(ocu.ocupacionCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(ocu.ocupacionCatalogoItemId) }}</dd>
           </dl>
         } @else {
           <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
         }
       </div>
 
-      <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionEtnia' | translate }}</h2>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{{ 'administracion.seccionEtnia' | translate }}</h2>
         @if (etnia(); as etn) {
-          <dl class="grid grid-cols-2 gap-1 text-sm">
+          <dl class="grid grid-cols-2 gap-y-1.5 text-sm">
             <dt class="text-slate-500">{{ 'administracion.etnia' | translate }}</dt>
-            <dd>{{ nombreCatalogo(etn.etniaCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(etn.etniaCatalogoItemId) }}</dd>
             <dt class="text-slate-500">{{ 'administracion.lenguaMaterna' | translate }}</dt>
-            <dd>{{ nombreCatalogo(etn.lenguaMaternaCatalogoItemId) }}</dd>
+            <dd class="text-slate-900">{{ nombreCatalogo(etn.lenguaMaternaCatalogoItemId) }}</dd>
           </dl>
         } @else {
           <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
         }
       </div>
 
-      <div class="rounded-lg border border-slate-200 bg-white p-4">
-        <h2 class="mb-2 text-sm font-semibold text-slate-900">{{ 'administracion.seccionMigracion' | translate }}</h2>
+      <div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:col-span-2">
+        <h2 class="mb-3 text-xs font-bold uppercase tracking-wider text-slate-500">{{ 'administracion.seccionMigracion' | translate }}</h2>
         @if (migraciones().length > 0) {
-          <ul class="grid gap-1 text-sm">
+          <ul class="grid gap-1.5 text-sm text-slate-700">
             @for (mov of migraciones(); track mov.id) {
               <li>
                 {{ mov.fechaMovimiento }} — {{ mov.direccion }} ({{ mov.tipoMovimiento }}) —
@@ -93,13 +113,16 @@
           <p class="text-sm text-slate-400">{{ 'administracion.sinDatos' | translate }}</p>
         }
       </div>
-
-      <a
-        [routerLink]="['/administracion/hogares', hab.hogarId, 'nucleo-familiar']"
-        class="text-sm font-medium text-primary-700 hover:text-primary-800"
-      >
-        {{ 'administracion.verNucleoFamiliar' | translate }}
-      </a>
     </div>
+
+    <a
+      [routerLink]="['/administracion/hogares', hab.hogarId, 'nucleo-familiar']"
+      class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800"
+    >
+      {{ 'administracion.verNucleoFamiliar' | translate }}
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+      </svg>
+    </a>
   }
 </div>

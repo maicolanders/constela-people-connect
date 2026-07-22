@@ -1,82 +1,153 @@
-<div class="flex min-h-screen flex-col items-center justify-center bg-slate-50 px-4">
-  <p class="mb-6 text-center text-sm font-medium text-primary-800">{{ 'autogestion.tituloPortal' | translate }}</p>
+<div class="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-slate-950 px-4 py-8 text-slate-100">
 
-  <form
-    class="w-full max-w-sm overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm"
-    [formGroup]="formulario"
-    (ngSubmit)="enviar()"
-  >
-    <div class="h-1.5 bg-primary-700"></div>
-    <div class="p-6">
-      <h1 class="mb-2 text-xl font-semibold text-slate-900">{{ 'autogestion.registroTitulo' | translate }}</h1>
-      <p class="mb-6 text-sm text-slate-600">{{ 'autogestion.registroDescripcion' | translate }}</p>
+  <!-- Elementos de luz ambiental de fondo -->
+  <div class="pointer-events-none absolute -top-40 -left-40 h-96 w-96 rounded-full bg-cyan-600/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-40 -right-40 h-96 w-96 rounded-full bg-teal-500/15 blur-3xl"></div>
 
+  <div class="relative z-10 w-full max-w-md space-y-6">
+
+    <!-- Encabezado / Branding -->
+    <div class="text-center space-y-3">
+      <div class="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-cyan-600 via-cyan-500 to-teal-400 text-white shadow-xl shadow-cyan-950/50 ring-1 ring-white/20">
+        <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5c0 3.038-2.462 5.5-5.5 5.5S7 10.538 7 7.5 9.462 2 12.5 2 18 4.462 18 7.5zM3.5 22a8.5 8.5 0 0117 0" />
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+          {{ 'autogestion.registroTitulo' | translate }}
+        </h1>
+        <p class="mt-2 text-xs leading-relaxed text-slate-400">
+          {{ 'autogestion.registroDescripcion' | translate }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Formulario Principal de Registro -->
+    <form
+      class="overflow-hidden rounded-3xl border border-slate-800 bg-slate-900/80 p-6 sm:p-8 shadow-2xl backdrop-blur-xl transition-all"
+      [formGroup]="formulario"
+      (ngSubmit)="enviar()"
+    >
       @if (exito()) {
-        <p class="mb-4 rounded bg-green-50 p-3 text-sm text-green-700">{{ 'autogestion.registroExito' | translate }}</p>
+        <div class="flex flex-col items-center gap-3 py-4 text-center">
+          <div class="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 ring-1 ring-emerald-500/30">
+            <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <p class="text-sm font-semibold text-emerald-300">{{ 'autogestion.registroExito' | translate }}</p>
+        </div>
       } @else {
-        <label class="mb-1 block text-sm font-medium text-slate-700" for="tipoDocumentoId">
-          {{ 'autogestion.tipoDocumento' | translate }}
-        </label>
-        <select
-          id="tipoDocumentoId"
-          formControlName="tipoDocumentoId"
-          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        >
-          <option [ngValue]="null">—</option>
-          @for (tipo of tiposDocumento(); track tipo.id) {
-            <option [ngValue]="tipo.id">{{ tipo.nombre }}</option>
-          }
-        </select>
+        <!-- Tipo de documento -->
+        <div class="mb-4">
+          <label class="mb-1.5 block text-xs font-semibold text-slate-300" for="tipoDocumentoId">
+            {{ 'autogestion.tipoDocumento' | translate }}
+          </label>
+          <select
+            id="tipoDocumentoId"
+            formControlName="tipoDocumentoId"
+            class="w-full rounded-xl border border-slate-700 bg-slate-950/70 px-4 py-3 text-sm text-white transition focus:border-cyan-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+          >
+            <option [ngValue]="null">—</option>
+            @for (tipo of tiposDocumento(); track tipo.id) {
+              <option [ngValue]="tipo.id">{{ tipo.nombre }}</option>
+            }
+          </select>
+        </div>
 
-        <label class="mb-1 block text-sm font-medium text-slate-700" for="numeroDocumento">
-          {{ 'autogestion.numeroDocumento' | translate }}
-        </label>
-        <input
-          id="numeroDocumento"
-          type="text"
-          formControlName="numeroDocumento"
-          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
+        <!-- Número de documento -->
+        <div class="mb-4">
+          <label class="mb-1.5 block text-xs font-semibold text-slate-300" for="numeroDocumento">
+            {{ 'autogestion.numeroDocumento' | translate }}
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 4a2 2 0 00-2 2v8a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2H4zm2 3h1m-1 4h6" />
+              </svg>
+            </div>
+            <input
+              id="numeroDocumento"
+              type="text"
+              formControlName="numeroDocumento"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950/70 pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 transition focus:border-cyan-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+            />
+          </div>
+        </div>
 
-        <label class="mb-1 block text-sm font-medium text-slate-700" for="fechaNacimiento">
-          {{ 'autogestion.fechaNacimiento' | translate }}
-        </label>
-        <input
-          id="fechaNacimiento"
-          type="date"
-          formControlName="fechaNacimiento"
-          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
+        <!-- Fecha de nacimiento -->
+        <div class="mb-4">
+          <label class="mb-1.5 block text-xs font-semibold text-slate-300" for="fechaNacimiento">
+            {{ 'autogestion.fechaNacimiento' | translate }}
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" />
+              </svg>
+            </div>
+            <input
+              id="fechaNacimiento"
+              type="date"
+              formControlName="fechaNacimiento"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950/70 pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 transition focus:border-cyan-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 [color-scheme:dark]"
+            />
+          </div>
+        </div>
 
-        <label class="mb-1 block text-sm font-medium text-slate-700" for="passwordNueva">
-          {{ 'autogestion.passwordNueva' | translate }}
-        </label>
-        <input
-          id="passwordNueva"
-          type="password"
-          formControlName="passwordNueva"
-          autocomplete="new-password"
-          class="mb-4 w-full rounded border border-slate-300 px-3 py-2.5 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
-        />
+        <!-- Contraseña nueva -->
+        <div class="mb-6">
+          <label class="mb-1.5 block text-xs font-semibold text-slate-300" for="passwordNueva">
+            {{ 'autogestion.passwordNueva' | translate }}
+          </label>
+          <div class="relative">
+            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z" />
+              </svg>
+            </div>
+            <input
+              id="passwordNueva"
+              type="password"
+              formControlName="passwordNueva"
+              autocomplete="new-password"
+              placeholder="Mínimo 8 caracteres"
+              class="w-full rounded-xl border border-slate-700 bg-slate-950/70 pl-10 pr-4 py-3 text-sm text-white placeholder-slate-500 transition focus:border-cyan-500 focus:bg-slate-950 focus:outline-none focus:ring-2 focus:ring-cyan-500/30"
+            />
+          </div>
+        </div>
 
+        <!-- Error alert -->
         @if (error()) {
-          <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+          <div class="mb-5 flex items-center gap-2.5 rounded-xl border border-rose-500/30 bg-rose-500/10 p-3 text-xs font-medium text-rose-300">
+            <svg class="h-4 w-4 shrink-0 text-rose-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+            </svg>
+            <span>{{ error() | translate }}</span>
+          </div>
         }
 
+        <!-- Botón de Submit -->
         <button
           type="submit"
           [disabled]="formulario.invalid || enviando()"
-          class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+          class="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-500 px-4 py-3 text-sm font-bold text-white shadow-lg transition-all hover:from-cyan-500 hover:to-teal-400 hover:shadow-cyan-600/30 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {{ (enviando() ? 'autogestion.registrando' : 'autogestion.registroSubmit') | translate }}
+          @if (enviando()) {
+            <svg class="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+            </svg>
+          }
+          <span>{{ (enviando() ? 'autogestion.registrando' : 'autogestion.registroSubmit') | translate }}</span>
         </button>
       }
 
-      <p class="mt-4 text-center text-sm text-slate-600">
-        <a routerLink="/autogestion/login" class="text-primary-700 hover:underline">
+      <p class="mt-5 text-center text-xs text-slate-400">
+        <a routerLink="/autogestion/login" class="font-semibold text-cyan-400 hover:text-cyan-300 hover:underline">
           {{ 'autogestion.irALogin' | translate }}
         </a>
       </p>
-    </div>
-  </form>
+    </form>
+  </div>
 </div>

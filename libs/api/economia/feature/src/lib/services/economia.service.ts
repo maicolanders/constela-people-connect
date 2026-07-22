@@ -41,7 +41,7 @@ export class EconomiaService {
         habitanteId,
         condicionActividadCatalogoItemId: dto.condicionActividadCatalogoItemId,
         ocupacionCatalogoItemId: dto.ocupacionCatalogoItemId ?? null,
-        ingresoMensual: dto.ingresoMensual !== undefined ? String(dto.ingresoMensual) : null,
+        ingresoMensual: dto.ingresoMensual != null ? String(dto.ingresoMensual) : null,
       }),
     );
   }
@@ -67,7 +67,12 @@ export class EconomiaService {
     const ocupacion = await this.obtener(id);
     Object.assign(ocupacion, {
       ...dto,
-      ingresoMensual: dto.ingresoMensual !== undefined ? String(dto.ingresoMensual) : ocupacion.ingresoMensual,
+      ingresoMensual:
+        dto.ingresoMensual === undefined
+          ? ocupacion.ingresoMensual
+          : dto.ingresoMensual === null
+            ? null
+            : String(dto.ingresoMensual),
     });
     return this.ocupacionRepository.save(ocupacion);
   }

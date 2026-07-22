@@ -7,8 +7,12 @@ import { SyncService } from './sync.service';
 
 // fake-indexeddb resuelve sus callbacks en macrotasks reales, no en microtasks:
 // hay que ceder el hilo antes de esperar la petición HTTP disparada tras leer la cola.
-function esperarMacrotask(): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, 0));
+// Varias vueltas porque listarPendientes() ahora recorre la tabla con un filtro
+// (cursor con varios pasos internos), no una única búsqueda indexada.
+async function esperarMacrotask(): Promise<void> {
+  for (let vuelta = 0; vuelta < 5; vuelta++) {
+    await new Promise<void>((resolve) => setTimeout(resolve, 0));
+  }
 }
 
 describe('SyncService', () => {
@@ -83,7 +87,7 @@ describe('SyncService', () => {
     await promesa;
 
     const pendientes = await syncQueue.listarPendientes();
-    expect(pendientes).toHaveLength(0); // pasó a estado 'error', ya no es 'pendiente'
+    expect(pendientes).toHaveLength(1); // 'error' se reintenta automáticamente en el próximo ciclo
 
     const items = await db.colaSincronizacion.toArray();
     expect(items[0].estado).toBe('error');

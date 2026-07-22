@@ -1,70 +1,109 @@
 <div class="mx-auto max-w-lg">
-  <h1 class="mb-4 text-lg font-semibold text-slate-900">{{ 'autogestion.tituloMiSalud' | translate }}</h1>
-  <p class="mb-4 text-sm text-slate-600">{{ 'autogestion.miSaludDescripcion' | translate }}</p>
+  <!-- Encabezado -->
+  <div class="mb-6 flex items-center gap-3">
+    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-cyan-100 text-cyan-600 shadow-sm">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+      </svg>
+    </div>
+    <div>
+      <h1 class="text-xl font-bold tracking-tight text-slate-900">{{ 'autogestion.tituloMiSalud' | translate }}</h1>
+      <p class="text-xs text-slate-500">{{ 'autogestion.miSaludDescripcion' | translate }}</p>
+    </div>
+  </div>
 
   @if (cargando()) {
-    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-cyan-600"></div>
+      <p class="mt-4 text-sm font-medium text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    </div>
   } @else {
-    <form class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm" [formGroup]="formulario" (ngSubmit)="guardar()">
-      <label class="mb-4 block">
-        <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'etniaVulnerabilidad.etnia' | translate }}</span>
-        <select formControlName="etniaCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm">
+    <form class="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm" [formGroup]="formulario" (ngSubmit)="guardar()">
+      <div class="mb-4">
+        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ 'etniaVulnerabilidad.etnia' | translate }}</label>
+        <select
+          formControlName="etniaCatalogoItemId"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+        >
           <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
           @for (item of etnias(); track item.id) {
             <option [ngValue]="item.id">{{ item.nombre }}</option>
           }
         </select>
-      </label>
+      </div>
 
-      <label class="mb-4 block">
-        <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'etniaVulnerabilidad.lenguaMaterna' | translate }}</span>
-        <select formControlName="lenguaMaternaCatalogoItemId" class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm">
+      <div class="mb-4">
+        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ 'etniaVulnerabilidad.lenguaMaterna' | translate }}</label>
+        <select
+          formControlName="lenguaMaternaCatalogoItemId"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+        >
           <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
           @for (item of lenguas(); track item.id) {
             <option [ngValue]="item.id">{{ item.nombre }}</option>
           }
         </select>
-      </label>
+      </div>
 
-      <label class="mb-4 block">
-        <span class="mb-1 block text-sm font-medium text-slate-700">{{ 'etniaVulnerabilidad.resguardo' | translate }}</span>
-        <select formControlName="resguardoUbicacionGeograficaId" class="w-full rounded border border-slate-300 px-3 py-2.5 text-sm">
+      <div class="mb-5">
+        <label class="mb-1.5 block text-xs font-semibold text-slate-600">{{ 'etniaVulnerabilidad.resguardo' | translate }}</label>
+        <select
+          formControlName="resguardoUbicacionGeograficaId"
+          class="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 transition focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+        >
           <option [ngValue]="null">{{ 'georreferenciacion.seleccionar' | translate }}</option>
           @for (nodo of resguardos(); track nodo.id) {
             <option [ngValue]="nodo.id">{{ nodo.nombre }}</option>
           }
         </select>
-      </label>
+      </div>
 
-      <fieldset class="mb-4 rounded border border-slate-200 p-3">
-        <legend class="px-1 text-sm font-medium text-slate-700">
+      <fieldset class="mb-5 rounded-xl border border-slate-200 p-4">
+        <legend class="px-1 text-xs font-bold uppercase tracking-wider text-slate-500">
           {{ 'etniaVulnerabilidad.condicionesVulnerabilidad' | translate }}
         </legend>
-        @for (condicion of condicionesDisponibles(); track condicion.id) {
-          <label class="mb-2 flex items-center gap-2 text-sm text-slate-700">
-            <input
-              type="checkbox"
-              class="h-4 w-4 rounded border-slate-300"
-              [checked]="condicionesSeleccionadas().has(condicion.id)"
-              (change)="alternarCondicion(condicion.id, $any($event.target).checked)"
-            />
-            {{ condicion.nombre }}
-          </label>
-        }
+        <div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          @for (condicion of condicionesDisponibles(); track condicion.id) {
+            <label class="flex cursor-pointer items-center gap-2.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 transition has-[:checked]:border-cyan-300 has-[:checked]:bg-cyan-50">
+              <input
+                type="checkbox"
+                class="h-4 w-4 shrink-0 rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                [checked]="condicionesSeleccionadas().has(condicion.id)"
+                (change)="alternarCondicion(condicion.id, $any($event.target).checked)"
+              />
+              <span class="text-sm text-slate-700">{{ condicion.nombre }}</span>
+            </label>
+          }
+        </div>
       </fieldset>
 
       @if (error()) {
-        <p class="mb-4 text-sm text-red-600">{{ error() | translate }}</p>
+        <div class="mb-4 flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3">
+          <svg class="h-4 w-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+          </svg>
+          <p class="text-xs font-medium text-red-800">{{ error() | translate }}</p>
+        </div>
       }
       @if (guardadoExitoso()) {
-        <p class="mb-4 text-sm text-green-700">{{ 'autogestion.guardadoExitoso' | translate }}</p>
+        <div class="mb-4 flex items-center gap-2.5 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+          <svg class="h-4 w-4 shrink-0 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <p class="text-xs font-medium text-emerald-800">{{ 'autogestion.guardadoExitoso' | translate }}</p>
+        </div>
       }
 
       <button
         type="submit"
         [disabled]="formulario.invalid || guardando()"
-        class="w-full rounded bg-primary-700 px-4 py-2.5 text-sm font-medium text-white hover:bg-primary-800 disabled:opacity-50"
+        class="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-all hover:bg-cyan-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
       >
+        @if (guardando()) {
+          <svg class="h-4 w-4 animate-spin" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        }
         {{ (guardando() ? 'autogestion.guardando' : 'autogestion.guardar') | translate }}
       </button>
     </form>

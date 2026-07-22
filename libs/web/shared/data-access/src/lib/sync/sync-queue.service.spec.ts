@@ -40,6 +40,21 @@ describe('SyncQueueService', () => {
     expect(await service.listarPendientes()).toHaveLength(0);
   });
 
+  it('marcarError deja la entrada disponible para reintento automático hasta el límite', async () => {
+    await service.encolar('habitantes', 'uuid-4', 'crear', { hogarUuid: 'hogar-no-sincronizado' });
+    const [entrada] = await service.listarPendientes();
+
+    // Intentos 1-4: sigue por debajo del límite, se reintenta solo.
+    for (let intento = 0; intento < 4; intento++) {
+      await service.marcarError(entrada.id as number, 'Hogar aún no sincronizado');
+      expect(await service.listarPendientes()).toHaveLength(1);
+    }
+
+    // Intento 5: alcanza MAX_INTENTOS_AUTOMATICOS y deja de reintentarse solo.
+    await service.marcarError(entrada.id as number, 'Hogar aún no sincronizado');
+    expect(await service.listarPendientes()).toHaveLength(0);
+  });
+
   it('marcarConflicto deja la entrada disponible para resolución manual', async () => {
     await service.encolar('hogares', 'uuid-3', 'actualizar', { nombre: 'Local' });
     const [entrada] = await service.listarPendientes();

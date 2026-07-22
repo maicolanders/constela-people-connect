@@ -1,18 +1,28 @@
-<div class="mx-auto max-w-4xl p-4">
+<div class="mx-auto max-w-4xl p-4 sm:p-6 lg:p-8">
   <a
     routerLink="/"
-    class="mb-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700 hover:text-primary-800"
+    class="group mb-6 inline-flex items-center gap-2 rounded-full bg-slate-100 px-4 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-200 hover:text-slate-900"
   >
-    <span aria-hidden="true">←</span> {{ 'comun.volverInicio' | translate }}
+    <svg class="h-4 w-4 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" aria-hidden="true">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
+    </svg>
+    {{ 'comun.volverInicio' | translate }}
   </a>
 
-  <h1 class="mb-4 text-lg font-semibold text-slate-900">
-    {{ 'recursos.tituloPanel' | translate }}
-  </h1>
+  <div class="mb-6 flex items-center gap-3">
+    <div class="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary-100 text-primary-600 shadow-sm">
+      <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" />
+      </svg>
+    </div>
+    <h1 class="text-xl font-bold tracking-tight text-slate-900">
+      {{ 'recursos.tituloPanel' | translate }}
+    </h1>
+  </div>
 
-  <div class="mb-4 flex flex-wrap gap-3">
+  <div class="mb-6 flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
     <select
-      class="rounded border border-slate-300 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-1 focus:ring-primary-500"
+      class="rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm text-slate-900 transition focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-500/20"
       [value]="periodoCensalId()"
       (change)="onPeriodoChange($any($event.target).value)"
     >
@@ -24,81 +34,94 @@
     @if (comunidadesOrdenadas().length > 0) {
       <button
         type="button"
-        class="rounded border border-slate-300 px-3 py-2 text-sm text-slate-700 hover:bg-slate-50"
+        class="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-3.5 py-2 text-sm font-medium text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
         (click)="exportarCsv()"
       >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+        </svg>
         {{ 'recursos.exportarCsv' | translate }}
       </button>
     }
   </div>
 
   @if (cargando()) {
-    <p class="text-sm text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    <div class="flex flex-col items-center justify-center py-16">
+      <div class="h-10 w-10 animate-spin rounded-full border-4 border-slate-100 border-t-primary-600"></div>
+      <p class="mt-4 text-sm font-medium text-slate-500">{{ 'poblacion.cargando' | translate }}</p>
+    </div>
   } @else if (error()) {
-    <p class="text-sm text-red-600">{{ error() | translate }}</p>
+    <div class="flex items-center gap-2.5 rounded-xl border border-red-200 bg-red-50 p-3">
+      <svg class="h-4 w-4 shrink-0 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 11-18 0 9 9 0 0118 0zm-9 3.75h.008v.008H12v-.008z" />
+      </svg>
+      <p class="text-xs font-medium text-red-800">{{ error() | translate }}</p>
+    </div>
   } @else {
-    <div class="overflow-x-auto">
-      <table class="w-full rounded-lg border border-slate-200 bg-white text-sm">
-        <thead>
-          <tr class="border-b border-slate-200 text-left text-slate-500">
-            <th
-              class="cursor-pointer select-none p-3 hover:text-slate-700"
-              (click)="ordenarPor('comunidadNombre')"
-            >
-              {{ 'recursos.comunidad' | translate }}
-            </th>
-            <th
-              class="cursor-pointer select-none p-3 hover:text-slate-700"
-              (click)="ordenarPor('poblacionTotal')"
-            >
-              {{ 'recursos.poblacionTotal' | translate }}
-            </th>
-            <th
-              class="cursor-pointer select-none p-3 hover:text-slate-700"
-              (click)="ordenarPor('tasaNbi')"
-            >
-              {{ 'recursos.tasaNbi' | translate }}
-            </th>
-            <th
-              class="cursor-pointer select-none p-3 hover:text-slate-700"
-              (click)="ordenarPor('coberturaEducativa')"
-            >
-              {{ 'recursos.coberturaEducativa' | translate }}
-            </th>
-            <th
-              class="cursor-pointer select-none p-3 hover:text-slate-700"
-              (click)="ordenarPor('tasaVulnerabilidad')"
-            >
-              {{ 'recursos.tasaVulnerabilidad' | translate }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (fila of comunidadesOrdenadas(); track fila.comunidadId) {
-            <tr class="border-b border-slate-100">
-              <td class="p-3 font-medium text-slate-900">
-                {{ fila.comunidadNombre }}
-              </td>
-              @if (fila.suprimido) {
-                <td class="p-3 text-slate-500" colspan="4">
-                  {{ 'demografia.suprimidoPorAnonimizacion' | translate }}
+    <div class="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead class="bg-slate-50">
+            <tr class="text-left text-xs font-semibold uppercase tracking-wider text-slate-500">
+              <th
+                class="cursor-pointer select-none p-4 transition-colors hover:text-slate-700"
+                (click)="ordenarPor('comunidadNombre')"
+              >
+                {{ 'recursos.comunidad' | translate }}
+              </th>
+              <th
+                class="cursor-pointer select-none p-4 transition-colors hover:text-slate-700"
+                (click)="ordenarPor('poblacionTotal')"
+              >
+                {{ 'recursos.poblacionTotal' | translate }}
+              </th>
+              <th
+                class="cursor-pointer select-none p-4 transition-colors hover:text-slate-700"
+                (click)="ordenarPor('tasaNbi')"
+              >
+                {{ 'recursos.tasaNbi' | translate }}
+              </th>
+              <th
+                class="cursor-pointer select-none p-4 transition-colors hover:text-slate-700"
+                (click)="ordenarPor('coberturaEducativa')"
+              >
+                {{ 'recursos.coberturaEducativa' | translate }}
+              </th>
+              <th
+                class="cursor-pointer select-none p-4 transition-colors hover:text-slate-700"
+                (click)="ordenarPor('tasaVulnerabilidad')"
+              >
+                {{ 'recursos.tasaVulnerabilidad' | translate }}
+              </th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            @for (fila of comunidadesOrdenadas(); track fila.comunidadId) {
+              <tr class="transition-colors hover:bg-slate-50">
+                <td class="p-4 font-medium text-slate-900">
+                  {{ fila.comunidadNombre }}
                 </td>
-              } @else {
-                <td class="p-3">{{ fila.poblacionTotal }}</td>
-                <td class="p-3">{{ fila.tasaNbi ?? '—' }}%</td>
-                <td class="p-3">{{ fila.coberturaEducativa ?? '—' }}%</td>
-                <td class="p-3">{{ fila.tasaVulnerabilidad ?? '—' }}%</td>
-              }
-            </tr>
-          } @empty {
-            <tr>
-              <td class="p-3 text-slate-500" colspan="5">
-                {{ 'poblacion.sinHabitantes' | translate }}
-              </td>
-            </tr>
-          }
-        </tbody>
-      </table>
+                @if (fila.suprimido) {
+                  <td class="p-4 text-slate-400" colspan="4">
+                    {{ 'demografia.suprimidoPorAnonimizacion' | translate }}
+                  </td>
+                } @else {
+                  <td class="p-4 text-slate-700">{{ fila.poblacionTotal }}</td>
+                  <td class="p-4 text-slate-700">{{ fila.tasaNbi ?? '—' }}%</td>
+                  <td class="p-4 text-slate-700">{{ fila.coberturaEducativa ?? '—' }}%</td>
+                  <td class="p-4 text-slate-700">{{ fila.tasaVulnerabilidad ?? '—' }}%</td>
+                }
+              </tr>
+            } @empty {
+              <tr>
+                <td class="p-4 text-slate-500" colspan="5">
+                  {{ 'poblacion.sinHabitantes' | translate }}
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
   }
 </div>

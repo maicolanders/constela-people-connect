@@ -92,20 +92,56 @@ export class HogarUbicacionFormComponent implements OnInit {
     this.capturandoGps.set(true);
     this.error.set(null);
     try {
-      const posicion = await new Promise<GeolocationPosition>((resolve, reject) =>
-        navigator.geolocation.getCurrentPosition(resolve, reject),
-      );
+      const posicion = await this.obtenerPosicionConReintentos();
       this.formulario.patchValue({
         latitud: posicion.coords.latitude,
         longitud: posicion.coords.longitude,
         precisionMetros: posicion.coords.accuracy,
         capturadoEn: new Date(posicion.timestamp).toISOString(),
       });
-    } catch {
-      this.error.set('georreferenciacion.errorCapturaGps');
+    } catch (err) {
+      this.error.set(this.mensajeErrorGps(err));
     } finally {
       this.capturandoGps.set(false);
     }
+  }
+
+  /**
+   * kCLErrorLocationUnknown (macOS CoreLocation, vía Chrome) es transitorio:
+   * el SO no logra fijar la posición en el primer intento pero suele
+   * resolverse al reintentar, por eso no se propaga como error inmediato.
+   */
+  private async obtenerPosicionConReintentos(intentos = 3): Promise<GeolocationPosition> {
+    let ultimoError: GeolocationPositionError | undefined;
+    for (let intento = 1; intento <= intentos; intento++) {
+      try {
+        return await new Promise<GeolocationPosition>((resolve, reject) =>
+          navigator.geolocation.getCurrentPosition(resolve, reject, {
+            enableHighAccuracy: true,
+            timeout: 10000,
+            maximumAge: 0,
+          }),
+        );
+      } catch (err) {
+        ultimoError = err as GeolocationPositionError;
+        if (ultimoError.code !== ultimoError.POSITION_UNAVAILABLE || intento === intentos) {
+          throw ultimoError;
+        }
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+      }
+    }
+    throw ultimoError;
+  }
+
+  private mensajeErrorGps(err: unknown): string {
+    const error = err as GeolocationPositionError;
+    if (error?.code === error?.PERMISSION_DENIED) {
+      return 'georreferenciacion.errorPermisoGps';
+    }
+    if (error?.code === error?.TIMEOUT) {
+      return 'georreferenciacion.errorTimeoutGps';
+    }
+    return 'georreferenciacion.errorCapturaGps';
   }
 
   private ubicacionGeograficaId(): number | null {

@@ -2,6 +2,16 @@ import { Injectable } from '@angular/core';
 import { AppDatabase, ColaSincronizacionEntrada, OperacionSync } from '../database/app-database';
 
 /**
+ * Entradas en 'error' (ej. FK aún no sincronizada: un habitante llegó antes
+ * que su hogar) se reintentan automáticamente hasta este límite; los
+ * handlers de sync del backend asumen ese reintento (ver comentario en
+ * HabitantesSyncHandler.crear). Pasado el límite se dejan de reintentar solas
+ * para no martillar el backend con un payload permanentemente inválido; el
+ * botón manual "Sincronizar ahora" ignora este límite (forzarReintento).
+ */
+const MAX_INTENTOS_AUTOMATICOS = 5;
+
+/**
  * Outbox de sincronización offline->online (RT-03). Encapsula todo el acceso
  * a la tabla `colaSincronizacion`; SyncService es el único consumidor que
  * decide cuándo drenarla.
@@ -43,12 +53,23 @@ export class SyncQueueService {
     });
   }
 
-  listarPendientes(): Promise<ColaSincronizacionEntrada[]> {
-    return this.db.colaSincronizacion.where('estado').equals('pendiente').toArray();
+  listarPendientes(forzarReintento = false): Promise<ColaSincronizacionEntrada[]> {
+    return this.db.colaSincronizacion
+      .filter(
+        (entrada) =>
+          entrada.estado === 'pendiente' ||
+          (entrada.estado === 'error' && (forzarReintento || entrada.intentos < MAX_INTENTOS_AUTOMATICOS)),
+      )
+      .toArray();
   }
 
   listarConflictos(): Promise<ColaSincronizacionEntrada[]> {
     return this.db.colaSincronizacion.where('estado').equals('conflicto').toArray();
+  }
+
+  /** Todo lo que aún no quedó aplicado en el servidor (pendiente, en error o en conflicto), para mostrarle al usuario. */
+  contarPendientes(): Promise<number> {
+    return this.db.colaSincronizacion.count();
   }
 
   async marcarSincronizado(id: number): Promise<void> {
